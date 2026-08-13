@@ -21,6 +21,9 @@ jobs:
       - name: Instalar dependencias
         run: pip install -r requirements.txt
 
+      - name: Instalar Chrome (necesario para el radar de nichos)
+        uses: browser-actions/setup-chrome@v1
+
       - name: Ejecutar radar de nichos
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
