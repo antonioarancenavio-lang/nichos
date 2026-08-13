@@ -1,1 +1,18 @@
-{}
+{
+  "2026-08-13": {
+    "finiquito": {
+      "name": "Calculadora de finiquito",
+      "query": "calculadora finiquito",
+      "recent_avg": 27.5,
+      "previous_avg": 13.0,
+      "change_pct": 111.5
+    },
+    "colchon": {
+      "name": "Comparador de colchones",
+      "query": "mejor colchon dolor espalda",
+      "recent_avg": 0.0,
+      "previous_avg": 0.0,
+      "change_pct": 0
+    }
+  }
+}
