@@ -15,6 +15,7 @@ En GitHub Actions se ejecuta solo cada dia (ver .github/workflows/daily.yml).
 import json
 import os
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -29,6 +30,9 @@ HISTORY_FILE = ROOT / "data" / "history.json"
 ALERT_THRESHOLD_PCT = 25
 # interes minimo (0-100) para que una subida se considere relevante y no ruido
 MIN_INTEREST_FOR_ALERT = 5
+# reintentos si Google Trends bloquea/limita la peticion (comun en IPs de nube)
+MAX_RETRIES = 4
+RETRY_BACKOFF_SECONDS = 30
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
@@ -53,9 +57,23 @@ def save_history(history):
 
 
 def fetch_trend(pytrends, query):
-    """Devuelve (media ultimas 4 semanas, media 4 semanas previas) de interes 0-100."""
-    pytrends.build_payload([query], timeframe="today 3-m", geo="ES")
-    df = pytrends.interest_over_time()
+    """Devuelve (media ultimas 4 semanas, media 4 semanas previas) de interes 0-100.
+    Reintenta con espera si Google Trends devuelve error de bloqueo/limite (429)."""
+    last_exc = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            pytrends.build_payload([query], timeframe="today 3-m", geo="ES")
+            df = pytrends.interest_over_time()
+            break
+        except Exception as exc:
+            last_exc = exc
+            if attempt < MAX_RETRIES:
+                wait = RETRY_BACKOFF_SECONDS * attempt
+                print(f"  Intento {attempt} fallido para '{query}' ({exc}); espero {wait}s y reintento...")
+                time.sleep(wait)
+            else:
+                raise last_exc
+
     if df.empty:
         return None
     values = df[query].tolist()
@@ -121,6 +139,8 @@ def main():
 
         if change_pct >= ALERT_THRESHOLD_PCT and recent_avg >= MIN_INTEREST_FOR_ALERT:
             alerts.append(f"\U0001F4C8 <b>{name}</b>: interes subiendo un {change_pct:.0f}% (Google Trends, ES)")
+
+        time.sleep(5)  # pausa entre nichos para no disparar el limite de Google
 
     history[today] = day_snapshot
     save_history(history)
