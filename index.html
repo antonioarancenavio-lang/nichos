@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radar de Nichos</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, system-ui, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    margin: 0;
+    padding: 24px;
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  .subtitle { color: #94a3b8; margin-bottom: 24px; font-size: 0.9rem; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #334155;
+  }
+  .card h3 { margin: 0 0 4px; font-size: 1rem; }
+  .change { font-weight: 600; font-size: 0.95rem; }
+  .up { color: #4ade80; }
+  .down { color: #f87171; }
+  .flat { color: #94a3b8; }
+  .meta { color: #64748b; font-size: 0.75rem; margin-top: 4px; }
+  canvas { margin-top: 10px; max-height: 80px; }
+  .empty { color: #94a3b8; padding: 40px 0; text-align: center; }
+</style>
+</head>
+<body>
+<h1>📊 Radar de Nichos</h1>
+<div class="subtitle" id="last-update">Cargando datos...</div>
+<div class="grid" id="grid"></div>
+
+<h1 style="margin-top:40px;">🌎 Tendencias diarias (dropshipping)</h1>
+<div class="subtitle" id="dropship-update">Cargando datos...</div>
+<div class="grid" id="dropship-grid"></div>
+
+<script>
+async function loadDropshipTrends() {
+  const grid = document.getElementById('dropship-grid');
+  let data;
+  try {
+    const res = await fetch('data/dropship_trends.json', { cache: 'no-store' });
+    data = await res.json();
+  } catch (e) {
+    grid.innerHTML = '<div class="empty">Todavía no hay datos.</div>';
+    return;
+  }
+  const dates = Object.keys(data).sort();
+  if (dates.length === 0) {
+    document.getElementById('dropship-update').textContent = 'Todavía no hay datos.';
+    return;
+  }
+  const lastDate = dates[dates.length - 1];
+  document.getElementById('dropship-update').textContent = 'Última actualización: ' + lastDate;
+
+  Object.entries(data[lastDate]).forEach(([country, terms]) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `<h3>${country}</h3>` +
+      '<ol style="padding-left:18px; margin:8px 0; color:#cbd5e1; font-size:0.9rem;">' +
+      terms.map(t => `<li>${t}</li>`).join('') +
+      '</ol>';
+    grid.appendChild(card);
+  });
+}
+loadDropshipTrends();
+
+async function load() {
+  const grid = document.getElementById('grid');
+  let history;
+  try {
+    const res = await fetch('data/history.json', { cache: 'no-store' });
+    history = await res.json();
+  } catch (e) {
+    grid.innerHTML = '<div class="empty">Todavía no hay datos. Se generarán tras la primera ejecución del workflow.</div>';
+    return;
+  }
+
+  const dates = Object.keys(history).sort();
+  if (dates.length === 0) {
+    document.getElementById('last-update').textContent = 'Todavía no hay datos.';
+    return;
+  }
+
+  const lastDate = dates[dates.length - 1];
+  document.getElementById('last-update').textContent = 'Última actualización: ' + lastDate + ' · ' + dates.length + ' día(s) de histórico';
+
+  const latest = history[lastDate];
+
+  Object.entries(latest)
+    .sort((a, b) => b[1].change_pct - a[1].change_pct)
+    .forEach(([id, item]) => {
+      const series = dates.map(d => (history[d][id] ? history[d][id].recent_avg : null));
+      const changeClass = item.change_pct > 5 ? 'up' : item.change_pct < -5 ? 'down' : 'flat';
+      const arrow = item.change_pct > 5 ? '▲' : item.change_pct < -5 ? '▼' : '→';
+
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <h3>${item.name}</h3>
+        <div class="change ${changeClass}">${arrow} ${item.change_pct}% vs semana anterior</div>
+        <div class="meta">Interés actual (0-100): ${item.recent_avg}</div>
+        <canvas id="chart-${id}"></canvas>
+      `;
+      grid.appendChild(card);
+
+      new Chart(document.getElementById(`chart-${id}`), {
+        type: 'line',
+        data: {
+          labels: dates,
+          datasets: [{
+            data: series,
+            borderColor: '#38bdf8',
+            backgroundColor: 'rgba(56,189,248,0.1)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 0,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: { x: { display: false }, y: { display: false } }
+        }
+      });
+    });
+}
+load();
+</script>
+</body>
+</html>
