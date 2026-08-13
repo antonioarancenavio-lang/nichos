@@ -9,74 +9,101 @@
   * { box-sizing: border-box; }
   body {
     font-family: -apple-system, system-ui, sans-serif;
-    background: #0f172a;
+    background: #0b1120;
     color: #e2e8f0;
     margin: 0;
     padding: 24px;
   }
-  h1 { font-size: 1.4rem; margin: 0 0 4px; }
-  .subtitle { color: #94a3b8; margin-bottom: 24px; font-size: 0.9rem; }
+  .header { max-width: 1100px; margin: 0 auto 24px; }
+  h1 { font-size: 1.6rem; margin: 0 0 8px; }
+  .subtitle { color: #94a3b8; font-size: 0.9rem; }
+
+  .explainer {
+    max-width: 1100px;
+    margin: 0 auto 28px;
+    background: #131c31;
+    border: 1px solid #253148;
+    border-radius: 14px;
+    padding: 18px 20px;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: #cbd5e1;
+  }
+  .explainer strong { color: #f1f5f9; }
+  .explainer .row { display: flex; gap: 10px; margin-bottom: 6px; }
+  .explainer .row:last-child { margin-bottom: 0; }
+  .dot { flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; }
+  .dot.up { background: #4ade80; }
+  .dot.down { background: #f87171; }
+  .dot.flat { background: #64748b; }
+
   .grid {
+    max-width: 1100px;
+    margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 18px;
   }
   .card {
-    background: #1e293b;
-    border-radius: 12px;
-    padding: 16px;
-    border: 1px solid #334155;
+    background: linear-gradient(180deg, #141d33 0%, #0f172a 100%);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid #253148;
+    position: relative;
+    overflow: hidden;
   }
-  .card h3 { margin: 0 0 4px; font-size: 1rem; }
-  .change { font-weight: 600; font-size: 0.95rem; }
-  .up { color: #4ade80; }
-  .down { color: #f87171; }
-  .flat { color: #94a3b8; }
-  .meta { color: #64748b; font-size: 0.75rem; margin-top: 4px; }
-  canvas { margin-top: 10px; max-height: 80px; }
-  .empty { color: #94a3b8; padding: 40px 0; text-align: center; }
+  .card.up { border-color: #16603f; }
+  .card.down { border-color: #7f1d1d; }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 3px 9px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  .badge.up { background: rgba(74,222,128,0.15); color: #4ade80; }
+  .badge.down { background: rgba(248,113,113,0.15); color: #f87171; }
+  .badge.flat { background: rgba(148,163,184,0.15); color: #94a3b8; }
+
+  .card h3 { margin: 0 0 4px; font-size: 1.05rem; color: #f1f5f9; }
+  .big-number { font-size: 1.9rem; font-weight: 700; margin: 6px 0 2px; }
+  .big-number.up { color: #4ade80; }
+  .big-number.down { color: #f87171; }
+  .big-number.flat { color: #cbd5e1; }
+  .meta { color: #64748b; font-size: 0.78rem; margin-bottom: 10px; }
+  canvas { max-height: 90px; }
+
+  .empty {
+    max-width: 1100px;
+    margin: 0 auto;
+    color: #94a3b8;
+    text-align: center;
+    padding: 60px 20px;
+    background: #131c31;
+    border-radius: 14px;
+    border: 1px solid #253148;
+  }
 </style>
 </head>
 <body>
-<h1>📊 Radar de Nichos</h1>
-<div class="subtitle" id="last-update">Cargando datos...</div>
+
+<div class="header">
+  <h1>📊 Radar de Nichos</h1>
+  <div class="subtitle" id="last-update">Cargando datos...</div>
+</div>
+
+<div class="explainer">
+  <div class="row"><span class="dot up"></span><span><strong>Interés (0-100):</strong> qué tan buscado está ese término en Google España ahora mismo, comparado con su propio pico máximo en los últimos 3 meses. No es número de búsquedas real — es una escala relativa, así que sirve para comparar nichos entre sí, no para saber "cuánta gente busca esto exactamente".</span></div>
+  <div class="row"><span class="dot down"></span><span><strong>% vs semana anterior:</strong> compara el interés medio de los últimos 7 días con los 7 anteriores. Verde = está subiendo, rojo = bajando, gris = estable. Una subida sostenida varios días es mejor señal que un pico de un solo día.</span></div>
+  <div class="row"><span class="dot flat"></span><span><strong>La gráfica:</strong> muestra la evolución diaria — cuantos más días de histórico se acumulen, más fiable es la tendencia. Con pocos días todavía es normal que se vea plana o con ruido.</span></div>
+</div>
+
 <div class="grid" id="grid"></div>
 
-<h1 style="margin-top:40px;">🌎 Tendencias diarias (dropshipping)</h1>
-<div class="subtitle" id="dropship-update">Cargando datos...</div>
-<div class="grid" id="dropship-grid"></div>
-
 <script>
-async function loadDropshipTrends() {
-  const grid = document.getElementById('dropship-grid');
-  let data;
-  try {
-    const res = await fetch('data/dropship_trends.json', { cache: 'no-store' });
-    data = await res.json();
-  } catch (e) {
-    grid.innerHTML = '<div class="empty">Todavía no hay datos.</div>';
-    return;
-  }
-  const dates = Object.keys(data).sort();
-  if (dates.length === 0) {
-    document.getElementById('dropship-update').textContent = 'Todavía no hay datos.';
-    return;
-  }
-  const lastDate = dates[dates.length - 1];
-  document.getElementById('dropship-update').textContent = 'Última actualización: ' + lastDate;
-
-  Object.entries(data[lastDate]).forEach(([country, terms]) => {
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `<h3>${country}</h3>` +
-      '<ol style="padding-left:18px; margin:8px 0; color:#cbd5e1; font-size:0.9rem;">' +
-      terms.map(t => `<li>${t}</li>`).join('') +
-      '</ol>';
-    grid.appendChild(card);
-  });
-}
-loadDropshipTrends();
-
 async function load() {
   const grid = document.getElementById('grid');
   let history;
@@ -84,7 +111,8 @@ async function load() {
     const res = await fetch('data/history.json', { cache: 'no-store' });
     history = await res.json();
   } catch (e) {
-    grid.innerHTML = '<div class="empty">Todavía no hay datos. Se generarán tras la primera ejecución del workflow.</div>';
+    grid.innerHTML = '';
+    document.querySelector('.grid').outerHTML = '<div class="empty">Todavía no hay datos. Se generarán tras la primera ejecución del workflow diario.</div>';
     return;
   }
 
@@ -95,7 +123,8 @@ async function load() {
   }
 
   const lastDate = dates[dates.length - 1];
-  document.getElementById('last-update').textContent = 'Última actualización: ' + lastDate + ' · ' + dates.length + ' día(s) de histórico';
+  document.getElementById('last-update').textContent =
+    'Última actualización: ' + lastDate + ' · ' + dates.length + ' día(s) de histórico';
 
   const latest = history[lastDate];
 
@@ -103,30 +132,33 @@ async function load() {
     .sort((a, b) => b[1].change_pct - a[1].change_pct)
     .forEach(([id, item]) => {
       const series = dates.map(d => (history[d][id] ? history[d][id].recent_avg : null));
-      const changeClass = item.change_pct > 5 ? 'up' : item.change_pct < -5 ? 'down' : 'flat';
-      const arrow = item.change_pct > 5 ? '▲' : item.change_pct < -5 ? '▼' : '→';
+      const trend = item.change_pct > 5 ? 'up' : item.change_pct < -5 ? 'down' : 'flat';
+      const arrow = trend === 'up' ? '▲ Subiendo' : trend === 'down' ? '▼ Bajando' : '→ Estable';
 
       const card = document.createElement('div');
-      card.className = 'card';
+      card.className = `card ${trend}`;
       card.innerHTML = `
+        <span class="badge ${trend}">${arrow}</span>
         <h3>${item.name}</h3>
-        <div class="change ${changeClass}">${arrow} ${item.change_pct}% vs semana anterior</div>
-        <div class="meta">Interés actual (0-100): ${item.recent_avg}</div>
+        <div class="big-number ${trend}">${item.change_pct > 0 ? '+' : ''}${item.change_pct}%</div>
+        <div class="meta">Interés actual: ${item.recent_avg} / 100 · semana anterior: ${item.previous_avg}</div>
         <canvas id="chart-${id}"></canvas>
       `;
       grid.appendChild(card);
 
+      const color = trend === 'up' ? '#4ade80' : trend === 'down' ? '#f87171' : '#64748b';
       new Chart(document.getElementById(`chart-${id}`), {
         type: 'line',
         data: {
           labels: dates,
           datasets: [{
             data: series,
-            borderColor: '#38bdf8',
-            backgroundColor: 'rgba(56,189,248,0.1)',
+            borderColor: color,
+            backgroundColor: color + '22',
             fill: true,
-            tension: 0.3,
+            tension: 0.35,
             pointRadius: 0,
+            borderWidth: 2,
           }]
         },
         options: {
