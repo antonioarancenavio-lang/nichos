@@ -2,9 +2,10 @@
 Tendencias diarias por pais (dropshipping)
 -------------------------------------------
 Saca el listado de busquedas en tendencia de hoy en EEUU y Reino Unido via
-Google Trends (gratis, sin API key). Es una lista cruda -- Google no distingue
-"esto es un producto", asi que hay que revisarla a ojo para detectar patrones
-de producto que podrian funcionar en dropshipping.
+trendspyg (alternativa mantenida a pytrends, que esta archivado y ya no
+funciona). Es una lista cruda -- no distingue "esto es un producto", asi que
+hay que revisarla a ojo para detectar patrones que podrian funcionar en
+dropshipping.
 
 Uso local:
     pip install -r requirements.txt
@@ -18,15 +19,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
-from pytrends.request import TrendReq
+from trendspyg import download_google_trends_rss
 
 ROOT = Path(__file__).resolve().parent
 OUTPUT_FILE = ROOT / "data" / "dropship_trends.json"
 
-# Codigos de pais que usa pytrends para trending_searches()
+# Codigos de pais (ISO de 2 letras) que soporta trendspyg
 COUNTRIES = {
-    "EEUU": "united_states",
-    "Reino Unido": "united_kingdom",
+    "EEUU": "US",
+    "Reino Unido": "GB",
 }
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
@@ -62,7 +63,6 @@ def send_telegram_message(message):
 
 
 def main():
-    pytrends = TrendReq(hl="es-ES", tz=60)
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
     all_data = load_output()
@@ -71,12 +71,12 @@ def main():
 
     for label, code in COUNTRIES.items():
         try:
-            df = pytrends.trending_searches(pn=code)
-            terms = df[0].tolist()[:20]
+            trends = download_google_trends_rss(geo=code)
         except Exception as exc:
             print(f"Error consultando tendencias de {label}: {exc}", file=sys.stderr)
             continue
 
+        terms = [f"{t['trend']} ({t.get('traffic', '')})" for t in trends[:20]]
         day_snapshot[label] = terms
         message_lines.append(f"<b>{label}</b>")
         message_lines.extend(f"- {term}" for term in terms[:10])
