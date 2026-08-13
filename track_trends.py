@@ -1,26 +1,27 @@
 """
 Radar de Nichos
 ----------------
-Consulta Google Trends (gratis, sin API key) para una lista de nichos/keywords,
-guarda el historico diario en data/history.json y envia una alerta por Telegram
-si el interes de algun nicho sube por encima del umbral definido.
+Consulta el interes de busqueda (via trendspyg, alternativa mantenida a
+pytrends que ya no funciona) para una lista de nichos/keywords, guarda el
+historico diario en data/history.json y envia una alerta por Telegram si el
+interes de algun nicho sube por encima del umbral definido.
 
 Uso local:
     pip install -r requirements.txt
     python track_trends.py
 
 En GitHub Actions se ejecuta solo cada dia (ver .github/workflows/daily.yml).
+Requiere Chrome instalado (ver el workflow).
 """
 
 import json
 import os
 import sys
-import time
 from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
-from pytrends.request import TrendReq
+from trendspyg import download_google_trends_interest_over_time
 
 ROOT = Path(__file__).resolve().parent
 KEYWORDS_FILE = ROOT / "keywords.json"
@@ -30,9 +31,6 @@ HISTORY_FILE = ROOT / "data" / "history.json"
 ALERT_THRESHOLD_PCT = 25
 # interes minimo (0-100) para que una subida se considere relevante y no ruido
 MIN_INTEREST_FOR_ALERT = 5
-# reintentos si Google Trends bloquea/limita la peticion (comun en IPs de nube)
-MAX_RETRIES = 4
-RETRY_BACKOFF_SECONDS = 30
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
@@ -56,27 +54,12 @@ def save_history(history):
         json.dump(history, f, ensure_ascii=False, indent=2)
 
 
-def fetch_trend(pytrends, query):
-    """Devuelve (media ultimas 4 semanas, media 4 semanas previas) de interes 0-100.
-    Reintenta con espera si Google Trends devuelve error de bloqueo/limite (429)."""
-    last_exc = None
-    for attempt in range(1, MAX_RETRIES + 1):
-        try:
-            pytrends.build_payload([query], timeframe="today 3-m", geo="ES")
-            df = pytrends.interest_over_time()
-            break
-        except Exception as exc:
-            last_exc = exc
-            if attempt < MAX_RETRIES:
-                wait = RETRY_BACKOFF_SECONDS * attempt
-                print(f"  Intento {attempt} fallido para '{query}' ({exc}); espero {wait}s y reintento...")
-                time.sleep(wait)
-            else:
-                raise last_exc
-
-    if df.empty:
+def fetch_trend(query):
+    """Devuelve (media ultimas 4 semanas, media 4 semanas previas) de interes 0-100."""
+    series = download_google_trends_interest_over_time(query, geo="ES", timeframe="today 3-m")
+    if not series:
         return None
-    values = df[query].tolist()
+    values = [point["value"] for point in series]
     if len(values) >= 8:
         recent, previous = values[-4:], values[-8:-4]
     elif len(values) > 4:
@@ -108,15 +91,13 @@ def main():
     history = load_history()
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
-    pytrends = TrendReq(hl="es-ES", tz=60)
-
     alerts = []
     day_snapshot = {}
 
     for item in keywords:
         kw_id, query, name = item["id"], item["query"], item["name"]
         try:
-            result = fetch_trend(pytrends, query)
+            result = fetch_trend(query)
         except Exception as exc:
             print(f"Error consultando '{query}': {exc}", file=sys.stderr)
             continue
@@ -140,8 +121,6 @@ def main():
         if change_pct >= ALERT_THRESHOLD_PCT and recent_avg >= MIN_INTEREST_FOR_ALERT:
             alerts.append(f"\U0001F4C8 <b>{name}</b>: interes subiendo un {change_pct:.0f}% (Google Trends, ES)")
 
-        time.sleep(5)  # pausa entre nichos para no disparar el limite de Google
-
     history[today] = day_snapshot
     save_history(history)
 
@@ -149,6 +128,10 @@ def main():
         send_telegram_alert("Radar de nichos \u2014 subidas detectadas hoy:\n\n" + "\n".join(alerts))
     else:
         print("Sin subidas relevantes hoy.")
+
+
+if __name__ == "__main__":
+    main()
 
 
 if __name__ == "__main__":
