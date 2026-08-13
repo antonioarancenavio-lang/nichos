@@ -1,10 +1,4 @@
 [
   {"id": "finiquito", "name": "Calculadora de finiquito", "query": "calculadora finiquito"},
-  {"id": "arras", "name": "Contrato de arras", "query": "modelo contrato arras"},
-  {"id": "nominas-autonomos", "name": "Nominas para autonomos", "query": "generador nomina autonomo"},
-  {"id": "colchon", "name": "Comparador de colchones", "query": "mejor colchon dolor espalda"},
-  {"id": "cita-dgt", "name": "Cita previa DGT", "query": "cita previa dgt"},
-  {"id": "factura-autonomo", "name": "Facturas simples autonomos", "query": "hacer factura autonomo gratis"},
-  {"id": "horario-academia", "name": "Horarios para academias", "query": "generador horario academia"},
-  {"id": "carta-despido", "name": "Carta de despido", "query": "modelo carta despido"}
+  {"id": "colchon", "name": "Comparador de colchones", "query": "mejor colchon dolor espalda"}
 ]
