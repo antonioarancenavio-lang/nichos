@@ -14,71 +14,71 @@
     margin: 0;
     padding: 24px;
   }
-  .header { max-width: 1100px; margin: 0 auto 24px; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
   h1 { font-size: 1.6rem; margin: 0 0 8px; }
-  .subtitle { color: #94a3b8; font-size: 0.9rem; }
+  .subtitle { color: #94a3b8; font-size: 0.9rem; margin-bottom: 22px; }
 
   .explainer {
-    max-width: 1100px;
-    margin: 0 auto 28px;
     background: #131c31;
     border: 1px solid #253148;
     border-radius: 14px;
     padding: 18px 20px;
-    font-size: 0.88rem;
+    font-size: 0.85rem;
     line-height: 1.55;
     color: #cbd5e1;
+    margin-bottom: 22px;
   }
   .explainer strong { color: #f1f5f9; }
   .explainer .row { display: flex; gap: 10px; margin-bottom: 6px; }
   .explainer .row:last-child { margin-bottom: 0; }
-  .dot { flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; }
-  .dot.up { background: #4ade80; }
-  .dot.down { background: #f87171; }
-  .dot.flat { background: #64748b; }
+  .dot { flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; background: #64748b; }
 
-  .grid {
-    max-width: 1100px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 18px;
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
   }
-  .card {
-    background: linear-gradient(180deg, #141d33 0%, #0f172a 100%);
-    border-radius: 16px;
-    padding: 20px;
+  .tab-btn {
+    background: #131c31;
     border: 1px solid #253148;
-    position: relative;
-    overflow: hidden;
+    color: #94a3b8;
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    cursor: pointer;
+    font-family: inherit;
   }
-  .card.up { border-color: #16603f; }
-  .card.down { border-color: #7f1d1d; }
-
-  .badge {
-    display: inline-block;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    padding: 3px 9px;
-    border-radius: 999px;
-    margin-bottom: 10px;
+  .tab-btn.active {
+    background: #1e3a5f;
+    border-color: #38bdf8;
+    color: #f1f5f9;
   }
-  .badge.up { background: rgba(74,222,128,0.15); color: #4ade80; }
-  .badge.down { background: rgba(248,113,113,0.15); color: #f87171; }
-  .badge.flat { background: rgba(148,163,184,0.15); color: #94a3b8; }
 
-  .card h3 { margin: 0 0 4px; font-size: 1.05rem; color: #f1f5f9; }
-  .big-number { font-size: 1.9rem; font-weight: 700; margin: 6px 0 2px; }
-  .big-number.up { color: #4ade80; }
-  .big-number.down { color: #f87171; }
-  .big-number.flat { color: #cbd5e1; }
-  .meta { color: #64748b; font-size: 0.78rem; margin-bottom: 10px; }
-  canvas { max-height: 90px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .list { display: flex; flex-direction: column; gap: 10px; }
+  .row-card {
+    background: linear-gradient(180deg, #141d33 0%, #0f172a 100%);
+    border: 1px solid #253148;
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 32px 1fr auto 90px;
+    align-items: center;
+    gap: 14px;
+  }
+  .rank { font-weight: 700; color: #64748b; font-size: 1rem; }
+  .row-card h3 { margin: 0; font-size: 0.95rem; color: #f1f5f9; }
+  .row-meta { color: #64748b; font-size: 0.72rem; margin-top: 2px; }
+  .row-change { font-weight: 700; font-size: 1.1rem; text-align: right; white-space: nowrap; }
+  .row-change.up { color: #4ade80; }
+  .row-change.down { color: #f87171; }
+  .row-change.flat { color: #94a3b8; }
+  canvas.spark { max-height: 44px; }
 
   .empty {
-    max-width: 1100px;
-    margin: 0 auto;
     color: #94a3b8;
     text-align: center;
     padding: 60px 20px;
@@ -86,33 +86,113 @@
     border-radius: 14px;
     border: 1px solid #253148;
   }
+
+  @media (max-width: 560px) {
+    .row-card { grid-template-columns: 24px 1fr 70px; }
+    canvas.spark { display: none; }
+  }
 </style>
 </head>
 <body>
-
-<div class="header">
+<div class="wrap">
   <h1>📊 Radar de Nichos</h1>
   <div class="subtitle" id="last-update">Cargando datos...</div>
-</div>
 
-<div class="explainer">
-  <div class="row"><span class="dot up"></span><span><strong>Interés (0-100):</strong> qué tan buscado está ese término en Google España ahora mismo, comparado con su propio pico máximo en los últimos 3 meses. No es número de búsquedas real — es una escala relativa, así que sirve para comparar nichos entre sí, no para saber "cuánta gente busca esto exactamente".</span></div>
-  <div class="row"><span class="dot down"></span><span><strong>% vs semana anterior:</strong> compara el interés medio de los últimos 7 días con los 7 anteriores. Verde = está subiendo, rojo = bajando, gris = estable. Una subida sostenida varios días es mejor señal que un pico de un solo día.</span></div>
-  <div class="row"><span class="dot flat"></span><span><strong>La gráfica:</strong> muestra la evolución diaria — cuantos más días de histórico se acumulen, más fiable es la tendencia. Con pocos días todavía es normal que se vea plana o con ruido.</span></div>
-</div>
+  <div class="explainer">
+    <div class="row"><span class="dot"></span><span><strong>Interés (0-100):</strong> qué tan buscado está el término hoy en Google España, relativo a su propio pico de los últimos 3 meses. Es una escala relativa, no un número de búsquedas real.</span></div>
+    <div class="row"><span class="dot"></span><span><strong>Diario / Semanal / Mensual:</strong> mismo dato, comparado en tres ventanas distintas. El diario detecta picos puntuales (ruido); el semanal y mensual son mejor señal de una tendencia real y sostenida.</span></div>
+    <div class="row"><span class="dot"></span><span><strong>Índice de oportunidad:</strong> ⚠️ heurística, no dato real de competencia (eso requiere herramientas de pago tipo Ahrefs). Se calcula como demanda semanal ÷ amplitud del nicho (nº de términos relacionados). Alto = mucha demanda con pocos términos alrededor, posible hueco. Bajo = demanda repartida entre muchísimos términos relacionados, tema probablemente más explotado. Trátalo como pista para investigar más, no como veredicto.</span></div>
+  </div>
 
-<div class="grid" id="grid"></div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="daily">📅 Top 10 diario</button>
+    <button class="tab-btn" data-tab="weekly">📆 Top 10 semanal</button>
+    <button class="tab-btn" data-tab="monthly">🗓️ Top 10 mensual</button>
+    <button class="tab-btn" data-tab="opportunity">💡 Top 10 oportunidad</button>
+  </div>
+
+  <div class="tab-panel active" id="panel-daily"><div class="list" id="list-daily"></div></div>
+  <div class="tab-panel" id="panel-weekly"><div class="list" id="list-weekly"></div></div>
+  <div class="tab-panel" id="panel-monthly"><div class="list" id="list-monthly"></div></div>
+  <div class="tab-panel" id="panel-opportunity"><div class="list" id="list-opportunity"></div></div>
+</div>
 
 <script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+function trendClass(pct) {
+  return pct > 5 ? 'up' : pct < -5 ? 'down' : 'flat';
+}
+
+function renderList(containerId, items, changeKey, changeLabel, dates, history) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  items.slice(0, 10).forEach(([id, item], index) => {
+    const pct = item[changeKey];
+    const cls = trendClass(pct);
+    const series = dates.map(d => (history[d][id] ? history[d][id].week_avg : null));
+
+    const row = document.createElement('div');
+    row.className = 'row-card';
+    row.innerHTML = `
+      <div class="rank">#${index + 1}</div>
+      <div>
+        <h3>${item.name}</h3>
+        <div class="row-meta">Interés: ${item.current} / 100 · Oportunidad: ${item.opportunity}</div>
+      </div>
+      <canvas class="spark" id="spark-${containerId}-${id}"></canvas>
+      <div class="row-change ${cls}">${pct > 0 ? '+' : ''}${pct}%</div>
+    `;
+    container.appendChild(row);
+
+    const color = cls === 'up' ? '#4ade80' : cls === 'down' ? '#f87171' : '#64748b';
+    new Chart(document.getElementById(`spark-${containerId}-${id}`), {
+      type: 'line',
+      data: { labels: dates, datasets: [{ data: series, borderColor: color, borderWidth: 2, pointRadius: 0, tension: 0.35 }] },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
+    });
+  });
+}
+
+function renderOpportunityList(items, dates, history) {
+  const container = document.getElementById('list-opportunity');
+  container.innerHTML = '';
+  items.slice(0, 10).forEach(([id, item], index) => {
+    const series = dates.map(d => (history[d][id] ? history[d][id].week_avg : null));
+    const row = document.createElement('div');
+    row.className = 'row-card';
+    row.innerHTML = `
+      <div class="rank">#${index + 1}</div>
+      <div>
+        <h3>${item.name}</h3>
+        <div class="row-meta">Interés: ${item.current} / 100 · ${item.breadth} términos relacionados</div>
+      </div>
+      <canvas class="spark" id="spark-opp-${id}"></canvas>
+      <div class="row-change flat">${item.opportunity}</div>
+    `;
+    container.appendChild(row);
+    new Chart(document.getElementById(`spark-opp-${id}`), {
+      type: 'line',
+      data: { labels: dates, datasets: [{ data: series, borderColor: '#38bdf8', borderWidth: 2, pointRadius: 0, tension: 0.35 }] },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
+    });
+  });
+}
+
 async function load() {
-  const grid = document.getElementById('grid');
   let history;
   try {
     const res = await fetch('data/history.json', { cache: 'no-store' });
     history = await res.json();
   } catch (e) {
-    grid.innerHTML = '';
-    document.querySelector('.grid').outerHTML = '<div class="empty">Todavía no hay datos. Se generarán tras la primera ejecución del workflow diario.</div>';
+    document.querySelector('.wrap').innerHTML += '<div class="empty">Todavía no hay datos. Se generarán tras la primera ejecución del workflow diario.</div>';
     return;
   }
 
@@ -124,50 +204,14 @@ async function load() {
 
   const lastDate = dates[dates.length - 1];
   document.getElementById('last-update').textContent =
-    'Última actualización: ' + lastDate + ' · ' + dates.length + ' día(s) de histórico';
+    'Última actualización: ' + lastDate + ' · ' + dates.length + ' día(s) de histórico · ' + Object.keys(history[lastDate]).length + ' nichos';
 
-  const latest = history[lastDate];
+  const latest = Object.entries(history[lastDate]);
 
-  Object.entries(latest)
-    .sort((a, b) => b[1].change_pct - a[1].change_pct)
-    .forEach(([id, item]) => {
-      const series = dates.map(d => (history[d][id] ? history[d][id].recent_avg : null));
-      const trend = item.change_pct > 5 ? 'up' : item.change_pct < -5 ? 'down' : 'flat';
-      const arrow = trend === 'up' ? '▲ Subiendo' : trend === 'down' ? '▼ Bajando' : '→ Estable';
-
-      const card = document.createElement('div');
-      card.className = `card ${trend}`;
-      card.innerHTML = `
-        <span class="badge ${trend}">${arrow}</span>
-        <h3>${item.name}</h3>
-        <div class="big-number ${trend}">${item.change_pct > 0 ? '+' : ''}${item.change_pct}%</div>
-        <div class="meta">Interés actual: ${item.recent_avg} / 100 · semana anterior: ${item.previous_avg}</div>
-        <canvas id="chart-${id}"></canvas>
-      `;
-      grid.appendChild(card);
-
-      const color = trend === 'up' ? '#4ade80' : trend === 'down' ? '#f87171' : '#64748b';
-      new Chart(document.getElementById(`chart-${id}`), {
-        type: 'line',
-        data: {
-          labels: dates,
-          datasets: [{
-            data: series,
-            borderColor: color,
-            backgroundColor: color + '22',
-            fill: true,
-            tension: 0.35,
-            pointRadius: 0,
-            borderWidth: 2,
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { display: false } },
-          scales: { x: { display: false }, y: { display: false } }
-        }
-      });
-    });
+  renderList('list-daily', [...latest].sort((a, b) => b[1].daily_change_pct - a[1].daily_change_pct), 'daily_change_pct', 'diario', dates, history);
+  renderList('list-weekly', [...latest].sort((a, b) => b[1].weekly_change_pct - a[1].weekly_change_pct), 'weekly_change_pct', 'semanal', dates, history);
+  renderList('list-monthly', [...latest].sort((a, b) => b[1].monthly_change_pct - a[1].monthly_change_pct), 'monthly_change_pct', 'mensual', dates, history);
+  renderOpportunityList([...latest].sort((a, b) => b[1].opportunity - a[1].opportunity), dates, history);
 }
 load();
 </script>
