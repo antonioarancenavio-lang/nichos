@@ -19,16 +19,430 @@
     "finiquito": {
       "name": "Calculadora de finiquito",
       "query": "calculadora finiquito",
-      "recent_avg": 17.8,
-      "previous_avg": 32.0,
-      "change_pct": -44.5
+      "current": 14,
+      "daily_change_pct": -22.2,
+      "week_avg": 27.0,
+      "weekly_change_pct": 302.1,
+      "month_avg": 23.2,
+      "monthly_change_pct": 0.0,
+      "breadth": 3,
+      "sample_terms": [
+        "calculadora finiquito despido",
+        "calculadora finiquito baja voluntaria",
+        "calculadora finiquito fin de contrato"
+      ],
+      "opportunity": 6.75
+    },
+    "arras": {
+      "name": "Contrato de arras",
+      "query": "modelo contrato arras",
+      "current": 36,
+      "daily_change_pct": 9.1,
+      "week_avg": 24.6,
+      "weekly_change_pct": -39.6,
+      "month_avg": 42.4,
+      "monthly_change_pct": 0.0,
+      "breadth": 0,
+      "sample_terms": [],
+      "opportunity": 24.6
     },
     "colchon": {
       "name": "Comparador de colchones",
       "query": "mejor colchon dolor espalda",
-      "recent_avg": 0.0,
-      "previous_avg": 0.0,
-      "change_pct": 0
+      "current": 96,
+      "daily_change_pct": -4.0,
+      "week_avg": 28.0,
+      "weekly_change_pct": 100.0,
+      "month_avg": 6.5,
+      "monthly_change_pct": 0.0,
+      "breadth": 0,
+      "sample_terms": [],
+      "opportunity": 28.0
+    },
+    "cita-dgt": {
+      "name": "Cita previa DGT",
+      "query": "cita previa dgt",
+      "current": 63,
+      "daily_change_pct": -3.1,
+      "week_avg": 73.0,
+      "weekly_change_pct": -5.7,
+      "month_avg": 77.4,
+      "monthly_change_pct": 0.0,
+      "breadth": 8,
+      "sample_terms": [
+        "cita previa dgt canje",
+        "cita previa dgt barcelona",
+        "cita previa dgt madrid"
+      ],
+      "opportunity": 8.11
+    },
+    "hipoteca": {
+      "name": "Calculadora de hipoteca",
+      "query": "calculadora hipoteca",
+      "current": 54,
+      "daily_change_pct": -5.3,
+      "week_avg": 59.1,
+      "weekly_change_pct": -10.4,
+      "month_avg": 70.9,
+      "monthly_change_pct": 0.0,
+      "breadth": 0,
+      "sample_terms": [],
+      "opportunity": 59.1
+    },
+    "curriculum": {
+      "name": "Modelo de curriculum",
+      "query": "modelo curriculum vitae",
+      "current": 19,
+      "daily_change_pct": -24.0,
+      "week_avg": 7.0,
+      "weekly_change_pct": -34.7,
+      "month_avg": 6.7,
+      "monthly_change_pct": 0.0,
+      "breadth": 3,
+      "sample_terms": [
+        "modelo curriculum vitae word",
+        "modelo curriculum vitae europeo",
+        "modelo curriculum vitae gratis"
+      ],
+      "opportunity": 1.75
+    },
+    "cita-ss": {
+      "name": "Cita previa Seguridad Social",
+      "query": "cita previa seguridad social",
+      "current": 64,
+      "daily_change_pct": -1.5,
+      "week_avg": 66.4,
+      "weekly_change_pct": -10.7,
+      "month_avg": 77.2,
+      "monthly_change_pct": 0.0,
+      "breadth": 5,
+      "sample_terms": [
+        "pedir cita previa seguridad social",
+        "solicitar cita previa seguridad social",
+        "cita previa seguridad social sin certificado"
+      ],
+      "opportunity": 11.07
+    },
+    "irpf": {
+      "name": "Calculadora IRPF",
+      "query": "calculadora irpf 2026",
+      "current": 15,
+      "daily_change_pct": -6.2,
+      "week_avg": 20.9,
+      "weekly_change_pct": -22.3,
+      "month_avg": 36.6,
+      "monthly_change_pct": 0.0,
+      "breadth": 0,
+      "sample_terms": [],
+      "opportunity": 20.9
+    },
+    "recurso-multa": {
+      "name": "Recurso de multa de trafico",
+      "query": "modelo recurso multa trafico",
+      "current": 0,
+      "daily_change_pct": 0.0,
+      "week_avg": 0.0,
+      "weekly_change_pct": 0.0,
+      "month_avg": 3.3,
+      "monthly_change_pct": 0.0,
+      "breadth": 0,
+      "sample_terms": [],
+      "opportunity": 0.0
+    },
+    "certificado-digital": {
+      "name": "Certificado digital",
+      "query": "como sacar certificado digital",
+      "current": 64,
+      "daily_change_pct": 14.3,
+      "week_avg": 66.7,
+      "weekly_change_pct": -8.6,
+      "month_avg": 68.7,
+      "monthly_change_pct": 0.0,
+      "breadth": 1,
+      "sample_terms": [
+        "como sacar certificado digital online"
+      ],
+      "opportunity": 33.35
+    },
+    "alquiler-habitacion": {
+      "name": "Contrato alquiler habitacion",
+      "query": "modelo contrato alquiler habitacion",
+      "current": 100,
+      "daily_change_pct": 19.0,
+      "week_avg": 26.3,
+      "weekly_change_pct": 100.0,
+      "month_avg": 6.1,
+      "monthly_change_pct": 0.0,
+      "breadth": 0,
+      "sample_terms": [],
+      "opportunity": 26.3
+    },
+    "reclamacion": {
+      "name": "Carta de reclamacion",
+      "query": "modelo carta reclamacion",
+      "current": 100,
+      "daily_change_pct": 35.1,
+      "week_avg": 24.9,
+      "weekly_change_pct": 100.0,
+      "month_avg": 5.8,
+      "monthly_change_pct": 0.0,
+      "breadth": 0,
+      "sample_terms": [],
+      "opportunity": 24.9
+    },
+    "jubilacion-anticipada": {
+      "name": "Jubilacion anticipada",
+      "query": "calculadora jubilacion anticipada",
+      "current": 0,
+      "daily_change_pct": 0.0,
+      "week_avg": 0.0,
+      "weekly_change_pct": -100.0,
+      "month_avg": 3.3,
+      "monthly_change_pct": 0.0,
+      "breadth": 0,
+      "sample_terms": [],
+      "opportunity": 0.0
+    },
+    "cita-trafico": {
+      "name": "Cita previa Trafico",
+      "query": "cita previa trafico",
+      "current": 54,
+      "daily_change_pct": -8.5,
+      "week_avg": 58.3,
+      "weekly_change_pct": -6.8,
+      "month_avg": 67.3,
+      "monthly_change_pct": 0.0,
+      "breadth": 14,
+      "sample_terms": [
+        "cita previa trafico valencia",
+        "cita previa trafico barcelona",
+        "cita previa trafico madrid"
+      ],
+      "opportunity": 3.89
+    },
+    "baja-voluntaria": {
+      "name": "Baja voluntaria trabajo",
+      "query": "modelo baja voluntaria trabajo",
+      "current": 0,
+      "daily_change_pct": -100.0,
+      "week_avg": 14.3,
+      "weekly_change_pct": 100.0,
+      "month_avg": 3.3,
+      "monthly_change_pct": 0.0,
+      "breadth": 0,
+      "sample_terms": [],
+      "opportunity": 14.3
+    },
+    "alta-autonomo": {
+      "name": "Alta de autonomo",
+      "query": "como darse de alta autonomo",
+      "current": 40,
+      "daily_change_pct": -9.1,
+      "week_avg": 47.0,
+      "weekly_change_pct": -24.4,
+      "month_avg": 55.8,
+      "monthly_change_pct": 0.0,
+      "breadth": 0,
+      "sample_terms": [],
+      "opportunity": 47.0
+    },
+    "cotizacion-autonomos": {
+      "name": "Cotizacion de autonomos",
+      "query": "calculadora cotizacion autonomos",
+      "current": 0,
+      "daily_change_pct": 0.0,
+      "week_avg": 14.3,
+      "weekly_change_pct": 100.0,
+      "month_avg": 3.3,
+      "monthly_change_pct": 0.0,
+      "breadth": 0,
+      "sample_terms": [],
+      "opportunity": 14.3
+    },
+    "contrato-servicios": {
+      "name": "Contrato de servicios",
+      "query": "modelo contrato prestacion servicios",
+      "current": 0,
+      "daily_change_pct": 0.0,
+      "week_avg": 14.3,
+      "weekly_change_pct": 100.0,
+      "month_avg": 5.1,
+      "monthly_change_pct": 0.0,
+      "breadth": 0,
+      "sample_terms": [],
+      "opportunity": 14.3
+    },
+    "seguro-coche": {
+      "name": "Comparador seguros coche",
+      "query": "comparador seguros coche",
+      "current": 70,
+      "daily_change_pct": -4.1,
+      "week_avg": 75.9,
+      "weekly_change_pct": -2.0,
+      "month_avg": 77.4,
+      "monthly_change_pct": 0.0,
+      "breadth": 0,
+      "sample_terms": [],
+      "opportunity": 75.9
+    },
+    "tarifas-luz": {
+      "name": "Comparador tarifas de luz",
+      "query": "comparador tarifas luz",
+      "current": 52,
+      "daily_change_pct": 13.0,
+      "week_avg": 32.7,
+      "weekly_change_pct": -21.8,
+      "month_avg": 57.1,
+      "monthly_change_pct": 0.0,
+      "breadth": 2,
+      "sample_terms": [
+        "comparador tarifas luz y gas",
+        "comparador tarifas luz cnmc"
+      ],
+      "opportunity": 10.9
+    },
+    "hipoteca-fija": {
+      "name": "Comparador hipotecas fijas",
+      "query": "comparador hipotecas fijas",
+      "current": 13,
+      "daily_change_pct": 62.5,
+      "week_avg": 3.0,
+      "weekly_change_pct": 100.0,
+      "month_avg": 0.7,
+      "monthly_change_pct": 0.0,
+      "breadth": 0,
+      "sample_terms": [],
+      "opportunity": 3.0
+    },
+    "plusvalia-municipal": {
+      "name": "Plusvalia municipal",
+      "query": "calculadora plusvalia municipal",
+      "current": 9,
+      "daily_change_pct": -18.2,
+      "week_avg": 3.4,
+      "weekly_change_pct": 100.0,
+      "month_avg": 0.8,
+      "monthly_change_pct": 0.0,
+      "breadth": 0,
+      "sample_terms": [],
+      "opportunity": 3.4
+    },
+    "testamento": {
+      "name": "Modelo de testamento",
+      "query": "modelo testamento",
+      "current": 24,
+      "daily_change_pct": -22.6,
+      "week_avg": 7.9,
+      "weekly_change_pct": 100.0,
+      "month_avg": 8.1,
+      "monthly_change_pct": 0.0,
+      "breadth": 1,
+      "sample_terms": [
+        "modelo testamento olografo"
+      ],
+      "opportunity": 3.95
+    },
+    "empadronamiento": {
+      "name": "Certificado de empadronamiento",
+      "query": "certificado empadronamiento como sacar",
+      "current": 37,
+      "daily_change_pct": 27.6,
+      "week_avg": 33.4,
+      "weekly_change_pct": 0.4,
+      "month_avg": 39.5,
+      "monthly_change_pct": 0.0,
+      "breadth": 0,
+      "sample_terms": [],
+      "opportunity": 33.4
+    },
+    "carta-renuncia": {
+      "name": "Carta de renuncia",
+      "query": "modelo carta renuncia",
+      "current": 30,
+      "daily_change_pct": 25.0,
+      "week_avg": 18.6,
+      "weekly_change_pct": 73.3,
+      "month_avg": 18.4,
+      "monthly_change_pct": 0.0,
+      "breadth": 2,
+      "sample_terms": [
+        "modelo carta renuncia voluntaria",
+        "modelo carta renuncia trabajo"
+      ],
+      "opportunity": 6.2
+    },
+    "cita-extranjeria": {
+      "name": "Cita previa Extranjeria",
+      "query": "cita previa extranjeria",
+      "current": 49,
+      "daily_change_pct": 4.3,
+      "week_avg": 56.3,
+      "weekly_change_pct": -36.8,
+      "month_avg": 63.8,
+      "monthly_change_pct": 0.0,
+      "breadth": 13,
+      "sample_terms": [
+        "cita previa extranjeria huellas",
+        "cita previa extranjeria madrid",
+        "cita previa extranjeria toma de huellas"
+      ],
+      "opportunity": 4.02
+    },
+    "finiquito-indefinido": {
+      "name": "Finiquito contrato indefinido",
+      "query": "calculadora finiquito indefinido",
+      "current": 0,
+      "daily_change_pct": 0.0,
+      "week_avg": 0.0,
+      "weekly_change_pct": -100.0,
+      "month_avg": 3.3,
+      "monthly_change_pct": 0.0,
+      "breadth": 0,
+      "sample_terms": [],
+      "opportunity": 0.0
+    },
+    "acta-junta-vecinos": {
+      "name": "Acta junta de vecinos",
+      "query": "modelo acta junta comunidad vecinos",
+      "current": 0,
+      "daily_change_pct": 0.0,
+      "week_avg": 0.0,
+      "weekly_change_pct": 0.0,
+      "month_avg": 0.0,
+      "monthly_change_pct": 0.0,
+      "breadth": 0,
+      "sample_terms": [],
+      "opportunity": 0.0
+    },
+    "pedir-paro": {
+      "name": "Como pedir el paro",
+      "query": "como pedir el paro",
+      "current": 69,
+      "daily_change_pct": -14.8,
+      "week_avg": 76.0,
+      "weekly_change_pct": 23.4,
+      "month_avg": 61.6,
+      "monthly_change_pct": 0.0,
+      "breadth": 3,
+      "sample_terms": [
+        "como pedir el paro online",
+        "como pedir el paro por internet",
+        "como pedir el paro en madrid"
+      ],
+      "opportunity": 19.0
+    },
+    "freidora-aire": {
+      "name": "Comparador freidoras de aire",
+      "query": "comparador freidoras de aire",
+      "current": 0,
+      "daily_change_pct": 0.0,
+      "week_avg": 14.3,
+      "weekly_change_pct": 100.0,
+      "month_avg": 3.3,
+      "monthly_change_pct": 0.0,
+      "breadth": 0,
+      "sample_terms": [],
+      "opportunity": 14.3
     }
   }
 }
