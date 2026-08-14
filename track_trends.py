@@ -1,17 +1,29 @@
 """
 Radar de Nichos
 ----------------
-Consulta el interes de busqueda (via trendspyg, alternativa mantenida a
-pytrends que ya no funciona) para una lista de nichos/keywords, guarda el
-historico diario en data/history.json y envia una alerta por Telegram si el
-interes de algun nicho sube por encima del umbral definido.
+Consulta el interes de busqueda y las consultas relacionadas (via trendspyg,
+alternativa mantenida a pytrends que ya no funciona) para una lista de
+nichos/keywords. Calcula variacion diaria, semanal y mensual, guarda el
+historico en data/history.json y avisa por Telegram si algun nicho sube
+fuerte en semana.
+
+SOBRE "competencia": no existe forma gratuita de saber cuantas webs compiten
+de verdad (eso es Ahrefs/Semrush de pago). Lo que SI calculamos aqui es un
+INDICE DE OPORTUNIDAD heuristico: demanda (interes semanal) dividida entre
+amplitud del nicho (numero de terminos relacionados que devuelve Google).
+Es una pista orientativa, no un dato de competencia real -- un nicho con
+mucha demanda y pocos terminos relacionados alrededor puntua alto; uno con
+mucha demanda pero un ecosistema enorme de terminos relacionados puntua bajo
+porque probablemente ya esta muy explotado.
 
 Uso local:
     pip install -r requirements.txt
     python track_trends.py
 
 En GitHub Actions se ejecuta solo cada dia (ver .github/workflows/daily.yml).
-Requiere Chrome instalado (ver el workflow).
+Requiere Chrome instalado (ver el workflow). Con muchos nichos la ejecucion
+puede tardar bastante (cada consulta tarda entre 10 y 90 segundos) -- es
+normal, no hace falta hacer nada.
 """
 
 import json
@@ -21,7 +33,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
-from trendspyg import download_google_trends_interest_over_time
+from trendspyg import download_google_trends_explore
 
 ROOT = Path(__file__).resolve().parent
 KEYWORDS_FILE = ROOT / "keywords.json"
@@ -54,21 +66,65 @@ def save_history(history):
         json.dump(history, f, ensure_ascii=False, indent=2)
 
 
+def pct_change(current, previous):
+    if previous > 0:
+        return ((current - previous) / previous) * 100
+    return 100.0 if current > 0 else 0.0
+
+
+def avg(values):
+    return sum(values) / len(values) if values else 0.0
+
+
+def analyze_series(values):
+    """A partir de la serie diaria de Google Trends (timeframe 'today 3-m'),
+    calcula el valor actual y la variacion diaria, semanal y mensual."""
+    current = values[-1]
+    yesterday = values[-2] if len(values) >= 2 else current
+    daily_change = pct_change(current, yesterday)
+
+    last_week = values[-7:]
+    prev_week = values[-14:-7] if len(values) >= 14 else []
+    week_avg = avg(last_week)
+    weekly_change = pct_change(week_avg, avg(prev_week)) if prev_week else 0.0
+
+    last_month = values[-30:]
+    prev_month = values[-60:-30] if len(values) >= 60 else []
+    month_avg = avg(last_month)
+    monthly_change = pct_change(month_avg, avg(prev_month)) if prev_month else 0.0
+
+    return {
+        "current": round(current, 1),
+        "daily_change_pct": round(daily_change, 1),
+        "week_avg": round(week_avg, 1),
+        "weekly_change_pct": round(weekly_change, 1),
+        "month_avg": round(month_avg, 1),
+        "monthly_change_pct": round(monthly_change, 1),
+    }
+
+
 def fetch_trend(query):
-    """Devuelve (media ultimas 4 semanas, media 4 semanas previas) de interes 0-100."""
-    series = download_google_trends_interest_over_time(query, geo="ES", timeframe="today 3-m")
+    env = download_google_trends_explore(query, geo="ES")
+
+    series = env.get("interest_over_time") or []
     if not series:
         return None
     values = [point["value"] for point in series]
-    if len(values) >= 8:
-        recent, previous = values[-4:], values[-8:-4]
-    elif len(values) > 4:
-        recent, previous = values[-4:], values[:-4]
-    else:
-        recent, previous = values, []
-    recent_avg = sum(recent) / len(recent) if recent else 0
-    previous_avg = sum(previous) / len(previous) if previous else 0
-    return recent_avg, previous_avg
+    stats = analyze_series(values)
+
+    related = env.get("related_queries") or {}
+    top_related = related.get("top") or []
+    breadth = len(top_related)
+    sample_terms = [r.get("query", "") for r in top_related[:3]]
+
+    # Indice de oportunidad heuristico: demanda semanal / amplitud del nicho.
+    # NO es competencia real -- ver aviso arriba en el docstring del fichero.
+    opportunity = round(stats["week_avg"] / (breadth + 1), 2)
+
+    stats["breadth"] = breadth
+    stats["sample_terms"] = sample_terms
+    stats["opportunity"] = opportunity
+    return stats
 
 
 def send_telegram_alert(message):
@@ -94,32 +150,24 @@ def main():
     alerts = []
     day_snapshot = {}
 
-    for item in keywords:
+    for i, item in enumerate(keywords, start=1):
         kw_id, query, name = item["id"], item["query"], item["name"]
+        print(f"[{i}/{len(keywords)}] Consultando '{query}'...")
         try:
-            result = fetch_trend(query)
+            stats = fetch_trend(query)
         except Exception as exc:
-            print(f"Error consultando '{query}': {exc}", file=sys.stderr)
+            print(f"  Error consultando '{query}': {exc}", file=sys.stderr)
             continue
-        if result is None:
+        if stats is None:
             continue
 
-        recent_avg, previous_avg = result
-        if previous_avg > 0:
-            change_pct = ((recent_avg - previous_avg) / previous_avg) * 100
-        else:
-            change_pct = 100 if recent_avg > 0 else 0
+        day_snapshot[kw_id] = {"name": name, "query": query, **stats}
 
-        day_snapshot[kw_id] = {
-            "name": name,
-            "query": query,
-            "recent_avg": round(recent_avg, 1),
-            "previous_avg": round(previous_avg, 1),
-            "change_pct": round(change_pct, 1),
-        }
-
-        if change_pct >= ALERT_THRESHOLD_PCT and recent_avg >= MIN_INTEREST_FOR_ALERT:
-            alerts.append(f"\U0001F4C8 <b>{name}</b>: interes subiendo un {change_pct:.0f}% (Google Trends, ES)")
+        if stats["weekly_change_pct"] >= ALERT_THRESHOLD_PCT and stats["week_avg"] >= MIN_INTEREST_FOR_ALERT:
+            alerts.append(
+                f"\U0001F4C8 <b>{name}</b>: interes subiendo un {stats['weekly_change_pct']:.0f}% "
+                f"esta semana (Google Trends, ES)"
+            )
 
     history[today] = day_snapshot
     save_history(history)
@@ -128,10 +176,6 @@ def main():
         send_telegram_alert("Radar de nichos \u2014 subidas detectadas hoy:\n\n" + "\n".join(alerts))
     else:
         print("Sin subidas relevantes hoy.")
-
-
-if __name__ == "__main__":
-    main()
 
 
 if __name__ == "__main__":
