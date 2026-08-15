@@ -3,7 +3,9 @@ Descubrimiento de nichos
 -------------------------
 Genera candidatos nuevos de nichos usando el autocompletado de Google (rapido,
 sin coste, sin necesitar Chrome) a partir de patrones semilla tipo "calculadora
-de...", "modelo de...", "comparador de...", etc.
+de...", "modelo de...", "comparador de...", etc. Cada semilla lleva asociada
+una categoria (ver discovery_seeds.json) que se hereda por los candidatos que
+encuentra, para poder filtrar despues en el dashboard.
 
 Filtra los que ya estan en keywords.json (nucleo permanente) o ya se
 descartaron antes, se queda con un lote limitado de candidatos nuevos, y los
@@ -72,32 +74,32 @@ def fetch_suggestions(seed):
 
 
 def main():
-    seeds = load_json(SEEDS_FILE, [])
+    seeds = load_json(SEEDS_FILE, {})
     keywords = load_json(KEYWORDS_FILE, [])
     discarded = load_json(DISCARDED_FILE, [])
 
     known_normalized = {normalize(item["query"]) for item in keywords}
     known_normalized |= {normalize(q) for q in discarded}
 
-    candidates = []
+    candidates = []  # lista de (texto, categoria)
     seen_this_run = set()
 
-    for seed in seeds:
+    for seed, category in seeds.items():
         suggestions = fetch_suggestions(seed)
-        print(f"'{seed}' -> {len(suggestions)} sugerencias")
+        print(f"'{seed}' ({category}) -> {len(suggestions)} sugerencias")
         for suggestion in suggestions:
             norm = normalize(suggestion)
             if not norm or norm in known_normalized or norm in seen_this_run:
                 continue
             seen_this_run.add(norm)
-            candidates.append(suggestion)
+            candidates.append((suggestion, category))
 
     print(f"\nCandidatos nuevos encontrados: {len(candidates)}")
 
     selected = candidates[:NEW_CANDIDATES_PER_RUN]
     pending = [
-        {"id": f"auto-{slugify(q)}", "name": q.capitalize(), "query": q}
-        for q in selected
+        {"id": f"auto-{slugify(q)}", "name": q.capitalize(), "query": q, "category": category}
+        for q, category in selected
     ]
 
     save_json(PENDING_FILE, pending)
