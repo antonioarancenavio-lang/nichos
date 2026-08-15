@@ -33,12 +33,46 @@
   .explainer .row:last-child { margin-bottom: 0; }
   .dot { flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; background: #64748b; }
 
-  .tabs {
+  .toolbar {
     display: flex;
-    gap: 6px;
-    margin-bottom: 18px;
+    gap: 8px;
+    margin-bottom: 14px;
     flex-wrap: wrap;
   }
+  .toolbar input[type="text"] {
+    flex: 1;
+    min-width: 160px;
+    background: #131c31;
+    border: 1px solid #253148;
+    color: #e2e8f0;
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-family: inherit;
+  }
+  .toolbar select {
+    background: #131c31;
+    border: 1px solid #253148;
+    color: #e2e8f0;
+    padding: 9px 12px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-family: inherit;
+  }
+  .toolbar button {
+    background: #131c31;
+    border: 1px solid #253148;
+    color: #94a3b8;
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .toolbar button.active { background: #1e3a5f; border-color: #38bdf8; color: #f1f5f9; }
+  .toolbar button:hover { color: #f1f5f9; }
+
+  .tabs { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
   .tab-btn {
     background: #131c31;
     border: 1px solid #253148;
@@ -49,11 +83,7 @@
     cursor: pointer;
     font-family: inherit;
   }
-  .tab-btn.active {
-    background: #1e3a5f;
-    border-color: #38bdf8;
-    color: #f1f5f9;
-  }
+  .tab-btn.active { background: #1e3a5f; border-color: #38bdf8; color: #f1f5f9; }
 
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
@@ -65,12 +95,37 @@
     border-radius: 12px;
     padding: 14px 16px;
     display: grid;
-    grid-template-columns: 32px 1fr auto 90px;
+    grid-template-columns: 32px 28px 1fr auto 90px;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
+    cursor: pointer;
   }
+  .row-card:hover { border-color: #38bdf8; }
   .rank { font-weight: 700; color: #64748b; font-size: 1rem; }
-  .row-card h3 { margin: 0; font-size: 0.95rem; color: #f1f5f9; }
+  .star { font-size: 1.2rem; cursor: pointer; user-select: none; opacity: 0.4; }
+  .star.active { opacity: 1; }
+  .row-card h3 { margin: 0; font-size: 0.95rem; color: #f1f5f9; display: inline; }
+  .new-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    background: rgba(56,189,248,0.18);
+    color: #38bdf8;
+    padding: 2px 7px;
+    border-radius: 999px;
+    margin-left: 7px;
+    vertical-align: middle;
+  }
+  .cat-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    background: #1e293b;
+    color: #94a3b8;
+    padding: 2px 7px;
+    border-radius: 999px;
+    margin-left: 7px;
+    vertical-align: middle;
+  }
   .row-meta { color: #64748b; font-size: 0.72rem; margin-top: 2px; }
   .row-change { font-weight: 700; font-size: 1.1rem; text-align: right; white-space: nowrap; }
   .row-change.up { color: #4ade80; }
@@ -87,9 +142,37 @@
     border: 1px solid #253148;
   }
 
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    align-items: center; justify-content: center;
+    z-index: 50;
+    padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: #131c31;
+    border: 1px solid #253148;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 560px;
+    width: 100%;
+  }
+  .modal h2 { margin: 0 0 4px; font-size: 1.2rem; }
+  .modal .modal-meta { color: #94a3b8; font-size: 0.85rem; margin-bottom: 16px; }
+  .modal-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+  .modal-stat { background: #0f172a; border-radius: 10px; padding: 10px; text-align: center; }
+  .modal-stat .label { font-size: 0.68rem; color: #64748b; }
+  .modal-stat .value { font-size: 1.1rem; font-weight: 700; margin-top: 2px; }
+  .modal-close { float: right; background: none; border: none; color: #94a3b8; font-size: 1.3rem; cursor: pointer; }
+  .modal canvas { max-height: 200px; }
+  .related-terms { margin-top: 14px; font-size: 0.8rem; color: #cbd5e1; }
+
   @media (max-width: 560px) {
-    .row-card { grid-template-columns: 24px 1fr 70px; }
+    .row-card { grid-template-columns: 22px 22px 1fr 70px; }
     canvas.spark { display: none; }
+    .modal-stats { grid-template-columns: repeat(3, 1fr); }
   }
 </style>
 </head>
@@ -99,17 +182,24 @@
   <div class="subtitle" id="last-update">Cargando datos...</div>
 
   <div class="explainer">
-    <div class="row"><span class="dot"></span><span><strong>Esto es un estudio en expansión continua:</strong> cada día el radar prueba patrones de búsqueda ("calculadora de...", "modelo de...", "comparador de...") contra el autocompletado real de Google para descubrir nichos nuevos, no una lista fija decidida a mano. Los que tienen tirón real se quedan en seguimiento para siempre; los que no, se descartan solos.</span></div>
-    <div class="row"><span class="dot"></span><span><strong>Interés (0-100):</strong> qué tan buscado está el término hoy en Google España, relativo a su propio pico de los últimos 3 meses. Es una escala relativa, no un número de búsquedas real.</span></div>
-    <div class="row"><span class="dot"></span><span><strong>Diario / Semanal / Mensual:</strong> mismo dato, comparado en tres ventanas distintas. El diario detecta picos puntuales (ruido); el semanal y mensual son mejor señal de una tendencia real y sostenida.</span></div>
-    <div class="row"><span class="dot"></span><span><strong>Índice de oportunidad:</strong> ⚠️ heurística, no dato real de competencia (eso requiere herramientas de pago tipo Ahrefs). Se calcula como demanda semanal ÷ amplitud del nicho (nº de términos relacionados). Alto = mucha demanda con pocos términos alrededor, posible hueco. Bajo = tema probablemente más explotado. Trátalo como pista para investigar más, no como veredicto.</span></div>
+    <div class="row"><span class="dot"></span><span><strong>Esto es un estudio en expansión continua:</strong> cada día el radar prueba patrones de búsqueda contra el autocompletado real de Google para descubrir nichos nuevos. Los que tienen tirón real se quedan en seguimiento para siempre; los que no, se descartan solos.</span></div>
+    <div class="row"><span class="dot"></span><span><strong>Interés (0-100):</strong> qué tan buscado está el término hoy en Google España, relativo a su propio pico de los últimos 3 meses.</span></div>
+    <div class="row"><span class="dot"></span><span><strong>Índice de oportunidad:</strong> ⚠️ heurística, no dato real de competencia. Demanda semanal ÷ nº de términos relacionados. Alto = posible hueco. Trátalo como pista, no como veredicto.</span></div>
+    <div class="row"><span class="dot"></span><span><strong>Click en cualquier fila</strong> para ver su ficha completa: gráfica ampliada y términos relacionados.</span></div>
+  </div>
+
+  <div class="toolbar">
+    <input type="text" id="search" placeholder="Buscar nicho...">
+    <select id="category-filter"><option value="">Todas las categorías</option></select>
+    <button id="fav-toggle">⭐ Solo favoritos</button>
+    <button id="export-csv">⬇️ Exportar CSV</button>
   </div>
 
   <div class="tabs">
-    <button class="tab-btn active" data-tab="daily">📅 Top 10 diario</button>
-    <button class="tab-btn" data-tab="weekly">📆 Top 10 semanal</button>
-    <button class="tab-btn" data-tab="monthly">🗓️ Top 10 mensual</button>
-    <button class="tab-btn" data-tab="opportunity">💡 Top 10 oportunidad</button>
+    <button class="tab-btn active" data-tab="daily">📅 Diario</button>
+    <button class="tab-btn" data-tab="weekly">📆 Semanal</button>
+    <button class="tab-btn" data-tab="monthly">🗓️ Mensual</button>
+    <button class="tab-btn" data-tab="opportunity">💡 Oportunidad</button>
   </div>
 
   <div class="tab-panel active" id="panel-daily"><div class="list" id="list-daily"></div></div>
@@ -118,101 +208,187 @@
   <div class="tab-panel" id="panel-opportunity"><div class="list" id="list-opportunity"></div></div>
 </div>
 
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" id="modal-close">✕</button>
+    <h2 id="modal-title"></h2>
+    <div class="modal-meta" id="modal-meta"></div>
+    <div class="modal-stats" id="modal-stats"></div>
+    <canvas id="modal-chart"></canvas>
+    <div class="related-terms" id="modal-related"></div>
+  </div>
+</div>
+
 <script>
+const METRIC_BY_TAB = { daily: 'daily_change_pct', weekly: 'weekly_change_pct', monthly: 'monthly_change_pct', opportunity: 'opportunity' };
+let HISTORY = {}, DATES = [], LATEST = {}, PREV_IDS = new Set();
+let favorites = new Set(JSON.parse(localStorage.getItem('radar-favoritos') || '[]'));
+let filters = { search: '', category: '', onlyFavorites: false };
+let activeTab = 'daily';
+let modalChart = null;
+
+function trendClass(pct) { return pct > 5 ? 'up' : pct < -5 ? 'down' : 'flat'; }
+function saveFavorites() { localStorage.setItem('radar-favoritos', JSON.stringify([...favorites])); }
+
+function matchesFilters(id, item) {
+  if (filters.onlyFavorites && !favorites.has(id)) return false;
+  if (filters.category && item.category !== filters.category) return false;
+  if (filters.search) {
+    const s = filters.search.toLowerCase();
+    if (!item.name.toLowerCase().includes(s) && !item.query.toLowerCase().includes(s)) return false;
+  }
+  return true;
+}
+
+function renderTab(tab) {
+  const containerId = 'list-' + tab;
+  const container = document.getElementById(containerId);
+  const metricKey = METRIC_BY_TAB[tab];
+
+  let entries = Object.entries(LATEST).filter(([id, item]) => matchesFilters(id, item));
+  entries.sort((a, b) => b[1][metricKey] - a[1][metricKey]);
+  const limited = filters.onlyFavorites ? entries : entries.slice(0, 10);
+
+  container.innerHTML = '';
+  if (limited.length === 0) {
+    container.innerHTML = '<div class="empty">Sin resultados con estos filtros.</div>';
+    return;
+  }
+
+  limited.forEach(([id, item], index) => {
+    const val = item[metricKey];
+    const isOpportunity = tab === 'opportunity';
+    const cls = isOpportunity ? 'flat' : trendClass(val);
+    const isNew = PREV_IDS.size > 0 && !PREV_IDS.has(id);
+    const series = DATES.map(d => (HISTORY[d][id] ? HISTORY[d][id].week_avg : null));
+
+    const row = document.createElement('div');
+    row.className = 'row-card';
+    row.innerHTML = `
+      <div class="rank">#${index + 1}</div>
+      <div class="star ${favorites.has(id) ? 'active' : ''}" data-id="${id}">⭐</div>
+      <div>
+        <h3>${item.name}${isNew ? '<span class="new-badge">NUEVO</span>' : ''}<span class="cat-badge">${item.category || 'otros'}</span></h3>
+        <div class="row-meta">Interés: ${item.current} / 100 · Oportunidad: ${item.opportunity}</div>
+      </div>
+      <canvas class="spark" id="spark-${tab}-${id}"></canvas>
+      <div class="row-change ${cls}">${isOpportunity ? val : (val > 0 ? '+' : '') + val + '%'}</div>
+    `;
+    row.addEventListener('click', (e) => { if (!e.target.classList.contains('star')) openModal(id); });
+    row.querySelector('.star').addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (favorites.has(id)) favorites.delete(id); else favorites.add(id);
+      saveFavorites();
+      renderTab(activeTab);
+    });
+    container.appendChild(row);
+
+    const color = isOpportunity ? '#38bdf8' : (cls === 'up' ? '#4ade80' : cls === 'down' ? '#f87171' : '#64748b');
+    new Chart(document.getElementById(`spark-${tab}-${id}`), {
+      type: 'line',
+      data: { labels: DATES, datasets: [{ data: series, borderColor: color, borderWidth: 2, pointRadius: 0, tension: 0.35 }] },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
+    });
+  });
+}
+
+function renderAll() { Object.keys(METRIC_BY_TAB).forEach(renderTab); }
+
+function openModal(id) {
+  const item = LATEST[id];
+  if (!item) return;
+  document.getElementById('modal-title').textContent = item.name;
+  document.getElementById('modal-meta').textContent = `"${item.query}" · categoría: ${item.category || 'otros'}`;
+  document.getElementById('modal-stats').innerHTML = `
+    <div class="modal-stat"><div class="label">Diario</div><div class="value">${item.daily_change_pct > 0 ? '+' : ''}${item.daily_change_pct}%</div></div>
+    <div class="modal-stat"><div class="label">Semanal</div><div class="value">${item.weekly_change_pct > 0 ? '+' : ''}${item.weekly_change_pct}%</div></div>
+    <div class="modal-stat"><div class="label">Mensual</div><div class="value">${item.monthly_change_pct > 0 ? '+' : ''}${item.monthly_change_pct}%</div></div>
+  `;
+  const terms = (item.sample_terms || []).filter(Boolean);
+  document.getElementById('modal-related').textContent = terms.length
+    ? `Términos relacionados: ${terms.join(', ')} (${item.breadth} en total)`
+    : 'Sin términos relacionados registrados.';
+
+  const series = DATES.map(d => (HISTORY[d][id] ? HISTORY[d][id].week_avg : null));
+  if (modalChart) modalChart.destroy();
+  modalChart = new Chart(document.getElementById('modal-chart'), {
+    type: 'line',
+    data: { labels: DATES, datasets: [{ data: series, borderColor: '#38bdf8', backgroundColor: '#38bdf822', fill: true, borderWidth: 2, pointRadius: 0, tension: 0.3 }] },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#64748b' } }, y: { ticks: { color: '#64748b' } } } }
+  });
+
+  document.getElementById('modal-overlay').classList.add('active');
+}
+
+document.getElementById('modal-close').addEventListener('click', () => document.getElementById('modal-overlay').classList.remove('active'));
+document.getElementById('modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'modal-overlay') e.currentTarget.classList.remove('active'); });
+
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    activeTab = btn.dataset.tab;
+    document.getElementById('panel-' + activeTab).classList.add('active');
   });
 });
 
-function trendClass(pct) {
-  return pct > 5 ? 'up' : pct < -5 ? 'down' : 'flat';
-}
+document.getElementById('search').addEventListener('input', (e) => { filters.search = e.target.value; renderAll(); });
+document.getElementById('category-filter').addEventListener('change', (e) => { filters.category = e.target.value; renderAll(); });
+document.getElementById('fav-toggle').addEventListener('click', (e) => {
+  filters.onlyFavorites = !filters.onlyFavorites;
+  e.currentTarget.classList.toggle('active', filters.onlyFavorites);
+  renderAll();
+});
 
-function renderList(containerId, items, changeKey, changeLabel, dates, history) {
-  const container = document.getElementById(containerId);
-  container.innerHTML = '';
-  items.slice(0, 10).forEach(([id, item], index) => {
-    const pct = item[changeKey];
-    const cls = trendClass(pct);
-    const series = dates.map(d => (history[d][id] ? history[d][id].week_avg : null));
-
-    const row = document.createElement('div');
-    row.className = 'row-card';
-    row.innerHTML = `
-      <div class="rank">#${index + 1}</div>
-      <div>
-        <h3>${item.name}</h3>
-        <div class="row-meta">Interés: ${item.current} / 100 · Oportunidad: ${item.opportunity}</div>
-      </div>
-      <canvas class="spark" id="spark-${containerId}-${id}"></canvas>
-      <div class="row-change ${cls}">${pct > 0 ? '+' : ''}${pct}%</div>
-    `;
-    container.appendChild(row);
-
-    const color = cls === 'up' ? '#4ade80' : cls === 'down' ? '#f87171' : '#64748b';
-    new Chart(document.getElementById(`spark-${containerId}-${id}`), {
-      type: 'line',
-      data: { labels: dates, datasets: [{ data: series, borderColor: color, borderWidth: 2, pointRadius: 0, tension: 0.35 }] },
-      options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
-    });
+document.getElementById('export-csv').addEventListener('click', () => {
+  const rows = [['nombre', 'query', 'categoria', 'interes_actual', 'cambio_diario_%', 'cambio_semanal_%', 'cambio_mensual_%', 'amplitud', 'oportunidad']];
+  Object.values(LATEST).forEach(item => {
+    rows.push([item.name, item.query, item.category || '', item.current, item.daily_change_pct, item.weekly_change_pct, item.monthly_change_pct, item.breadth, item.opportunity]);
   });
-}
-
-function renderOpportunityList(items, dates, history) {
-  const container = document.getElementById('list-opportunity');
-  container.innerHTML = '';
-  items.slice(0, 10).forEach(([id, item], index) => {
-    const series = dates.map(d => (history[d][id] ? history[d][id].week_avg : null));
-    const row = document.createElement('div');
-    row.className = 'row-card';
-    row.innerHTML = `
-      <div class="rank">#${index + 1}</div>
-      <div>
-        <h3>${item.name}</h3>
-        <div class="row-meta">Interés: ${item.current} / 100 · ${item.breadth} términos relacionados</div>
-      </div>
-      <canvas class="spark" id="spark-opp-${id}"></canvas>
-      <div class="row-change flat">${item.opportunity}</div>
-    `;
-    container.appendChild(row);
-    new Chart(document.getElementById(`spark-opp-${id}`), {
-      type: 'line',
-      data: { labels: dates, datasets: [{ data: series, borderColor: '#38bdf8', borderWidth: 2, pointRadius: 0, tension: 0.35 }] },
-      options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
-    });
-  });
-}
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'radar-nichos.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+});
 
 async function load() {
-  let history;
   try {
     const res = await fetch('data/history.json', { cache: 'no-store' });
-    history = await res.json();
+    HISTORY = await res.json();
   } catch (e) {
     document.querySelector('.wrap').innerHTML += '<div class="empty">Todavía no hay datos. Se generarán tras la primera ejecución del workflow diario.</div>';
     return;
   }
 
-  const dates = Object.keys(history).sort();
-  if (dates.length === 0) {
+  DATES = Object.keys(HISTORY).sort();
+  if (DATES.length === 0) {
     document.getElementById('last-update').textContent = 'Todavía no hay datos.';
     return;
   }
 
-  const lastDate = dates[dates.length - 1];
+  const lastDate = DATES[DATES.length - 1];
+  const prevDate = DATES.length >= 2 ? DATES[DATES.length - 2] : null;
+  LATEST = HISTORY[lastDate];
+  PREV_IDS = new Set(prevDate ? Object.keys(HISTORY[prevDate]) : []);
+
   document.getElementById('last-update').textContent =
-    'Última actualización: ' + lastDate + ' · ' + dates.length + ' día(s) de histórico · ' + Object.keys(history[lastDate]).length + ' nichos';
+    'Última actualización: ' + lastDate + ' · ' + DATES.length + ' día(s) de histórico · ' + Object.keys(LATEST).length + ' nichos';
 
-  const latest = Object.entries(history[lastDate]);
+  const categories = [...new Set(Object.values(LATEST).map(i => i.category || 'otros'))].sort();
+  const select = document.getElementById('category-filter');
+  categories.forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cat;
+    select.appendChild(opt);
+  });
 
-  renderList('list-daily', [...latest].sort((a, b) => b[1].daily_change_pct - a[1].daily_change_pct), 'daily_change_pct', 'diario', dates, history);
-  renderList('list-weekly', [...latest].sort((a, b) => b[1].weekly_change_pct - a[1].weekly_change_pct), 'weekly_change_pct', 'semanal', dates, history);
-  renderList('list-monthly', [...latest].sort((a, b) => b[1].monthly_change_pct - a[1].monthly_change_pct), 'monthly_change_pct', 'mensual', dates, history);
-  renderOpportunityList([...latest].sort((a, b) => b[1].opportunity - a[1].opportunity), dates, history);
+  renderAll();
 }
 load();
 </script>
