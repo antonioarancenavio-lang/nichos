@@ -8,204 +8,237 @@
 <style>
   * { box-sizing: border-box; }
   body {
-    font-family: -apple-system, system-ui, sans-serif;
-    background: #0b1120;
-    color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f7f8fa;
+    color: #14161a;
     margin: 0;
-    padding: 24px;
+    padding: 0 0 60px;
   }
-  .wrap { max-width: 1100px; margin: 0 auto; }
-  h1 { font-size: 1.6rem; margin: 0 0 8px; }
-  .subtitle { color: #94a3b8; font-size: 0.9rem; margin-bottom: 22px; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+  header {
+    border-bottom: 1px solid #e5e7eb;
+    background: #fff;
+    padding: 28px 0 22px;
+    margin-bottom: 24px;
+  }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand .logo { font-size: 1.5rem; }
+  .brand h1 { font-size: 1.3rem; margin: 0; font-weight: 800; letter-spacing: -0.02em; }
+  .brand .tag { color: #6b7280; font-size: 0.82rem; margin-top: 1px; }
+  .subtitle { color: #6b7280; font-size: 0.82rem; }
+
+  .search-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .search-row input[type="text"] {
+    flex: 1;
+    min-width: 200px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    padding: 11px 16px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    font-family: inherit;
+  }
+  .search-row input[type="text"]:focus { outline: none; border-color: #16a34a; }
+  .btn {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    color: #374151;
+    padding: 11px 16px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+  }
+  .btn:hover { border-color: #16a34a; color: #16a34a; }
+  .btn.active { background: #16a34a; border-color: #16a34a; color: #fff; }
+
+  .pills { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .pill {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    color: #6b7280;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .pill.active { background: #14161a; border-color: #14161a; color: #fff; }
 
   .explainer {
-    background: #131c31;
-    border: 1px solid #253148;
-    border-radius: 14px;
-    padding: 18px 20px;
-    font-size: 0.85rem;
-    line-height: 1.55;
-    color: #cbd5e1;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: #166534;
     margin-bottom: 22px;
   }
-  .explainer strong { color: #f1f5f9; }
-  .explainer .row { display: flex; gap: 10px; margin-bottom: 6px; }
-  .explainer .row:last-child { margin-bottom: 0; }
-  .dot { flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; background: #64748b; }
+  .explainer strong { font-weight: 700; }
 
-  .toolbar {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 14px;
-    flex-wrap: wrap;
-  }
-  .toolbar input[type="text"] {
-    flex: 1;
-    min-width: 160px;
-    background: #131c31;
-    border: 1px solid #253148;
-    color: #e2e8f0;
-    padding: 9px 14px;
-    border-radius: 10px;
-    font-size: 0.88rem;
-    font-family: inherit;
-  }
-  .toolbar select {
-    background: #131c31;
-    border: 1px solid #253148;
-    color: #e2e8f0;
-    padding: 9px 12px;
-    border-radius: 10px;
-    font-size: 0.88rem;
-    font-family: inherit;
-  }
-  .toolbar button {
-    background: #131c31;
-    border: 1px solid #253148;
-    color: #94a3b8;
-    padding: 9px 14px;
-    border-radius: 10px;
-    font-size: 0.85rem;
-    cursor: pointer;
-    font-family: inherit;
-  }
-  .toolbar button.active { background: #1e3a5f; border-color: #38bdf8; color: #f1f5f9; }
-  .toolbar button:hover { color: #f1f5f9; }
-
-  .tabs { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
+  .tabs { display: flex; gap: 4px; margin-bottom: 22px; background: #eef0f3; padding: 4px; border-radius: 12px; width: fit-content; }
   .tab-btn {
-    background: #131c31;
-    border: 1px solid #253148;
-    color: #94a3b8;
-    padding: 9px 16px;
-    border-radius: 10px;
-    font-size: 0.88rem;
+    background: transparent;
+    border: none;
+    color: #6b7280;
+    padding: 8px 18px;
+    border-radius: 9px;
+    font-size: 0.85rem;
+    font-weight: 600;
     cursor: pointer;
     font-family: inherit;
   }
-  .tab-btn.active { background: #1e3a5f; border-color: #38bdf8; color: #f1f5f9; }
+  .tab-btn.active { background: #fff; color: #14161a; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
 
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
-  .list { display: flex; flex-direction: column; gap: 10px; }
-  .row-card {
-    background: linear-gradient(180deg, #141d33 0%, #0f172a 100%);
-    border: 1px solid #253148;
-    border-radius: 12px;
-    padding: 14px 16px;
+  .grid {
     display: grid;
-    grid-template-columns: 32px 28px 1fr auto 90px;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
   }
-  .row-card:hover { border-color: #38bdf8; }
-  .rank { font-weight: 700; color: #64748b; font-size: 1rem; }
-  .star { font-size: 1.2rem; cursor: pointer; user-select: none; opacity: 0.4; }
+  .card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 18px;
+    cursor: pointer;
+    transition: box-shadow 0.15s, border-color 0.15s;
+    position: relative;
+  }
+  .card:hover { border-color: #16a34a; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .rank-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px;
+    background: #f3f4f6; color: #6b7280;
+    border-radius: 7px; font-size: 0.72rem; font-weight: 800;
+  }
+  .star { font-size: 1.05rem; cursor: pointer; opacity: 0.3; }
   .star.active { opacity: 1; }
-  .row-card h3 { margin: 0; font-size: 0.95rem; color: #f1f5f9; display: inline; }
-  .new-badge {
+
+  .card h3 { margin: 0 0 4px; font-size: 0.98rem; font-weight: 700; line-height: 1.3; }
+  .cat-pill {
     display: inline-block;
     font-size: 0.65rem;
     font-weight: 700;
-    background: rgba(56,189,248,0.18);
-    color: #38bdf8;
-    padding: 2px 7px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    background: #eef0f3;
+    color: #6b7280;
+    padding: 2px 8px;
     border-radius: 999px;
-    margin-left: 7px;
-    vertical-align: middle;
+    margin-bottom: 8px;
   }
-  .cat-badge {
+  .new-tag {
     display: inline-block;
     font-size: 0.65rem;
-    background: #1e293b;
-    color: #94a3b8;
-    padding: 2px 7px;
+    font-weight: 700;
+    background: #16a34a;
+    color: #fff;
+    padding: 2px 8px;
     border-radius: 999px;
-    margin-left: 7px;
+    margin-left: 6px;
     vertical-align: middle;
   }
-  .row-meta { color: #64748b; font-size: 0.72rem; margin-top: 2px; }
-  .row-change { font-weight: 700; font-size: 1.1rem; text-align: right; white-space: nowrap; }
-  .row-change.up { color: #4ade80; }
-  .row-change.down { color: #f87171; }
-  .row-change.flat { color: #94a3b8; }
-  canvas.spark { max-height: 44px; }
+
+  .big-change { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; margin: 6px 0 2px; }
+  .big-change.up { color: #16a34a; }
+  .big-change.down { color: #dc2626; }
+  .big-change.flat { color: #6b7280; }
+  .arrow-icon { font-size: 1rem; margin-right: 2px; }
+
+  .card-meta { color: #9ca3af; font-size: 0.75rem; margin-bottom: 10px; }
+  canvas.spark { max-height: 46px; margin-top: 4px; }
 
   .empty {
-    color: #94a3b8;
+    color: #9ca3af;
     text-align: center;
     padding: 60px 20px;
-    background: #131c31;
+    background: #fff;
     border-radius: 14px;
-    border: 1px solid #253148;
+    border: 1px dashed #d1d5db;
   }
 
   .modal-overlay {
     display: none;
     position: fixed; inset: 0;
-    background: rgba(0,0,0,0.6);
+    background: rgba(20,22,26,0.5);
     align-items: center; justify-content: center;
     z-index: 50;
     padding: 20px;
   }
   .modal-overlay.active { display: flex; }
   .modal {
-    background: #131c31;
-    border: 1px solid #253148;
-    border-radius: 16px;
-    padding: 24px;
+    background: #fff;
+    border-radius: 18px;
+    padding: 26px;
     max-width: 560px;
     width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
   }
-  .modal h2 { margin: 0 0 4px; font-size: 1.2rem; }
-  .modal .modal-meta { color: #94a3b8; font-size: 0.85rem; margin-bottom: 16px; }
-  .modal-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
-  .modal-stat { background: #0f172a; border-radius: 10px; padding: 10px; text-align: center; }
-  .modal-stat .label { font-size: 0.68rem; color: #64748b; }
-  .modal-stat .value { font-size: 1.1rem; font-weight: 700; margin-top: 2px; }
-  .modal-close { float: right; background: none; border: none; color: #94a3b8; font-size: 1.3rem; cursor: pointer; }
+  .modal h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 800; }
+  .modal .modal-meta { color: #6b7280; font-size: 0.85rem; margin-bottom: 18px; }
+  .modal-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
+  .modal-stat { background: #f7f8fa; border-radius: 10px; padding: 12px; text-align: center; }
+  .modal-stat .label { font-size: 0.68rem; color: #9ca3af; font-weight: 600; text-transform: uppercase; }
+  .modal-stat .value { font-size: 1.15rem; font-weight: 800; margin-top: 3px; }
+  .modal-close { float: right; background: #f3f4f6; border: none; color: #6b7280; font-size: 1.1rem; cursor: pointer; width: 30px; height: 30px; border-radius: 50%; }
   .modal canvas { max-height: 200px; }
-  .related-terms { margin-top: 14px; font-size: 0.8rem; color: #cbd5e1; }
+  .related-terms { margin-top: 16px; font-size: 0.82rem; color: #4b5563; background: #f7f8fa; padding: 12px; border-radius: 10px; }
 
   @media (max-width: 560px) {
-    .row-card { grid-template-columns: 22px 22px 1fr 70px; }
-    canvas.spark { display: none; }
-    .modal-stats { grid-template-columns: repeat(3, 1fr); }
+    .grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>📊 Radar de Nichos</h1>
-  <div class="subtitle" id="last-update">Cargando datos...</div>
 
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <span class="logo">📊</span>
+      <div>
+        <h1>Radar de Nichos</h1>
+        <div class="tag">Oportunidades de negocio en España, actualizado a diario</div>
+      </div>
+    </div>
+    <div class="subtitle" id="last-update">Cargando datos...</div>
+  </div>
+</header>
+
+<div class="wrap">
   <div class="explainer">
-    <div class="row"><span class="dot"></span><span><strong>Esto es un estudio en expansión continua:</strong> cada día el radar prueba patrones de búsqueda contra el autocompletado real de Google para descubrir nichos nuevos. Los que tienen tirón real se quedan en seguimiento para siempre; los que no, se descartan solos.</span></div>
-    <div class="row"><span class="dot"></span><span><strong>Interés (0-100):</strong> qué tan buscado está el término hoy en Google España, relativo a su propio pico de los últimos 3 meses.</span></div>
-    <div class="row"><span class="dot"></span><span><strong>Índice de oportunidad:</strong> ⚠️ heurística, no dato real de competencia. Demanda semanal ÷ nº de términos relacionados. Alto = posible hueco. Trátalo como pista, no como veredicto.</span></div>
-    <div class="row"><span class="dot"></span><span><strong>Click en cualquier fila</strong> para ver su ficha completa: gráfica ampliada y términos relacionados.</span></div>
+    <strong>Estudio en expansión continua:</strong> cada día se prueban patrones de búsqueda contra el autocompletado real de Google para descubrir nichos nuevos — no es una lista fija. Lo que tiene tirón se queda en seguimiento para siempre; lo que no, se descarta solo. El <strong>índice de oportunidad</strong> es una heurística (demanda ÷ amplitud del nicho), no un dato real de competencia.
   </div>
 
-  <div class="toolbar">
+  <div class="search-row">
     <input type="text" id="search" placeholder="Buscar nicho...">
-    <select id="category-filter"><option value="">Todas las categorías</option></select>
-    <button id="fav-toggle">⭐ Solo favoritos</button>
-    <button id="export-csv">⬇️ Exportar CSV</button>
+    <button class="btn" id="fav-toggle">⭐ Favoritos</button>
+    <button class="btn" id="export-csv">⬇️ CSV</button>
+  </div>
+
+  <div class="pills" id="category-pills">
+    <div class="pill active" data-cat="">Todas</div>
   </div>
 
   <div class="tabs">
-    <button class="tab-btn active" data-tab="daily">📅 Diario</button>
-    <button class="tab-btn" data-tab="weekly">📆 Semanal</button>
-    <button class="tab-btn" data-tab="monthly">🗓️ Mensual</button>
-    <button class="tab-btn" data-tab="opportunity">💡 Oportunidad</button>
+    <button class="tab-btn active" data-tab="daily">Diario</button>
+    <button class="tab-btn" data-tab="weekly">Semanal</button>
+    <button class="tab-btn" data-tab="monthly">Mensual</button>
+    <button class="tab-btn" data-tab="opportunity">Oportunidad</button>
   </div>
 
-  <div class="tab-panel active" id="panel-daily"><div class="list" id="list-daily"></div></div>
-  <div class="tab-panel" id="panel-weekly"><div class="list" id="list-weekly"></div></div>
-  <div class="tab-panel" id="panel-monthly"><div class="list" id="list-monthly"></div></div>
-  <div class="tab-panel" id="panel-opportunity"><div class="list" id="list-opportunity"></div></div>
+  <div class="tab-panel active" id="panel-daily"><div class="grid" id="list-daily"></div></div>
+  <div class="tab-panel" id="panel-weekly"><div class="grid" id="list-weekly"></div></div>
+  <div class="tab-panel" id="panel-monthly"><div class="grid" id="list-monthly"></div></div>
+  <div class="tab-panel" id="panel-opportunity"><div class="grid" id="list-opportunity"></div></div>
 </div>
 
 <div class="modal-overlay" id="modal-overlay">
@@ -241,13 +274,12 @@ function matchesFilters(id, item) {
 }
 
 function renderTab(tab) {
-  const containerId = 'list-' + tab;
-  const container = document.getElementById(containerId);
+  const container = document.getElementById('list-' + tab);
   const metricKey = METRIC_BY_TAB[tab];
 
   let entries = Object.entries(LATEST).filter(([id, item]) => matchesFilters(id, item));
   entries.sort((a, b) => b[1][metricKey] - a[1][metricKey]);
-  const limited = filters.onlyFavorites ? entries : entries.slice(0, 10);
+  const limited = filters.onlyFavorites ? entries : entries.slice(0, 12);
 
   container.innerHTML = '';
   if (limited.length === 0) {
@@ -259,34 +291,36 @@ function renderTab(tab) {
     const val = item[metricKey];
     const isOpportunity = tab === 'opportunity';
     const cls = isOpportunity ? 'flat' : trendClass(val);
+    const arrow = isOpportunity ? '💡' : (cls === 'up' ? '▲' : cls === 'down' ? '▼' : '→');
     const isNew = PREV_IDS.size > 0 && !PREV_IDS.has(id);
     const series = DATES.map(d => (HISTORY[d][id] ? HISTORY[d][id].week_avg : null));
 
-    const row = document.createElement('div');
-    row.className = 'row-card';
-    row.innerHTML = `
-      <div class="rank">#${index + 1}</div>
-      <div class="star ${favorites.has(id) ? 'active' : ''}" data-id="${id}">⭐</div>
-      <div>
-        <h3>${item.name}${isNew ? '<span class="new-badge">NUEVO</span>' : ''}<span class="cat-badge">${item.category || 'otros'}</span></h3>
-        <div class="row-meta">Interés: ${item.current} / 100 · Oportunidad: ${item.opportunity}</div>
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-top">
+        <span class="rank-badge">#${index + 1}</span>
+        <span class="star ${favorites.has(id) ? 'active' : ''}" data-id="${id}">⭐</span>
       </div>
+      <span class="cat-pill">${item.category || 'otros'}</span>${isNew ? '<span class="new-tag">NUEVO</span>' : ''}
+      <h3>${item.name}</h3>
+      <div class="big-change ${cls}"><span class="arrow-icon">${arrow}</span>${isOpportunity ? val : (val > 0 ? '+' : '') + val + '%'}</div>
+      <div class="card-meta">Interés: ${item.current}/100 · Oportunidad: ${item.opportunity}</div>
       <canvas class="spark" id="spark-${tab}-${id}"></canvas>
-      <div class="row-change ${cls}">${isOpportunity ? val : (val > 0 ? '+' : '') + val + '%'}</div>
     `;
-    row.addEventListener('click', (e) => { if (!e.target.classList.contains('star')) openModal(id); });
-    row.querySelector('.star').addEventListener('click', (e) => {
+    card.addEventListener('click', (e) => { if (!e.target.classList.contains('star')) openModal(id); });
+    card.querySelector('.star').addEventListener('click', (e) => {
       e.stopPropagation();
       if (favorites.has(id)) favorites.delete(id); else favorites.add(id);
       saveFavorites();
       renderTab(activeTab);
     });
-    container.appendChild(row);
+    container.appendChild(card);
 
-    const color = isOpportunity ? '#38bdf8' : (cls === 'up' ? '#4ade80' : cls === 'down' ? '#f87171' : '#64748b');
+    const color = isOpportunity ? '#2563eb' : (cls === 'up' ? '#16a34a' : cls === 'down' ? '#dc2626' : '#9ca3af');
     new Chart(document.getElementById(`spark-${tab}-${id}`), {
       type: 'line',
-      data: { labels: DATES, datasets: [{ data: series, borderColor: color, borderWidth: 2, pointRadius: 0, tension: 0.35 }] },
+      data: { labels: DATES, datasets: [{ data: series, borderColor: color, backgroundColor: color + '15', fill: true, borderWidth: 2, pointRadius: 0, tension: 0.35 }] },
       options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
     });
   });
@@ -313,8 +347,8 @@ function openModal(id) {
   if (modalChart) modalChart.destroy();
   modalChart = new Chart(document.getElementById('modal-chart'), {
     type: 'line',
-    data: { labels: DATES, datasets: [{ data: series, borderColor: '#38bdf8', backgroundColor: '#38bdf822', fill: true, borderWidth: 2, pointRadius: 0, tension: 0.3 }] },
-    options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#64748b' } }, y: { ticks: { color: '#64748b' } } } }
+    data: { labels: DATES, datasets: [{ data: series, borderColor: '#16a34a', backgroundColor: '#16a34a15', fill: true, borderWidth: 2, pointRadius: 0, tension: 0.3 }] },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#9ca3af' } }, y: { ticks: { color: '#9ca3af' } } } }
   });
 
   document.getElementById('modal-overlay').classList.add('active');
@@ -334,7 +368,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 });
 
 document.getElementById('search').addEventListener('input', (e) => { filters.search = e.target.value; renderAll(); });
-document.getElementById('category-filter').addEventListener('change', (e) => { filters.category = e.target.value; renderAll(); });
 document.getElementById('fav-toggle').addEventListener('click', (e) => {
   filters.onlyFavorites = !filters.onlyFavorites;
   e.currentTarget.classList.toggle('active', filters.onlyFavorites);
@@ -377,15 +410,24 @@ async function load() {
   PREV_IDS = new Set(prevDate ? Object.keys(HISTORY[prevDate]) : []);
 
   document.getElementById('last-update').textContent =
-    'Última actualización: ' + lastDate + ' · ' + DATES.length + ' día(s) de histórico · ' + Object.keys(LATEST).length + ' nichos';
+    'Actualizado: ' + lastDate + ' · ' + DATES.length + ' día(s) · ' + Object.keys(LATEST).length + ' nichos';
 
   const categories = [...new Set(Object.values(LATEST).map(i => i.category || 'otros'))].sort();
-  const select = document.getElementById('category-filter');
+  const pillsContainer = document.getElementById('category-pills');
   categories.forEach(cat => {
-    const opt = document.createElement('option');
-    opt.value = cat;
-    opt.textContent = cat;
-    select.appendChild(opt);
+    const pill = document.createElement('div');
+    pill.className = 'pill';
+    pill.dataset.cat = cat;
+    pill.textContent = cat;
+    pillsContainer.appendChild(pill);
+  });
+  pillsContainer.querySelectorAll('.pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      pillsContainer.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      filters.category = pill.dataset.cat;
+      renderAll();
+    });
   });
 
   renderAll();
