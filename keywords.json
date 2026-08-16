@@ -346,5 +346,29 @@
     "name": "Modelo de casas",
     "query": "modelo de casas",
     "category": "plantilla"
+  },
+  {
+    "id": "auto-modelo-declaracion-responsable",
+    "name": "Modelo declaracion responsable",
+    "query": "modelo declaracion responsable",
+    "category": "plantilla"
+  },
+  {
+    "id": "auto-modelo-de-coche-por-matricula",
+    "name": "Modelo de coche por matrícula",
+    "query": "modelo de coche por matrícula",
+    "category": "plantilla"
+  },
+  {
+    "id": "auto-modelo-de-factura",
+    "name": "Modelo de factura",
+    "query": "modelo de factura",
+    "category": "plantilla"
+  },
+  {
+    "id": "auto-modelo-de-representacion-seguridad-social",
+    "name": "Modelo de representacion seguridad social",
+    "query": "modelo de representacion seguridad social",
+    "category": "plantilla"
   }
 ]
