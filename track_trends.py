@@ -33,6 +33,7 @@ import json
 import os
 import re
 import sys
+import time
 import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
@@ -45,6 +46,7 @@ KEYWORDS_FILE = ROOT / "keywords.json"
 HISTORY_FILE = ROOT / "data" / "history.json"
 PENDING_FILE = ROOT / "data" / "pending.json"
 DISCARDED_FILE = ROOT / "data" / "discarded.json"
+RUN_LOG_FILE = ROOT / "data" / "last_run.json"
 
 # % de subida semana a semana que dispara una alerta
 ALERT_THRESHOLD_PCT = 25
@@ -54,6 +56,9 @@ MIN_INTEREST_FOR_ALERT = 5
 PROMOTION_THRESHOLD = 15
 # tope maximo de nichos en el nucleo (evita que la ejecucion diaria crezca sin fin)
 MAX_CORE_KEYWORDS = 150
+# reintentos si trendspyg falla de forma intermitente (timeouts, bloqueos puntuales)
+MAX_RETRIES = 3
+RETRY_BACKOFF_SECONDS = 20
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
@@ -114,7 +119,19 @@ def analyze_series(values):
 
 
 def fetch_trend(query):
-    env = download_google_trends_explore(query, geo="ES")
+    last_exc = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            env = download_google_trends_explore(query, geo="ES")
+            break
+        except Exception as exc:
+            last_exc = exc
+            if attempt < MAX_RETRIES:
+                wait = RETRY_BACKOFF_SECONDS * attempt
+                print(f"    Intento {attempt} fallido ({exc}); espero {wait}s y reintento...")
+                time.sleep(wait)
+            else:
+                raise last_exc
 
     series = env.get("interest_over_time") or []
     if not series:
@@ -133,6 +150,40 @@ def fetch_trend(query):
     stats["sample_terms"] = sample_terms
     stats["opportunity"] = opportunity
     return stats
+
+
+def fetch_reddit_mentions(query):
+    """Señal complementaria gratuita: cuantas discusiones recientes hay en Reddit
+    sobre el termino. No requiere API key (endpoint publico de busqueda)."""
+    try:
+        resp = requests.get(
+            "https://www.reddit.com/search.json",
+            params={"q": query, "limit": 10, "sort": "new"},
+            headers={"User-Agent": "radar-nichos/1.0"},
+            timeout=10,
+        )
+        if resp.status_code != 200:
+            return None
+        data = resp.json()
+        return len(data.get("data", {}).get("children", []))
+    except Exception:
+        return None
+
+
+def classify_trend(stats):
+    """Clasificacion inspirada en Exploding Topics (Regular/Peaked/Exploding),
+    pero exigiendo crecimiento sostenido en semana Y mes para evitar marcar
+    como 'explosivo' un pico de un solo dia (filtro anti-moda-pasajera)."""
+    weekly, monthly = stats["weekly_change_pct"], stats["monthly_change_pct"]
+    if weekly >= 25 and monthly >= 15:
+        return "explosivo"
+    if weekly <= -15 and monthly <= -10:
+        return "pico_pasado"
+    if weekly >= 10:
+        return "en_subida"
+    if weekly <= -5:
+        return "en_caida"
+    return "estable"
 
 
 def send_telegram_alert(message):
@@ -159,12 +210,15 @@ def score_one(kw_id, query, name, category, day_snapshot, alerts):
     if stats is None:
         return None
 
+    stats["classification"] = classify_trend(stats)
+    stats["reddit_mentions"] = fetch_reddit_mentions(query)
+
     day_snapshot[kw_id] = {"name": name, "query": query, "category": category, **stats}
 
-    if stats["weekly_change_pct"] >= ALERT_THRESHOLD_PCT and stats["week_avg"] >= MIN_INTEREST_FOR_ALERT:
+    if stats["classification"] == "explosivo":
         alerts.append(
-            f"\U0001F4C8 <b>{name}</b>: interes subiendo un {stats['weekly_change_pct']:.0f}% "
-            f"esta semana (Google Trends, ES)"
+            f"\U0001F680 <b>{name}</b>: crecimiento sostenido (semana +{stats['weekly_change_pct']:.0f}%, "
+            f"mes +{stats['monthly_change_pct']:.0f}%) \u2014 clasificado como EXPLOSIVO"
         )
     return stats
 
@@ -224,6 +278,24 @@ def main():
     if promoted_names:
         alerts.append(
             "\U0001F195 Nichos nuevos promocionados al radar: " + ", ".join(promoted_names)
+        )
+
+    run_log = {
+        "fecha": today,
+        "total_procesados": total,
+        "nucleo_final": len(keywords),
+        "promocionados": len(promoted_names),
+        "descartados": len(discarded_names),
+        "con_datos": len(day_snapshot),
+        "con_error": total - len(day_snapshot),
+    }
+    save_json(RUN_LOG_FILE, run_log)
+
+    error_rate = run_log["con_error"] / total if total else 0
+    if error_rate >= 0.3:
+        alerts.append(
+            f"\u26A0\uFE0F Aviso de salud: {run_log['con_error']}/{total} consultas fallaron hoy "
+            f"({error_rate:.0%}). Puede que Google Trends este bloqueando o que algo se haya roto."
         )
 
     if alerts:
