@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radar de Nichos — Encuentra ideas de negocio rentables en España, actualizado a diario</title>
+<meta name="description" content="Herramienta gratuita que analiza a diario el interés de búsqueda en Google España para descubrir nichos de negocio con demanda real y poca competencia. Actualizado automáticamente, sin registro.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://TU-DOMINIO-AQUI/">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Radar de Nichos — Ideas de negocio rentables en España">
+<meta property="og:description" content="Descubre a diario qué nichos de negocio tienen demanda creciente en España, con datos reales de Google Trends y clasificación automática.">
+<meta property="og:url" content="https://TU-DOMINIO-AQUI/">
+<meta property="og:image" content="https://TU-DOMINIO-AQUI/og-image.png">
+<meta property="og:locale" content="es_ES">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Radar de Nichos — Ideas de negocio rentables en España">
+<meta name="twitter:description" content="Herramienta gratuita que descubre nichos de negocio con demanda real, actualizada cada día.">
+
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#16a34a">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "name": "Radar de Nichos",
+      "url": "https://TU-DOMINIO-AQUI/",
+      "inLanguage": "es-ES"
+    },
+    {
+      "@type": "WebApplication",
+      "name": "Radar de Nichos",
+      "description": "Herramienta gratuita que analiza a diario el interés de búsqueda en Google España para descubrir nichos de negocio con demanda real.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+      "inLanguage": "es-ES"
+    }
+  ]
+}
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f7f8fa;
+    color: #14161a;
+    margin: 0;
+    padding: 0 0 60px;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+  header {
+    border-bottom: 1px solid #e5e7eb;
+    background: #fff;
+    padding: 32px 0 0;
+    margin-bottom: 24px;
+  }
+  header .wrap { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand .logo-mark {
+    width: 42px; height: 42px; border-radius: 10px;
+    background: #16a34a; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .brand h1 { font-size: 1.35rem; margin: 0; font-weight: 800; letter-spacing: -0.02em; }
+  .brand .tag { color: #6b7280; font-size: 0.85rem; margin-top: 2px; }
+  .subtitle { color: #6b7280; font-size: 0.82rem; }
+
+  .trust-bar {
+    display: flex;
+    gap: 0;
+    margin: 22px 0 0;
+    border-top: 1px solid #f0f1f3;
+    flex-wrap: wrap;
+  }
+  .trust-item {
+    flex: 1;
+    min-width: 130px;
+    padding: 14px 20px;
+    border-right: 1px solid #f0f1f3;
+  }
+  .trust-item:last-child { border-right: none; }
+  .trust-item .num { font-size: 1.3rem; font-weight: 800; color: #14161a; letter-spacing: -0.02em; }
+  .trust-item .label { font-size: 0.72rem; color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; margin-top: 2px; }
+
+  .how-it-works {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 22px;
+  }
+  .how-step {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .how-step .step-num {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #14161a; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem; font-weight: 800; margin-bottom: 10px;
+  }
+  .how-step h3 { font-size: 0.92rem; margin: 0 0 4px; }
+  .how-step p { font-size: 0.8rem; color: #6b7280; margin: 0; line-height: 1.5; }
+
+  @media (max-width: 700px) {
+    .how-it-works { grid-template-columns: 1fr; }
+    .trust-item { min-width: 45%; }
+  }
+
+  .search-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .search-row input[type="text"] {
+    flex: 1;
+    min-width: 200px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    padding: 11px 16px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    font-family: inherit;
+  }
+  .search-row input[type="text"]:focus { outline: none; border-color: #16a34a; }
+  .btn {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    color: #374151;
+    padding: 11px 16px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+  }
+  .btn:hover { border-color: #16a34a; color: #16a34a; }
+  .btn.active { background: #16a34a; border-color: #16a34a; color: #fff; }
+
+  .pills { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .pill {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    color: #6b7280;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .pill.active { background: #14161a; border-color: #14161a; color: #fff; }
+
+  .explainer {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: #166534;
+    margin-bottom: 22px;
+  }
+  .explainer strong { font-weight: 700; }
+
+  .tabs { display: flex; gap: 4px; margin-bottom: 22px; background: #eef0f3; padding: 4px; border-radius: 12px; width: fit-content; }
+  .tab-btn {
+    background: transparent;
+    border: none;
+    color: #6b7280;
+    padding: 8px 18px;
+    border-radius: 9px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .tab-btn.active { background: #fff; color: #14161a; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 18px;
+    cursor: pointer;
+    transition: box-shadow 0.15s, border-color 0.15s;
+    position: relative;
+  }
+  .card:hover { border-color: #16a34a; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .rank-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px;
+    background: #f3f4f6; color: #6b7280;
+    border-radius: 7px; font-size: 0.72rem; font-weight: 800;
+  }
+  .star { font-size: 1.05rem; cursor: pointer; opacity: 0.3; }
+  .star.active { opacity: 1; }
+
+  .card h3 { margin: 0 0 4px; font-size: 0.98rem; font-weight: 700; line-height: 1.3; }
+  .cat-pill {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    background: #eef0f3;
+    color: #6b7280;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+  }
+  .new-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    background: #16a34a;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .class-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .class-tag.explosivo { background: #fef3c7; color: #92400e; }
+  .class-tag.en_subida { background: #dcfce7; color: #166534; }
+  .class-tag.estable { background: #eef0f3; color: #6b7280; }
+  .class-tag.en_caida { background: #fee2e2; color: #991b1b; }
+  .class-tag.pico_pasado { background: #ede9fe; color: #5b21b6; }
+
+  .big-change { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; margin: 6px 0 2px; }
+  .big-change.up { color: #16a34a; }
+  .big-change.down { color: #dc2626; }
+  .big-change.flat { color: #6b7280; }
+  .arrow-icon { font-size: 1rem; margin-right: 2px; }
+
+  .card-meta { color: #9ca3af; font-size: 0.75rem; margin-bottom: 10px; }
+  canvas.spark { max-height: 46px; margin-top: 4px; }
+
+  .empty {
+    color: #9ca3af;
+    text-align: center;
+    padding: 60px 20px;
+    background: #fff;
+    border-radius: 14px;
+    border: 1px dashed #d1d5db;
+  }
+
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(20,22,26,0.5);
+    align-items: center; justify-content: center;
+    z-index: 50;
+    padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 18px;
+    padding: 26px;
+    max-width: 560px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  }
+  .modal h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 800; }
+  .modal .modal-meta { color: #6b7280; font-size: 0.85rem; margin-bottom: 18px; }
+  .modal-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
+  .modal-stat { background: #f7f8fa; border-radius: 10px; padding: 12px; text-align: center; }
+  .modal-stat .label { font-size: 0.68rem; color: #9ca3af; font-weight: 600; text-transform: uppercase; }
+  .modal-stat .value { font-size: 1.15rem; font-weight: 800; margin-top: 3px; }
+  .modal-close { float: right; background: #f3f4f6; border: none; color: #6b7280; font-size: 1.1rem; cursor: pointer; width: 30px; height: 30px; border-radius: 50%; }
+  .modal canvas { max-height: 200px; }
+  .related-terms { margin-top: 16px; font-size: 0.82rem; color: #4b5563; background: #f7f8fa; padding: 12px; border-radius: 10px; }
+  .seo-kit { margin-top: 18px; padding-top: 16px; border-top: 1px solid #e5e7eb; }
+  .seo-kit h4 { font-size: 0.85rem; margin: 14px 0 6px; color: #14161a; }
+  .seo-kit h4:first-child { margin-top: 0; }
+  .domain-chip { display: inline-block; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-size: 0.78rem; font-weight: 600; padding: 5px 10px; border-radius: 8px; margin: 3px 4px 3px 0; }
+  .seo-outline { font-size: 0.82rem; color: #374151; line-height: 1.7; background: #f7f8fa; padding: 12px; border-radius: 10px; }
+  .seo-locked { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 12px; padding: 16px 18px; text-align: center; }
+  .seo-locked p { font-size: 0.85rem; color: #9a3412; margin: 0 0 10px; }
+
+  @media (max-width: 560px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="14" width="4" height="7" rx="1" fill="white"/>
+          <rect x="10" y="9" width="4" height="12" rx="1" fill="white"/>
+          <rect x="17" y="3" width="4" height="18" rx="1" fill="white"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Radar de Nichos</h1>
+        <div class="tag">Oportunidades de negocio en España, validadas con datos reales</div>
+      </div>
+    </div>
+    <div>
+      <div class="subtitle" id="last-update">Cargando datos...</div>
+      <a href="/tendencias.html" style="font-size:0.8rem; color:#16a34a; font-weight:600; text-decoration:none;">Ver resumen en texto →</a>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="trust-bar" id="trust-bar">
+      <div class="trust-item"><div class="num" id="stat-total">—</div><div class="label">Nichos en seguimiento</div></div>
+      <div class="trust-item"><div class="num">Diaria</div><div class="label">Frecuencia de actualización</div></div>
+      <div class="trust-item"><div class="num">0 €</div><div class="label">Coste, sin registro</div></div>
+      <div class="trust-item"><div class="num">100%</div><div class="label">Datos de Google Trends</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="how-it-works">
+    <div class="how-step">
+      <div class="step-num">1</div>
+      <h3>Descubre</h3>
+      <p>Cada día se prueban patrones de búsqueda contra el autocompletado real de Google para encontrar nichos nuevos.</p>
+    </div>
+    <div class="how-step">
+      <div class="step-num">2</div>
+      <h3>Valida</h3>
+      <p>Se contrasta el interés real en Google Trends y las menciones en Reddit — solo entra lo que demuestra demanda de verdad.</p>
+    </div>
+    <div class="how-step">
+      <div class="step-num">3</div>
+      <h3>Clasifica</h3>
+      <p>Se etiqueta como explosivo, en subida, estable o pico ya pasado, según si el crecimiento es sostenido o puntual.</p>
+    </div>
+  </div>
+
+  <div class="explainer">
+    <strong>Estudio en expansión continua, inspirado en herramientas como Exploding Topics:</strong> cada día se descubren nichos nuevos vía autocompletado de Google, se validan con Google Trends, y se contrastan con menciones recientes en Reddit. Cada nicho se clasifica como 🚀 Explosivo (crecimiento sostenido en semana Y mes, no solo un pico puntual), 📈 En subida, ➡️ Estable, 📉 En caída, o 🏔️ Pico ya pasado. El <strong>índice de oportunidad</strong> es una heurística (demanda ÷ amplitud del nicho), no un dato real de competencia.
+  </div>
+
+  <section style="background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:20px 22px; margin-bottom:22px; font-size:0.88rem; line-height:1.6; color:#374151;">
+    <h2 style="font-size:1.05rem; margin:0 0 8px;">¿Cómo encontrar un nicho de mercado rentable en España?</h2>
+    <p>Encontrar un nicho de negocio rentable significa detectar una necesidad con demanda real y poca competencia antes de que se sature. Radar de Nichos automatiza ese proceso: en vez de adivinar qué idea de negocio puede funcionar, analiza a diario datos reales de búsqueda en Google España para mostrar qué está creciendo de verdad, ahora mismo.</p>
+    <p>A diferencia de un buscador de nichos genérico o en inglés, esta herramienta está centrada 100% en el mercado español, es gratuita, y se actualiza sola cada día sin necesidad de registro ni tarjeta de crédito.</p>
+    <p style="margin-top:14px; font-size:0.82rem;">
+      <a href="/guia-nicho-rentable.html" style="color:#16a34a; font-weight:600;">Guía: cómo buscar un nicho rentable</a> ·
+      <a href="/herramientas-encontrar-nichos.html" style="color:#16a34a; font-weight:600;">Comparativa de herramientas</a> ·
+      <a href="/tendencias.html" style="color:#16a34a; font-weight:600;">Ranking diario en texto</a>
+    </p>
+  </section>
+
+  <div class="search-row">
+    <input type="text" id="search" placeholder="Buscar nicho...">
+    <button class="btn" id="fav-toggle">⭐ Favoritos</button>
+    <button class="btn" id="export-csv">⬇️ CSV</button>
+    <button class="btn" id="upgrade-btn" style="background:#16a34a; border-color:#16a34a; color:#fff;">⭐ Hazte Premium</button>
+    <a href="/planes.html" class="btn" style="text-decoration:none; display:inline-flex; align-items:center;">Ver planes</a>
+    <span id="premium-badge" style="display:none; align-self:center; font-size:0.78rem; font-weight:700; color:#166534; background:#dcfce7; padding:6px 12px; border-radius:999px;">⭐ Premium activo</span>
+  </div>
+
+  <div class="pills" id="category-pills">
+    <div class="pill active" data-cat="">Todas</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="daily">Diario</button>
+    <button class="tab-btn" data-tab="weekly">Semanal</button>
+    <button class="tab-btn" data-tab="monthly">Mensual</button>
+    <button class="tab-btn" data-tab="opportunity">Oportunidad</button>
+  </div>
+
+  <div class="tab-panel active" id="panel-daily"><div class="grid" id="list-daily"></div></div>
+  <div class="tab-panel" id="panel-weekly"><div class="grid" id="list-weekly"></div></div>
+  <div class="tab-panel" id="panel-monthly"><div class="grid" id="list-monthly"></div></div>
+  <div class="tab-panel" id="panel-opportunity"><div class="grid" id="list-opportunity"></div></div>
+
+  <footer style="margin-top:40px; padding-top:20px; border-top:1px solid #e5e7eb; font-size:0.8rem; color:#6b7280;">
+    <div style="margin-bottom:10px;">
+      <a href="/planes.html" style="color:#16a34a; font-weight:600;">Funciones y planes</a> ·
+      <a href="/tendencias.html" style="color:#16a34a; font-weight:600;">Ranking diario</a> ·
+      <a href="/categorias.html" style="color:#16a34a; font-weight:600;">Categorías</a> ·
+      <a href="/guia-nicho-rentable.html" style="color:#16a34a; font-weight:600;">Guía: nicho rentable</a> ·
+      <a href="/herramientas-encontrar-nichos.html" style="color:#16a34a; font-weight:600;">Comparativa de herramientas</a> ·
+      <a href="/buscador-de-nichos.html" style="color:#16a34a; font-weight:600;">Qué es este buscador</a>
+    </div>
+    <div style="color:#9ca3af;">Sin anuncios · Sin tracking de terceros · Favoritos guardados solo en tu navegador · Metodología abierta arriba</div>
+  </footer>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" id="modal-close">✕</button>
+    <h2 id="modal-title"></h2>
+    <div class="modal-meta" id="modal-meta"></div>
+    <div class="modal-stats" id="modal-stats"></div>
+    <canvas id="modal-chart"></canvas>
+    <div class="related-terms" id="modal-related"></div>
+    <div class="seo-kit" id="modal-seo-kit"></div>
+  </div>
+</div>
+
+<script>
+const CLASS_LABELS = { explosivo: '🚀 Explosivo', en_subida: '📈 En subida', estable: '➡️ Estable', en_caida: '📉 En caída', pico_pasado: '🏔️ Pico pasado' };
+const METRIC_BY_TAB = { daily: 'daily_change_pct', weekly: 'weekly_change_pct', monthly: 'monthly_change_pct', opportunity: 'opportunity' };
+const FREE_LIMIT = 10;
+const FREE_FAVORITES_LIMIT = 3;
+const PREMIUM_PRICE_LABEL = '9€/mes';
+let isPremium = false;
+let HISTORY = {}, DATES = [], LATEST = {}, PREV_IDS = new Set();
+let favorites = new Set(JSON.parse(localStorage.getItem('radar-favoritos') || '[]'));
+let filters = { search: '', category: '', onlyFavorites: false };
+let activeTab = 'daily';
+let modalChart = null;
+
+function trendClass(pct) { return pct > 5 ? 'up' : pct < -5 ? 'down' : 'flat'; }
+function saveFavorites() { localStorage.setItem('radar-favoritos', JSON.stringify([...favorites])); }
+
+async function checkPremiumStatus() {
+  const params = new URLSearchParams(window.location.search);
+  const sessionId = params.get('session_id');
+  if (sessionId) {
+    try {
+      const res = await fetch(`/api/verify-session?session_id=${encodeURIComponent(sessionId)}`);
+      const data = await res.json();
+      if (data.active && data.customerId) {
+        localStorage.setItem('radar-premium-customer', data.customerId);
+      }
+    } catch (e) { /* backend no desplegado todavia, se ignora */ }
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+
+  const customerId = localStorage.getItem('radar-premium-customer');
+  if (!customerId) { isPremium = false; return; }
+  try {
+    const res = await fetch(`/api/check-premium?customerId=${encodeURIComponent(customerId)}`);
+    const data = await res.json();
+    isPremium = !!data.active;
+  } catch (e) {
+    isPremium = false;
+  }
+  document.getElementById('premium-badge').style.display = isPremium ? 'flex' : 'none';
+  document.getElementById('upgrade-btn').style.display = isPremium ? 'none' : 'inline-block';
+}
+
+function upgradeBannerHTML(hiddenCount) {
+  return `<div style="grid-column:1/-1; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:14px; padding:22px; text-align:center;">
+    <strong style="font-size:1.05rem;">+${hiddenCount} nichos más disponibles con Premium</strong><br>
+    <span style="font-size:0.85rem; color:#166534;">Acceso completo, favoritos ilimitados y exportación a CSV — ${PREMIUM_PRICE_LABEL}</span><br>
+    <button onclick="document.getElementById('upgrade-btn').click()" style="margin-top:12px; background:#16a34a; color:#fff; border:none; padding:11px 22px; border-radius:9px; font-weight:700; cursor:pointer; font-size:0.9rem;">Hazte Premium</button>
+  </div>`;
+}
+
+function matchesFilters(id, item) {
+  if (filters.onlyFavorites && !favorites.has(id)) return false;
+  if (filters.category && item.category !== filters.category) return false;
+  if (filters.search) {
+    const s = filters.search.toLowerCase();
+    if (!item.name.toLowerCase().includes(s) && !item.query.toLowerCase().includes(s)) return false;
+  }
+  return true;
+}
+
+function renderTab(tab) {
+  const container = document.getElementById('list-' + tab);
+  const metricKey = METRIC_BY_TAB[tab];
+
+  let entries = Object.entries(LATEST).filter(([id, item]) => matchesFilters(id, item));
+  entries.sort((a, b) => b[1][metricKey] - a[1][metricKey]);
+  const totalMatching = entries.length;
+  const limited = filters.onlyFavorites
+    ? entries
+    : (isPremium ? entries : entries.slice(0, FREE_LIMIT));
+
+  container.innerHTML = '';
+  if (limited.length === 0) {
+    container.innerHTML = '<div class="empty">Sin resultados con estos filtros.</div>';
+    return;
+  }
+
+  limited.forEach(([id, item], index) => {
+    const val = item[metricKey];
+    const isOpportunity = tab === 'opportunity';
+    const cls = isOpportunity ? 'flat' : trendClass(val);
+    const arrow = isOpportunity ? '💡' : (cls === 'up' ? '▲' : cls === 'down' ? '▼' : '→');
+    const isNew = PREV_IDS.size > 0 && !PREV_IDS.has(id);
+    const series = DATES.map(d => (HISTORY[d][id] ? HISTORY[d][id].week_avg : null));
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-top">
+        <span class="rank-badge">#${index + 1}</span>
+        <span class="star ${favorites.has(id) ? 'active' : ''}" data-id="${id}">⭐</span>
+      </div>
+      <span class="cat-pill">${item.category || 'otros'}</span><span class="class-tag ${item.classification || 'estable'}">${CLASS_LABELS[item.classification] || ''}</span>${isNew ? '<span class="new-tag">NUEVO</span>' : ''}
+      <h3>${item.name}</h3>
+      <div class="big-change ${cls}"><span class="arrow-icon">${arrow}</span>${isOpportunity ? val : (val > 0 ? '+' : '') + val + '%'}</div>
+      <div class="card-meta">Interés: ${item.current}/100 · Oportunidad: ${item.opportunity}</div>
+      <canvas class="spark" id="spark-${tab}-${id}"></canvas>
+    `;
+    card.addEventListener('click', (e) => { if (!e.target.classList.contains('star')) openModal(id); });
+    card.querySelector('.star').addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (favorites.has(id)) {
+        favorites.delete(id);
+      } else {
+        if (!isPremium && favorites.size >= FREE_FAVORITES_LIMIT) {
+          alert(`En el plan gratuito puedes guardar hasta ${FREE_FAVORITES_LIMIT} favoritos. Hazte Premium para favoritos ilimitados.`);
+          return;
+        }
+        favorites.add(id);
+      }
+      saveFavorites();
+      renderTab(activeTab);
+    });
+    container.appendChild(card);
+
+    const color = isOpportunity ? '#2563eb' : (cls === 'up' ? '#16a34a' : cls === 'down' ? '#dc2626' : '#9ca3af');
+    new Chart(document.getElementById(`spark-${tab}-${id}`), {
+      type: 'line',
+      data: { labels: DATES, datasets: [{ data: series, borderColor: color, backgroundColor: color + '15', fill: true, borderWidth: 2, pointRadius: 0, tension: 0.35 }] },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
+    });
+  });
+
+  if (!isPremium && !filters.onlyFavorites && totalMatching > FREE_LIMIT) {
+    const banner = document.createElement('div');
+    banner.innerHTML = upgradeBannerHTML(totalMatching - FREE_LIMIT);
+    container.appendChild(banner.firstElementChild);
+  }
+}
+
+function renderAll() { Object.keys(METRIC_BY_TAB).forEach(renderTab); }
+
+function slugifyDomain(text) {
+  return text
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '')
+    .replace(/\s+/g, '');
+}
+
+function suggestDomains(query) {
+  const slug = slugifyDomain(query);
+  return [
+    `${slug}.es`,
+    `${slug}.com`,
+    `${slug}online.com`,
+    `${slug}gratis.es`,
+    `tu${slug}.com`,
+  ];
+}
+
+const CONTENT_OUTLINES = {
+  calculadora: (tema) => ({
+    title: `Calculadora de ${tema} gratis online`,
+    meta: `Calcula tu ${tema} en segundos, gratis y sin registro. Herramienta actualizada y explicación de cómo se calcula.`,
+    sections: ['H1: Calculadora de ' + tema, 'H2: Cómo se calcula el ' + tema, 'H2: Ejemplo práctico paso a paso', 'H2: Preguntas frecuentes', 'CTA: Usa la calculadora arriba'],
+  }),
+  plantilla: (tema) => ({
+    title: `Modelo de ${tema} en Word y PDF, gratis`,
+    meta: `Descarga un modelo de ${tema} listo para rellenar, en Word y PDF. Qué debe incluir y cómo usarlo correctamente.`,
+    sections: ['H1: Modelo de ' + tema, 'H2: Qué debe incluir este documento', 'H2: Cómo rellenarlo paso a paso', 'H2: Descarga en Word / PDF', 'H2: Aviso: no sustituye asesoramiento legal'],
+  }),
+  comparador: (tema) => ({
+    title: `Mejores opciones de ${tema} en España (comparativa)`,
+    meta: `Comparativa actualizada de ${tema}: precios, características y cuál elegir según tu caso.`,
+    sections: ['H1: Mejor ' + tema + ' — comparativa', 'H2: Cómo hemos comparado', 'H2: Tabla comparativa', 'H2: Cuál elegir según tu caso', 'H2: Preguntas frecuentes'],
+  }),
+  tramite: (tema) => ({
+    title: `Cómo hacer ${tema} paso a paso (2026)`,
+    meta: `Guía actualizada para hacer ${tema}: requisitos, pasos y dudas frecuentes.`,
+    sections: ['H1: Cómo hacer ' + tema, 'H2: Requisitos previos', 'H2: Pasos a seguir', 'H2: Tiempo de espera habitual', 'H2: Preguntas frecuentes'],
+  }),
+  generador: (tema) => ({
+    title: `Generador de ${tema} gratis`,
+    meta: `Genera tu ${tema} en segundos, gratis y sin registro.`,
+    sections: ['H1: Generador de ' + tema, 'H2: Cómo funciona', 'H2: Ejemplo de resultado', 'H2: Preguntas frecuentes'],
+  }),
+  guia: (tema) => ({
+    title: `Guía completa: ${tema}`,
+    meta: `Todo lo que necesitas saber sobre ${tema}, explicado paso a paso.`,
+    sections: ['H1: Guía: ' + tema, 'H2: Antes de empezar', 'H2: Pasos a seguir', 'H2: Errores comunes', 'H2: Preguntas frecuentes'],
+  }),
+  costes: (tema) => ({
+    title: `Cuánto cuesta ${tema} en España (2026)`,
+    meta: `Precio medio de ${tema} en España, qué factores influyen y cómo ahorrar.`,
+    sections: ['H1: Cuánto cuesta ' + tema, 'H2: Precio medio actual', 'H2: Qué factores influyen en el precio', 'H2: Cómo ahorrar', 'H2: Preguntas frecuentes'],
+  }),
+};
+
+function contentOutlineFor(category, tema) {
+  const builder = CONTENT_OUTLINES[category];
+  if (builder) return builder(tema);
+  return {
+    title: `${tema.charAt(0).toUpperCase() + tema.slice(1)}`,
+    meta: `Todo sobre ${tema}, explicado de forma clara.`,
+    sections: ['H1: ' + tema, 'H2: Qué es y por qué importa', 'H2: Cómo funciona', 'H2: Preguntas frecuentes'],
+  };
+}
+
+function renderSeoKit(item) {
+  const container = document.getElementById('modal-seo-kit');
+  if (!isPremium) {
+    container.innerHTML = `
+      <div class="seo-locked">
+        <p><strong>🔒 Kit de lanzamiento SEO (Premium)</strong><br>Dominios sugeridos, título, meta descripción y estructura de contenido lista para este nicho.</p>
+        <button onclick="document.getElementById('upgrade-btn').click()" style="background:#16a34a; color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:700; cursor:pointer;">Hazte Premium</button>
+      </div>`;
+    return;
+  }
+
+  const domains = suggestDomains(item.query);
+  const outline = contentOutlineFor(item.category, item.query);
+
+  container.innerHTML = `
+    <h4>Dominios sugeridos</h4>
+    <div>${domains.map(d => `<span class="domain-chip">${d}</span>`).join('')}</div>
+    <p style="font-size:0.75rem; color:#9ca3af; margin-top:6px;">Comprueba disponibilidad antes de comprar — un registrador (Namecheap, OVH, nic.es) te lo confirma al instante. Coste orientativo: 9-15€/año.</p>
+
+    <h4>Título y meta descripción sugeridos</h4>
+    <p style="font-size:0.82rem;"><strong>Título:</strong> ${outline.title}<br><strong>Meta descripción:</strong> ${outline.meta}</p>
+
+    <h4>Estructura de contenido sugerida</h4>
+    <div class="seo-outline">${outline.sections.join('<br>')}</div>
+
+    <h4>Pasos para publicar</h4>
+    <div class="seo-outline">1. Compra el dominio sugerido arriba<br>2. Conéctalo a Vercel o GitHub Pages (Settings → Domains)<br>3. Publica contenido siguiendo la estructura de arriba<br>4. Da de alta el sitemap en Google Search Console</div>
+  `;
+}
+
+function openModal(id) {
+  const item = LATEST[id];
+  if (!item) return;
+  document.getElementById('modal-title').textContent = item.name;
+  document.getElementById('modal-meta').textContent = `"${item.query}" · categoría: ${item.category || 'otros'} · ${CLASS_LABELS[item.classification] || ''}`;
+  document.getElementById('modal-stats').innerHTML = `
+    <div class="modal-stat"><div class="label">Diario</div><div class="value">${item.daily_change_pct > 0 ? '+' : ''}${item.daily_change_pct}%</div></div>
+    <div class="modal-stat"><div class="label">Semanal</div><div class="value">${item.weekly_change_pct > 0 ? '+' : ''}${item.weekly_change_pct}%</div></div>
+    <div class="modal-stat"><div class="label">Mensual</div><div class="value">${item.monthly_change_pct > 0 ? '+' : ''}${item.monthly_change_pct}%</div></div>
+  `;
+  const terms = (item.sample_terms || []).filter(Boolean);
+  const redditLine = item.reddit_mentions != null ? ` · ${item.reddit_mentions} discusiones recientes en Reddit` : '';
+  document.getElementById('modal-related').textContent = (terms.length
+    ? `Términos relacionados: ${terms.join(', ')} (${item.breadth} en total)`
+    : 'Sin términos relacionados registrados.') + redditLine;
+
+  const series = DATES.map(d => (HISTORY[d][id] ? HISTORY[d][id].week_avg : null));
+  if (modalChart) modalChart.destroy();
+  modalChart = new Chart(document.getElementById('modal-chart'), {
+    type: 'line',
+    data: { labels: DATES, datasets: [{ data: series, borderColor: '#16a34a', backgroundColor: '#16a34a15', fill: true, borderWidth: 2, pointRadius: 0, tension: 0.3 }] },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#9ca3af' } }, y: { ticks: { color: '#9ca3af' } } } }
+  });
+
+  renderSeoKit(item);
+
+  document.getElementById('modal-overlay').classList.add('active');
+}
+
+document.getElementById('modal-close').addEventListener('click', () => document.getElementById('modal-overlay').classList.remove('active'));
+document.getElementById('modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'modal-overlay') e.currentTarget.classList.remove('active'); });
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    activeTab = btn.dataset.tab;
+    document.getElementById('panel-' + activeTab).classList.add('active');
+  });
+});
+
+document.getElementById('search').addEventListener('input', (e) => { filters.search = e.target.value; renderAll(); });
+document.getElementById('fav-toggle').addEventListener('click', (e) => {
+  filters.onlyFavorites = !filters.onlyFavorites;
+  e.currentTarget.classList.toggle('active', filters.onlyFavorites);
+  renderAll();
+});
+
+document.getElementById('export-csv').addEventListener('click', () => {
+  if (!isPremium) {
+    alert('Exportar a CSV es una función Premium. Hazte Premium para descargar el listado completo.');
+    return;
+  }
+  const rows = [['nombre', 'query', 'categoria', 'interes_actual', 'cambio_diario_%', 'cambio_semanal_%', 'cambio_mensual_%', 'amplitud', 'oportunidad']];
+  Object.values(LATEST).forEach(item => {
+    rows.push([item.name, item.query, item.category || '', item.current, item.daily_change_pct, item.weekly_change_pct, item.monthly_change_pct, item.breadth, item.opportunity]);
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'radar-nichos.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('upgrade-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('upgrade-btn');
+  const original = btn.textContent;
+  btn.textContent = 'Cargando...';
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/create-checkout', { method: 'POST' });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('El pago con tarjeta todavía no está activado en esta web. (Falta configurar Stripe.)');
+      btn.textContent = original;
+      btn.disabled = false;
+    }
+  } catch (e) {
+    alert('El pago con tarjeta todavía no está activado en esta web. (Falta configurar Stripe.)');
+    btn.textContent = original;
+    btn.disabled = false;
+  }
+});
+
+async function load() {
+  try {
+    const res = await fetch('data/history.json', { cache: 'no-store' });
+    HISTORY = await res.json();
+  } catch (e) {
+    document.querySelector('.wrap').innerHTML += '<div class="empty">Todavía no hay datos. Se generarán tras la primera ejecución del workflow diario.</div>';
+    return;
+  }
+
+  DATES = Object.keys(HISTORY).sort();
+  if (DATES.length === 0) {
+    document.getElementById('last-update').textContent = 'Todavía no hay datos.';
+    return;
+  }
+
+  const lastDate = DATES[DATES.length - 1];
+  const prevDate = DATES.length >= 2 ? DATES[DATES.length - 2] : null;
+  LATEST = HISTORY[lastDate];
+  PREV_IDS = new Set(prevDate ? Object.keys(HISTORY[prevDate]) : []);
+
+  document.getElementById('last-update').textContent =
+    'Actualizado: ' + lastDate + ' · ' + DATES.length + ' día(s) · ' + Object.keys(LATEST).length + ' nichos';
+  document.getElementById('stat-total').textContent = Object.keys(LATEST).length;
+
+  const categories = [...new Set(Object.values(LATEST).map(i => i.category || 'otros'))].sort();
+  const pillsContainer = document.getElementById('category-pills');
+  categories.forEach(cat => {
+    const pill = document.createElement('div');
+    pill.className = 'pill';
+    pill.dataset.cat = cat;
+    pill.textContent = cat;
+    pillsContainer.appendChild(pill);
+  });
+  pillsContainer.querySelectorAll('.pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      pillsContainer.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      filters.category = pill.dataset.cat;
+      renderAll();
+    });
+  });
+
+  await checkPremiumStatus();
+  renderAll();
+}
+load();
+</script>
+</body>
+</html>
