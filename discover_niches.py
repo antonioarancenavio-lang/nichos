@@ -46,6 +46,27 @@ def normalize(text):
     return re.sub(r"\s+", " ", text.lower()).strip()
 
 
+def word_set(text):
+    stopwords = {"de", "la", "el", "en", "para", "con", "un", "una", "y", "que", "como"}
+    return {w for w in normalize(text).split() if w not in stopwords and len(w) > 2}
+
+
+def is_near_duplicate(candidate_words, known_word_sets, threshold=0.75):
+    """Similitud tipo Jaccard: si comparte la mayoria de palabras clave con
+    algo que ya esta en seguimiento, se considera casi-duplicado y se descarta
+    (evita llenar el nucleo de variaciones triviales del mismo nicho)."""
+    if not candidate_words:
+        return False
+    for known_words in known_word_sets:
+        if not known_words:
+            continue
+        overlap = len(candidate_words & known_words)
+        union = len(candidate_words | known_words)
+        if union and (overlap / union) >= threshold:
+            return True
+    return False
+
+
 def load_json(path, default):
     if path.exists():
         with open(path, encoding="utf-8") as f:
@@ -80,9 +101,11 @@ def main():
 
     known_normalized = {normalize(item["query"]) for item in keywords}
     known_normalized |= {normalize(q) for q in discarded}
+    known_word_sets = [word_set(item["query"]) for item in keywords]
 
     candidates = []  # lista de (texto, categoria)
     seen_this_run = set()
+    seen_word_sets_this_run = []
 
     for seed, category in seeds.items():
         suggestions = fetch_suggestions(seed)
@@ -91,7 +114,11 @@ def main():
             norm = normalize(suggestion)
             if not norm or norm in known_normalized or norm in seen_this_run:
                 continue
+            words = word_set(suggestion)
+            if is_near_duplicate(words, known_word_sets) or is_near_duplicate(words, seen_word_sets_this_run):
+                continue
             seen_this_run.add(norm)
+            seen_word_sets_this_run.append(words)
             candidates.append((suggestion, category))
 
     print(f"\nCandidatos nuevos encontrados: {len(candidates)}")
