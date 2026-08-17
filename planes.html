@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Funciones y planes — Radar de Nichos</title>
+<meta name="description" content="Compara el plan gratuito y Premium de Radar de Nichos: qué incluye cada uno, precio, y cómo funciona el kit de lanzamiento SEO. Cancela cuando quieras.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://TU-DOMINIO-AQUI/planes.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Funciones y planes — Radar de Nichos">
+<meta property="og:description" content="Compara el plan gratuito y Premium: qué incluye cada uno y cómo funciona.">
+<meta property="og:url" content="https://TU-DOMINIO-AQUI/planes.html">
+<meta property="og:image" content="https://TU-DOMINIO-AQUI/og-image.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<meta name="theme-color" content="#16a34a">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Radar de Nichos", "item": "https://TU-DOMINIO-AQUI/" },
+        { "@type": "ListItem", "position": 2, "name": "Funciones y planes", "item": "https://TU-DOMINIO-AQUI/planes.html" }
+      ]
+    },
+    {
+      "@type": "Product",
+      "name": "Radar de Nichos Premium",
+      "description": "Acceso completo al radar de nichos de negocio en España, con kit de lanzamiento SEO por nicho.",
+      "offers": {
+        "@type": "Offer",
+        "price": "9.00",
+        "priceCurrency": "EUR",
+        "priceValidUntil": "2027-12-31",
+        "availability": "https://schema.org/InStock"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "¿Puedo cancelar cuando quiera?", "acceptedAnswer": { "@type": "Answer", "text": "Sí. No hay permanencia. Cancelas desde tu propio panel de facturación de Stripe y dejas de pagar en el siguiente ciclo, sin tener que escribirnos ni justificarlo." } },
+        { "@type": "Question", "name": "¿Cómo se procesa el pago?", "acceptedAnswer": { "@type": "Answer", "text": "A través de Stripe, uno de los procesadores de pago más usados del mundo. Nosotros nunca vemos ni guardamos el número de tu tarjeta." } },
+        { "@type": "Question", "name": "¿Qué pasa si me hago Premium y no me convence?", "acceptedAnswer": { "@type": "Answer", "text": "Puedes cancelar en cualquier momento desde el panel de Stripe. No hay contrato ni compromiso mínimo." } },
+        { "@type": "Question", "name": "¿El plan gratuito tiene límite de tiempo?", "acceptedAnswer": { "@type": "Answer", "text": "No. El plan gratuito es gratis para siempre, no es una prueba temporal." } }
+      ]
+    }
+  ]
+}
+</script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f7f8fa;
+    color: #14161a;
+    margin: 0;
+    padding: 0 0 60px;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px; }
+
+  .brand-strip-link { display:inline-flex; align-items:center; gap:8px; text-decoration:none; color:#14161a; font-weight:800; font-size:0.95rem; }
+  .brand-strip-logo { width:26px; height:26px; border-radius:7px; background:#16a34a; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+  header { border-bottom: 1px solid #e5e7eb; background: #fff; padding: 20px 0; margin-bottom: 40px; }
+
+  .hero { text-align: center; margin-bottom: 32px; }
+  .hero h1 { font-size: 1.9rem; margin: 0 0 10px; letter-spacing: -0.02em; }
+  .hero p { color: #6b7280; font-size: 1rem; max-width: 560px; margin: 0 auto; }
+
+  .value-banner {
+    background: #14161a; color: #fff; border-radius: 14px; padding: 16px 24px;
+    text-align: center; font-size: 0.88rem; margin-bottom: 36px;
+  }
+  .value-banner strong { color: #4ade80; }
+
+  .toggle-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 28px; }
+  .toggle-label { font-size: 0.88rem; font-weight: 600; color: #6b7280; }
+  .toggle-label.active-label { color: #14161a; }
+  .toggle-switch { width: 46px; height: 26px; background: #d1d5db; border-radius: 999px; position: relative; cursor: pointer; transition: background 0.2s; border: none; }
+  .toggle-switch.on { background: #16a34a; }
+  .toggle-switch .knob { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
+  .toggle-switch.on .knob { transform: translateX(20px); }
+  .save-badge { background: #dcfce7; color: #166534; font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+
+  .plans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 44px; }
+  .plan-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 28px 24px; }
+  .plan-card.premium { border: 2px solid #16a34a; position: relative; box-shadow: 0 8px 24px rgba(22,163,74,0.08); }
+  .plan-badge { position: absolute; top: -12px; left: 24px; background: #16a34a; color: #fff; font-size: 0.7rem; font-weight: 800; padding: 4px 12px; border-radius: 999px; letter-spacing: 0.03em; }
+  .plan-card h2 { font-size: 1.1rem; margin: 0 0 4px; }
+  .plan-price { font-size: 2.1rem; font-weight: 800; letter-spacing: -0.02em; margin: 10px 0 2px; }
+  .plan-price span { font-size: 0.95rem; font-weight: 500; color: #9ca3af; }
+  .plan-price-sub { font-size: 0.75rem; color: #9ca3af; margin-bottom: 14px; min-height: 16px; }
+  .plan-desc { color: #6b7280; font-size: 0.85rem; margin-bottom: 18px; }
+  .plan-features { list-style: none; padding: 0; margin: 0 0 20px; font-size: 0.87rem; }
+  .plan-features li { padding: 6px 0; display: flex; align-items: flex-start; gap: 8px; }
+  .check { color: #16a34a; font-weight: 800; flex-shrink: 0; }
+  .cross { color: #d1d5db; font-weight: 800; flex-shrink: 0; }
+  .plan-cta { display: block; text-align: center; padding: 13px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; text-decoration: none; }
+  .plan-cta.free { background: #f3f4f6; color: #374151; }
+  .plan-cta.premium { background: #16a34a; color: #fff; border: none; cursor: pointer; width: 100%; }
+  .secure-note { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px; font-size: 0.72rem; color: #9ca3af; }
+
+  .compare-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; overflow: hidden; margin-bottom: 40px; font-size: 0.85rem; }
+  .compare-table th, .compare-table td { text-align: left; padding: 12px 16px; border-bottom: 1px solid #f0f1f3; }
+  .compare-table th { background: #f7f8fa; color: #6b7280; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  .compare-table td.center, .compare-table th.center { text-align: center; }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  .trust-note { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px 20px; font-size: 0.82rem; color: #166534; margin-bottom: 40px; }
+
+  .faq-section h2 { font-size: 1.15rem; margin-bottom: 16px; }
+  .faq-item { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px 18px; margin-bottom: 10px; }
+  .faq-item h3 { font-size: 0.92rem; margin: 0 0 6px; }
+  .faq-item p { font-size: 0.85rem; color: #6b7280; margin: 0; }
+
+  footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 0.8rem; color: #6b7280; }
+  footer a { color: #16a34a; font-weight: 600; text-decoration: none; }
+
+  @media (max-width: 640px) {
+    .plans-grid { grid-template-columns: 1fr; }
+    .compare-table { font-size: 0.78rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a href="/" class="brand-strip-link">
+      <span class="brand-strip-logo">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="14" width="4" height="7" rx="1" fill="white"/><rect x="10" y="9" width="4" height="12" rx="1" fill="white"/><rect x="17" y="3" width="4" height="18" rx="1" fill="white"/></svg>
+      </span>
+      Radar de Nichos
+    </a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <h1>Funciones y planes</h1>
+    <p>Radar de Nichos es gratis para siempre en lo esencial. Premium añade acceso completo y herramientas para pasar de la idea a la web publicada.</p>
+  </div>
+
+  <div class="value-banner">
+    Herramientas similares en inglés (Exploding Topics, Glimpse) cuestan entre <strong>40$ y 70$ al mes</strong>.
+    Radar de Nichos está centrado en España, en español, desde <strong>9€/mes</strong> — y con un plan gratuito real, no una prueba de 7 días.
+  </div>
+
+  <div class="toggle-row">
+    <span class="toggle-label active-label" id="label-monthly">Mensual</span>
+    <button class="toggle-switch" id="billing-toggle" aria-label="Cambiar a facturación anual"><span class="knob"></span></button>
+    <span class="toggle-label" id="label-annual">Anual</span>
+    <span class="save-badge">Ahorra 2 meses</span>
+  </div>
+
+  <div class="plans-grid">
+    <div class="plan-card">
+      <h2>Gratis</h2>
+      <div class="plan-price">0€</div>
+      <div class="plan-price-sub">Para siempre, sin prueba con caducidad</div>
+      <div class="plan-desc">Para explorar el radar y validar la idea de negocio.</div>
+      <ul class="plan-features">
+        <li><span class="check">✓</span> Top 10 de cada ranking (diario, semanal, mensual, oportunidad)</li>
+        <li><span class="check">✓</span> Clasificación automática (Explosivo, En subida, etc.)</li>
+        <li><span class="check">✓</span> Ficha detallada de cada nicho con gráfica</li>
+        <li><span class="check">✓</span> Hasta 3 favoritos guardados</li>
+        <li><span class="check">✓</span> Todas las guías y rankings de contenido</li>
+        <li><span class="cross">✕</span> Exportar a CSV</li>
+        <li><span class="cross">✕</span> Kit de lanzamiento SEO por nicho</li>
+      </ul>
+      <a href="/" class="plan-cta free">Empezar gratis</a>
+    </div>
+
+    <div class="plan-card premium">
+      <span class="plan-badge">RECOMENDADO</span>
+      <h2>Premium</h2>
+      <div class="plan-price" id="premium-price">9€ <span>/ mes</span></div>
+      <div class="plan-price-sub" id="premium-price-sub">Facturado mensualmente</div>
+      <div class="plan-desc">Para quien va en serio con montar el negocio.</div>
+      <ul class="plan-features">
+        <li><span class="check">✓</span> Todo lo del plan gratis</li>
+        <li><span class="check">✓</span> Acceso completo a los 150+ nichos en seguimiento</li>
+        <li><span class="check">✓</span> Favoritos ilimitados</li>
+        <li><span class="check">✓</span> Exportar todo a CSV</li>
+        <li><span class="check">✓</span> Kit de lanzamiento SEO por nicho: dominios sugeridos, título, meta descripción y estructura de contenido</li>
+        <li><span class="check">✓</span> Cancela cuando quieras, sin permanencia</li>
+      </ul>
+      <button class="plan-cta premium" id="upgrade-btn-planes">Hazte Premium</button>
+      <div class="secure-note">🔒 Pago seguro procesado por Stripe</div>
+    </div>
+  </div>
+
+  <h2 style="font-size:1.15rem; margin-bottom:16px;">Comparativa completa</h2>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Función</th><th class="center">Gratis</th><th class="center">Premium</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Nichos visibles por ranking</td><td class="center">Top 10</td><td class="center">Todos (150+)</td></tr>
+      <tr><td>Favoritos guardados</td><td class="center">3</td><td class="center">Ilimitados</td></tr>
+      <tr><td>Clasificación automática y gráfica</td><td class="center">✓</td><td class="center">✓</td></tr>
+      <tr><td>Búsqueda y filtro por categoría</td><td class="center">✓</td><td class="center">✓</td></tr>
+      <tr><td>Exportar a CSV</td><td class="center">✕</td><td class="center">✓</td></tr>
+      <tr><td>Kit de lanzamiento SEO por nicho</td><td class="center">✕</td><td class="center">✓</td></tr>
+      <tr><td>Rankings y guías de contenido público</td><td class="center">✓</td><td class="center">✓</td></tr>
+      <tr><td>Sin anuncios ni tracking de terceros</td><td class="center">✓</td><td class="center">✓</td></tr>
+    </tbody>
+  </table>
+
+  <div class="trust-note">
+    <strong>Sin permanencia ni letra pequeña:</strong> la suscripción se gestiona directamente con Stripe, puedes cancelarla cuando quieras desde tu propio panel de facturación. No guardamos tus datos de pago — pasan directamente por Stripe.
+  </div>
+
+  <div class="faq-section">
+    <h2>Preguntas frecuentes</h2>
+    <div class="faq-item">
+      <h3>¿Puedo cancelar cuando quiera?</h3>
+      <p>Sí. No hay permanencia. Cancelas desde tu propio panel de facturación de Stripe y dejas de pagar en el siguiente ciclo, sin tener que escribirnos ni justificarlo.</p>
+    </div>
+    <div class="faq-item">
+      <h3>¿Cómo se procesa el pago?</h3>
+      <p>A través de Stripe, uno de los procesadores de pago más usados del mundo. Nunca vemos ni guardamos el número de tu tarjeta.</p>
+    </div>
+    <div class="faq-item">
+      <h3>¿Qué pasa si me hago Premium y no me convence?</h3>
+      <p>Puedes cancelar en cualquier momento desde el panel de Stripe. No hay contrato ni compromiso mínimo.</p>
+    </div>
+    <div class="faq-item">
+      <h3>¿El plan gratuito tiene límite de tiempo?</h3>
+      <p>No. El plan gratuito es gratis para siempre, no es una prueba temporal.</p>
+    </div>
+  </div>
+
+  <footer>
+    <a href="/">Volver al Radar de Nichos</a> ·
+    <a href="/tendencias.html">Ranking diario</a> ·
+    <a href="/categorias.html">Categorías</a> ·
+    <a href="/guia-nicho-rentable.html">Guía: nicho rentable</a>
+  </footer>
+</div>
+
+<script>
+let billingAnnual = false;
+
+document.getElementById('billing-toggle').addEventListener('click', () => {
+  billingAnnual = !billingAnnual;
+  const toggle = document.getElementById('billing-toggle');
+  toggle.classList.toggle('on', billingAnnual);
+  document.getElementById('label-monthly').classList.toggle('active-label', !billingAnnual);
+  document.getElementById('label-annual').classList.toggle('active-label', billingAnnual);
+
+  if (billingAnnual) {
+    document.getElementById('premium-price').innerHTML = '90€ <span>/ año</span>';
+    document.getElementById('premium-price-sub').textContent = 'Equivale a 7,50€/mes — ahorras 18€ al año';
+  } else {
+    document.getElementById('premium-price').innerHTML = '9€ <span>/ mes</span>';
+    document.getElementById('premium-price-sub').textContent = 'Facturado mensualmente';
+  }
+});
+
+document.getElementById('upgrade-btn-planes').addEventListener('click', async () => {
+  const btn = document.getElementById('upgrade-btn-planes');
+  const original = btn.textContent;
+  btn.textContent = 'Cargando...';
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan: billingAnnual ? 'annual' : 'monthly' }),
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('El pago con tarjeta todavía no está activado en esta web.');
+      btn.textContent = original;
+      btn.disabled = false;
+    }
+  } catch (e) {
+    alert('El pago con tarjeta todavía no está activado en esta web.');
+    btn.textContent = original;
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

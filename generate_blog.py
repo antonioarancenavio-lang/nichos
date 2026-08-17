@@ -209,7 +209,7 @@ def main():
   <div class="updated">Última actualización: {fecha} · datos de Google Trends (España)</div>
 
   <p>Este ranking se genera automáticamente cada día a partir de <a href="/">Radar de Nichos</a>,
-  una herramienta gratuita que analiza el interés de búsqueda real en España para detectar
+  una herramienta gratuita que analiza el interés de búsqueda real en Google España para detectar
   ideas de negocio con demanda creciente. Estos son los nichos con mayor subida de interés esta
   semana frente a la semana anterior:</p>
 
