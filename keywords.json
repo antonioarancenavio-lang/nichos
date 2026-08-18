@@ -382,5 +382,29 @@
     "name": "Modelo contrato alquiler vivienda 2026",
     "query": "modelo contrato alquiler vivienda 2026",
     "category": "plantilla"
+  },
+  {
+    "id": "auto-comparador-de-altura",
+    "name": "Comparador de altura",
+    "query": "comparador de altura",
+    "category": "comparador"
+  },
+  {
+    "id": "auto-comparador-de-vuelos",
+    "name": "Comparador de vuelos",
+    "query": "comparador de vuelos",
+    "category": "comparador"
+  },
+  {
+    "id": "auto-comparador-de-seguros-de-auto",
+    "name": "Comparador de seguros de auto",
+    "query": "comparador de seguros de auto",
+    "category": "comparador"
+  },
+  {
+    "id": "auto-comparador-de-seguros",
+    "name": "Comparador de seguros",
+    "query": "comparador de seguros",
+    "category": "comparador"
   }
 ]

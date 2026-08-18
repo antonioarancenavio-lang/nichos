@@ -8,7 +8,7 @@
     "last_success": "2026-08-18"
   },
   "nominas-autonomos": {
-    "consecutive_failures": 1,
+    "consecutive_failures": 2,
     "last_success": null
   },
   "colchon": {
@@ -20,7 +20,7 @@
     "last_success": "2026-08-18"
   },
   "factura-autonomo": {
-    "consecutive_failures": 1,
+    "consecutive_failures": 2,
     "last_success": null
   },
   "carta-despido": {
@@ -52,11 +52,11 @@
     "last_success": "2026-08-18"
   },
   "calculadora-paro": {
-    "consecutive_failures": 0,
+    "consecutive_failures": 1,
     "last_success": "2026-08-18"
   },
   "alquiler-habitacion": {
-    "consecutive_failures": 0,
+    "consecutive_failures": 1,
     "last_success": "2026-08-18"
   },
   "reclamacion": {
@@ -72,8 +72,8 @@
     "last_success": "2026-08-18"
   },
   "vacaciones-proporcionales": {
-    "consecutive_failures": 1,
-    "last_success": null
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
   },
   "finiquito-autonomo": {
     "consecutive_failures": 1,
@@ -132,12 +132,12 @@
     "last_success": null
   },
   "ahorro-jubilacion": {
-    "consecutive_failures": 1,
+    "consecutive_failures": 2,
     "last_success": null
   },
   "acta-junta-vecinos": {
-    "consecutive_failures": 1,
-    "last_success": null
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
   },
   "coste-despido": {
     "consecutive_failures": 0,
@@ -148,7 +148,7 @@
     "last_success": "2026-08-18"
   },
   "carta-impago-alquiler": {
-    "consecutive_failures": 1,
+    "consecutive_failures": 2,
     "last_success": null
   },
   "aspiradora-robot": {
@@ -156,27 +156,27 @@
     "last_success": "2026-08-18"
   },
   "presupuesto-reforma": {
-    "consecutive_failures": 1,
+    "consecutive_failures": 2,
     "last_success": null
   },
   "curriculum-europeo": {
-    "consecutive_failures": 1,
+    "consecutive_failures": 2,
     "last_success": null
   },
   "buscador-nichos": {
-    "consecutive_failures": 0,
+    "consecutive_failures": 1,
     "last_success": "2026-08-18"
   },
   "herramientas-nichos": {
-    "consecutive_failures": 1,
-    "last_success": null
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
   },
   "nicho-rentable": {
     "consecutive_failures": 0,
     "last_success": "2026-08-18"
   },
   "ideas-negocio-rentables": {
-    "consecutive_failures": 1,
+    "consecutive_failures": 2,
     "last_success": null
   },
   "auto-calculadora-de-horas": {
@@ -216,8 +216,8 @@
     "last_success": "2026-08-18"
   },
   "auto-modelo-de-lata": {
-    "consecutive_failures": 1,
-    "last_success": null
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
   },
   "auto-modelo-de-carro": {
     "consecutive_failures": 0,
@@ -252,6 +252,78 @@
     "last_success": "2026-08-18"
   },
   "auto-modelo-contrato-empleada-de-hogar": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "jubilacion-anticipada": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "baja-medica": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "freidora-aire": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "hipoteca-variable-fija": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "carta-dimision": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "nomina-embargo": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "buscador-tendencias-negocio": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "auto-modelo-carta-de-recomendacion-personal": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "auto-modelo-contrato-de-arrendamiento-colombia": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "auto-modelo-contrato-de-trabajo": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-comparador-de-altura": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-comparador-de-textos": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-comparador-de-celulares": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-comparador-de-vuelos": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-comparador-de-llantas": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-comparador-de-seguros-de-auto": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-comparador-de-caratula": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "auto-comparador-de-seguros": {
     "consecutive_failures": 0,
     "last_success": "2026-08-18"
   }
