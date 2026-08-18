@@ -4,6 +4,14 @@ on:
   schedule:
     - cron: "0 7 * * *"   # 07:00 UTC ~ 08:00/09:00 hora de Espana segun horario de verano
   workflow_dispatch: {}    # permite lanzarlo a mano desde la pestana Actions
+  push:
+    branches: [main]
+    paths-ignore:          # evita relanzarse a si mismo con sus propios commits de datos
+      - "data/**"
+      - "keywords.json"
+      - "tendencias.html"
+      - "categorias.html"
+      - "nichos-*.html"
 
 permissions:
   contents: write
@@ -33,10 +41,13 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python track_trends.py
 
+      - name: Generar página de tendencias (SEO)
+        run: python generate_blog.py
+
       - name: Guardar datos actualizados
         run: |
           git config user.name "radar-bot"
           git config user.email "radar-bot@users.noreply.github.com"
-          git add data/history.json data/discarded.json data/pending.json keywords.json
+          git add data/history.json data/discarded.json data/pending.json data/last_run.json data/health.json keywords.json tendencias.html categorias.html nichos-*.html
           git diff --staged --quiet || git commit -m "Actualiza datos $(date +%Y-%m-%d)"
           git push
