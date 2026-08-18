@@ -49,10 +49,21 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python generate_articles.py
 
+      - name: Enviar alertas de oportunidad temprana (Premium)
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          SITE_URL: ${{ secrets.SITE_URL }}
+        run: python alert_premium.py
+
       - name: Guardar datos actualizados
         run: |
           git config user.name "radar-bot"
           git config user.email "radar-bot@users.noreply.github.com"
-          git add data/history.json data/discarded.json data/pending.json data/last_run.json data/health.json data/articles.json keywords.json tendencias.html categorias.html nichos-*.html
+          git add data/history.json data/discarded.json data/pending.json data/last_run.json data/articles.json data/last_alert_sent.json keywords.json tendencias.html categorias.html nichos-*.html
           git diff --staged --quiet || git commit -m "Actualiza datos $(date +%Y-%m-%d)"
           git push
