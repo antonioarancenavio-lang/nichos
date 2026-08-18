@@ -30,6 +30,7 @@ CLASS_LABELS = {
     "en_caida": "📉 En caída",
     "pico_pasado": "🏔️ Pico ya pasado",
 }
+CLASS_FALLBACK = "🆕 Sin histórico suficiente"
 
 CATEGORY_TITLES = {
     "calculadora": "Calculadoras online más buscadas en España",
@@ -66,7 +67,7 @@ def build_rows(entries):
         <tr>
           <td>{name}</td>
           <td>{item.get('category', 'otros')}</td>
-          <td>{CLASS_LABELS.get(item.get('classification'), '')}</td>
+          <td>{CLASS_LABELS.get(item.get('classification'), CLASS_FALLBACK)}</td>
           <td>{item['current']}/100</td>
           <td>{'+' if item['weekly_change_pct'] > 0 else ''}{item['weekly_change_pct']}%</td>
         </tr>""")
@@ -159,7 +160,7 @@ def build_highlights(top5):
         paragraphs.append(
             f"<li><strong>{name}</strong> ({item.get('category', 'otros')}) — interés actual de "
             f"{item['current']}/100, con una subida del {item['weekly_change_pct']}% esta semana "
-            f"frente a la anterior. Clasificado como {CLASS_LABELS.get(item.get('classification'), '')}.</li>"
+            f"frente a la anterior. Clasificado como {CLASS_LABELS.get(item.get('classification'), CLASS_FALLBACK)}.</li>"
         )
     return "".join(paragraphs)
 
