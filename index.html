@@ -438,8 +438,8 @@
 <script>
 const CLASS_LABELS = { explosivo: '🚀 Explosivo', en_subida: '📈 En subida', estable: '➡️ Estable', en_caida: '📉 En caída', pico_pasado: '🏔️ Pico pasado' };
 const METRIC_BY_TAB = { daily: 'daily_change_pct', weekly: 'weekly_change_pct', monthly: 'monthly_change_pct', opportunity: 'opportunity' };
-const FREE_LIMIT = 10;
-const FREE_FAVORITES_LIMIT = 3;
+const FREE_LIMIT = 5;
+const FREE_FAVORITES_LIMIT = 2;
 const PREMIUM_PRICE_LABEL = '9€/mes';
 let isPremium = false;
 let HISTORY = {}, DATES = [], LATEST = {}, PREV_IDS = new Set();
@@ -481,8 +481,8 @@ async function checkPremiumStatus() {
 
 function upgradeBannerHTML(hiddenCount) {
   return `<div style="grid-column:1/-1; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:14px; padding:22px; text-align:center;">
-    <strong style="font-size:1.05rem;">+${hiddenCount} nichos más disponibles con Premium</strong><br>
-    <span style="font-size:0.85rem; color:#166534;">Acceso completo, favoritos ilimitados y exportación a CSV — ${PREMIUM_PRICE_LABEL}</span><br>
+    <strong style="font-size:1.05rem;">+${hiddenCount} nichos más — cada uno con su kit de lanzamiento SEO listo</strong><br>
+    <span style="font-size:0.85rem; color:#166534;">Dominio sugerido, título, meta description y estructura de contenido por nicho — ${PREMIUM_PRICE_LABEL}</span><br>
     <button onclick="document.getElementById('upgrade-btn').click()" style="margin-top:12px; background:#16a34a; color:#fff; border:none; padding:11px 22px; border-radius:9px; font-weight:700; cursor:pointer; font-size:0.9rem;">Hazte Premium</button>
   </div>`;
 }
@@ -639,9 +639,11 @@ function contentOutlineFor(category, tema) {
 function renderSeoKit(item) {
   const container = document.getElementById('modal-seo-kit');
   if (!isPremium) {
+    const teaserDomain = suggestDomains(item.query)[0];
     container.innerHTML = `
       <div class="seo-locked">
-        <p><strong>🔒 Kit de lanzamiento SEO (Premium)</strong><br>Dominios sugeridos, título, meta descripción y estructura de contenido lista para este nicho.</p>
+        <p style="margin-bottom:10px;">Dominio sugerido para <strong>${item.name}</strong>: <code style="background:#fff; padding:2px 8px; border-radius:6px;">${teaserDomain}</code></p>
+        <p><strong>🔒 El resto del kit es Premium</strong><br>Título SEO, meta descripción y estructura de contenido lista para publicar hoy mismo.</p>
         <button onclick="document.getElementById('upgrade-btn').click()" style="background:#16a34a; color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:700; cursor:pointer;">Hazte Premium</button>
       </div>`;
     return;
