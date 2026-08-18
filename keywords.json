@@ -364,5 +364,23 @@
     "name": "Modelo de factura",
     "query": "modelo de factura",
     "category": "plantilla"
+  },
+  {
+    "id": "auto-modelo-de-casas",
+    "name": "Modelo de casas",
+    "query": "modelo de casas",
+    "category": "plantilla"
+  },
+  {
+    "id": "auto-modelo-de-carro",
+    "name": "Modelo de carro",
+    "query": "modelo de carro",
+    "category": "plantilla"
+  },
+  {
+    "id": "auto-modelo-contrato-alquiler-vivienda-2026",
+    "name": "Modelo contrato alquiler vivienda 2026",
+    "query": "modelo contrato alquiler vivienda 2026",
+    "category": "plantilla"
   }
 ]

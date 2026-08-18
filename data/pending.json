@@ -1,1 +1,23 @@
-[]
+[
+  {
+    "id": "auto-modelo-de-sabores",
+    "name": "Modelo de sabores",
+    "query": "modelo de sabores",
+    "category": "plantilla",
+    "retry_count": 1
+  },
+  {
+    "id": "auto-modelo-de-lata",
+    "name": "Modelo de lata",
+    "query": "modelo de lata",
+    "category": "plantilla",
+    "retry_count": 1
+  },
+  {
+    "id": "auto-modelo-carta-de-referencia-personal",
+    "name": "Modelo carta de referencia personal",
+    "query": "modelo carta de referencia personal",
+    "category": "plantilla",
+    "retry_count": 1
+  }
+]

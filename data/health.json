@@ -1,0 +1,258 @@
+{
+  "finiquito": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "arras": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "nominas-autonomos": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "colchon": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "cita-dgt": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "factura-autonomo": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "carta-despido": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "hipoteca": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "curriculum": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "cita-ss": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "irpf": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "recurso-multa": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "certificado-digital": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "calculadora-paro": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "alquiler-habitacion": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "reclamacion": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "cita-trafico": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "baja-voluntaria": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "vacaciones-proporcionales": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "finiquito-autonomo": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "alta-autonomo": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "cotizacion-autonomos": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "contrato-servicios": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "seguro-coche": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "tarifas-luz": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "hipoteca-fija": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "plusvalia-municipal": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "testamento": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "empadronamiento": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "antiguedad-empresa": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "carta-renuncia": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "cita-extranjeria": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "bancos-sin-comisiones": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "ahorro-jubilacion": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "acta-junta-vecinos": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "coste-despido": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "pedir-paro": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "carta-impago-alquiler": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "aspiradora-robot": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "presupuesto-reforma": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "curriculum-europeo": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "buscador-nichos": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "herramientas-nichos": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "nicho-rentable": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "ideas-negocio-rentables": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "auto-calculadora-de-horas": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-calculadora-de-interes-compuesto": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-calculadora-de-horas-de-trabajo": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-modelo-declaracion-responsable": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-modelo-de-unas": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-modelo-de-factura": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-modelo-de-casas": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-modelo-de-sabores": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "auto-modelo-de-cocinas-modernas": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-modelo-de-lata": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "auto-modelo-de-carro": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-modelo-de-unas-bonitas": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-modelo-carta-retiro-espiritual-para-jovenes": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-modelo-carta-de-referencia-personal": {
+    "consecutive_failures": 1,
+    "last_success": null
+  },
+  "auto-modelo-carta-de-recomendacion": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-modelo-contrato-compraventa-coche": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-modelo-contrato-alquiler-vivienda-2026": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-modelo-contrato-indefinido": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  },
+  "auto-modelo-contrato-empleada-de-hogar": {
+    "consecutive_failures": 0,
+    "last_success": "2026-08-18"
+  }
+}
