@@ -328,5 +328,41 @@
     "name": "Buscador de tendencias de negocio",
     "query": "buscador de tendencias de negocio",
     "category": "meta"
+  },
+  {
+    "id": "auto-calculadora-de-horas",
+    "name": "Calculadora de horas",
+    "query": "calculadora de horas",
+    "category": "calculadora"
+  },
+  {
+    "id": "auto-calculadora-de-interes-compuesto",
+    "name": "Calculadora de interes compuesto",
+    "query": "calculadora de interes compuesto",
+    "category": "calculadora"
+  },
+  {
+    "id": "auto-calculadora-de-horas-de-trabajo",
+    "name": "Calculadora de horas de trabajo",
+    "query": "calculadora de horas de trabajo",
+    "category": "calculadora"
+  },
+  {
+    "id": "auto-modelo-declaracion-responsable",
+    "name": "Modelo declaracion responsable",
+    "query": "modelo declaracion responsable",
+    "category": "plantilla"
+  },
+  {
+    "id": "auto-modelo-de-unas",
+    "name": "Modelo de uñas",
+    "query": "modelo de uñas",
+    "category": "plantilla"
+  },
+  {
+    "id": "auto-modelo-de-factura",
+    "name": "Modelo de factura",
+    "query": "modelo de factura",
+    "category": "plantilla"
   }
 ]
