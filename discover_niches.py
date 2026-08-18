@@ -17,7 +17,6 @@ Uso local:
 """
 
 import json
-import os
 import re
 import sys
 import unicodedata
@@ -76,13 +75,9 @@ def load_json(path, default):
 
 
 def save_json(path, data):
-    """Escritura atomica: escribe en un archivo temporal y renombra, para que
-    un fallo a mitad de escritura nunca deje el archivo real corrupto."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp_path = path.with_suffix(path.suffix + ".tmp")
-    with open(tmp_path, "w", encoding="utf-8") as f:
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
-    os.replace(tmp_path, path)
 
 
 def fetch_suggestions(seed):

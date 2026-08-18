@@ -81,6 +81,46 @@ Para cambiar qué es gratis y qué es Premium, edita en `index.html`:
 - `FREE_FAVORITES_LIMIT` — favoritos máximos en gratis (por defecto 3)
 - `PREMIUM_PRICE_LABEL` — el texto del precio que se muestra en la web
 
+## Alertas de oportunidad temprana y artículos completos (Premium)
+
+Dos capas adicionales, solo para Premium:
+
+**Artículos completos por nicho** (`generate_articles.py`): genera un artículo
+de 500-700 palabras listo para publicar (no solo un esquema) para los nichos
+con más tirada, usando la API de Claude. Se genera una vez por nicho y se
+guarda en caché (`data/articles.json`) — no se regenera en cada visita.
+Requiere `ANTHROPIC_API_KEY` como secret de GitHub Actions. Sin esa variable,
+el paso simplemente no genera nada, no rompe el resto del workflow.
+
+**Alertas cuando algo se vuelve "explosivo"** (`alert_premium.py`): avisa por
+email y/o Telegram a los suscriptores Premium activos el mismo día en que un
+nicho entra en la clasificación "Explosivo". Usa Stripe como fuente de verdad
+de quién es Premium (no hace falta base de datos de usuarios propia).
+
+Para activar el aviso por **email**, añade estos secrets:
+- `RESEND_API_KEY` — cuenta gratuita en [resend.com](https://resend.com)
+- `RESEND_FROM_EMAIL` — remitente verificado en Resend
+
+Para activar el aviso por **Telegram** (uno a uno, cada usuario vincula su
+cuenta con un botón "Vincular Telegram" que aparece en la web si es Premium):
+1. Crea una cuenta gratuita en [upstash.com](https://upstash.com) → crea una
+   base de datos Redis → copia `UPSTASH_REDIS_REST_URL` y
+   `UPSTASH_REDIS_REST_TOKEN`.
+2. Añade también `TELEGRAM_BOT_USERNAME` (el @usuario de tu bot, sin la @) y
+   `TELEGRAM_WEBHOOK_SECRET` (invéntate una cadena aleatoria larga).
+3. Registra el webhook una sola vez (sustituye los valores):
+   ```
+   curl "https://api.telegram.org/bot<TU_TELEGRAM_BOT_TOKEN>/setWebhook?url=https://<TU_DOMINIO>/api/telegram-webhook&secret_token=<TU_TELEGRAM_WEBHOOK_SECRET>"
+   ```
+4. Añade las mismas variables (`UPSTASH_REDIS_REST_URL`,
+   `UPSTASH_REDIS_REST_TOKEN`, `TELEGRAM_BOT_USERNAME`,
+   `TELEGRAM_WEBHOOK_SECRET`) también en Vercel (Settings → Environment
+   Variables), no solo en GitHub Actions secrets — las funciones `api/`
+   corren en Vercel, no en GitHub.
+
+Si no configuras ninguno de los dos canales, `alert_premium.py` no falla:
+simplemente no envía nada ese día.
+
 ## Ajustar el comportamiento
 
 En `track_trends.py`:

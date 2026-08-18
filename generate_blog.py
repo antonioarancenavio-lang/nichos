@@ -86,17 +86,27 @@ FOOTER_NAV = """
 
 BRAND_STRIP = """
   <a href="/" class="brand-strip-link">
-    <span class="brand-strip-logo">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="14" width="4" height="7" rx="1" fill="white"/><rect x="10" y="9" width="4" height="12" rx="1" fill="white"/><rect x="17" y="3" width="4" height="18" rx="1" fill="white"/></svg>
-    </span>
+    <svg width="24" height="24" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="44" class="radar-ring"/>
+      <circle cx="50" cy="50" r="29" class="radar-ring"/>
+      <line x1="6" y1="50" x2="94" y2="50" class="radar-crosshair"/>
+      <line x1="50" y1="6" x2="50" y2="94" class="radar-crosshair"/>
+    </svg>
     Radar de Nichos
   </a>
+  <div style="display:flex; gap:14px; margin-bottom:28px; font-family:var(--font-mono); font-size:0.78rem;">
+    <a href="/tendencias.html">Ranking diario</a>
+    <a href="/categorias.html">Categorías</a>
+    <a href="/planes.html">Planes</a>
+  </div>
 """
 
-BRAND_STRIP_CSS = """
-  .brand-strip-link { display:inline-flex; align-items:center; gap:8px; text-decoration:none; color:#14161a; font-weight:800; font-size:0.95rem; margin-bottom:20px; }
-  .brand-strip-logo { width:26px; height:26px; border-radius:7px; background:#16a34a; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-"""
+FONT_LINKS = """<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<meta name="theme-color" content="#a33b2b">"""
 
 
 def build_category_page(category, entries, fecha):
@@ -116,21 +126,18 @@ def build_category_page(category, entries, fecha):
 <meta property="og:description" content="Ranking actualizado a diario, con datos reales de Google Trends España.">
 <meta property="og:url" content="https://TU-DOMINIO-AQUI/nichos-{category}.html">
 <meta property="og:image" content="https://TU-DOMINIO-AQUI/og-image.png">
+{FONT_LINKS}
 <style>
-  body {{ font-family: -apple-system, sans-serif; background: #f7f8fa; color: #14161a; margin: 0; padding: 24px; line-height: 1.6; }}
-  .wrap {{ max-width: 800px; margin: 0 auto; }}
-  h1 {{ font-size: 1.5rem; }}
-  .updated {{ color: #6b7280; font-size: 0.85rem; margin-bottom: 24px; }}
+  .content-wrap {{ max-width: 800px; margin: 0 auto; padding: 40px 24px; line-height: 1.6; }}
+  .content-wrap h1 {{ font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; }}
+  .updated {{ color: var(--ink-faint); font-size: 0.85rem; margin-bottom: 24px; font-family: var(--font-mono); }}
   table {{ width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }}
-  th, td {{ text-align: left; padding: 8px 10px; border-bottom: 1px solid #e5e7eb; }}
-  th {{ color: #6b7280; font-size: 0.75rem; text-transform: uppercase; }}
-  a {{ color: #16a34a; }}
-  footer {{ margin-top: 32px; padding-top: 16px; border-top: 1px solid #e5e7eb; font-size: 0.8rem; }}
-  {BRAND_STRIP_CSS}
+  th, td {{ text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border-soft); }}
+  th {{ color: var(--ink-faint); font-size: 0.72rem; text-transform: uppercase; font-family: var(--font-mono); }}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="content-wrap">
   {BRAND_STRIP}
   <h1>{title_text}</h1>
   <div class="updated">Última actualización: {fecha} · datos de Google Trends (España)</div>
@@ -189,21 +196,20 @@ def main():
 <meta property="og:description" content="Ranking actualizado a diario de los nichos de negocio con más crecimiento de búsqueda en España.">
 <meta property="og:url" content="https://TU-DOMINIO-AQUI/tendencias.html">
 <meta property="og:image" content="https://TU-DOMINIO-AQUI/og-image.png">
+{FONT_LINKS}
 <style>
-  body {{ font-family: -apple-system, sans-serif; background: #f7f8fa; color: #14161a; margin: 0; padding: 24px; }}
-  .wrap {{ max-width: 800px; margin: 0 auto; }}
-  h1 {{ font-size: 1.5rem; }}
-  .updated {{ color: #6b7280; font-size: 0.85rem; margin-bottom: 24px; }}
+  .content-wrap {{ max-width: 800px; margin: 0 auto; padding: 40px 24px; }}
+  .content-wrap h1 {{ font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; }}
+  .updated {{ color: var(--ink-faint); font-size: 0.85rem; margin-bottom: 24px; font-family: var(--font-mono); }}
   table {{ width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }}
-  th, td {{ text-align: left; padding: 8px 10px; border-bottom: 1px solid #e5e7eb; }}
-  th {{ color: #6b7280; font-size: 0.75rem; text-transform: uppercase; }}
-  a.back {{ display: inline-block; margin-top: 24px; color: #16a34a; font-weight: 600; text-decoration: none; }}
+  th, td {{ text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border-soft); }}
+  th {{ color: var(--ink-faint); font-size: 0.72rem; text-transform: uppercase; font-family: var(--font-mono); }}
+  a.back {{ display: inline-block; margin-top: 24px; font-weight: 600; text-decoration: none; font-family: var(--font-mono); font-size: 0.85rem; }}
   li {{ margin-bottom: 8px; line-height: 1.5; }}
-  {BRAND_STRIP_CSS}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="content-wrap">
   {BRAND_STRIP}
   <h1>Los nichos de negocio con más demanda en España</h1>
   <div class="updated">Última actualización: {fecha} · datos de Google Trends (España)</div>
@@ -267,20 +273,16 @@ def main():
 <meta name="description" content="Explora por categoría todos los nichos de negocio detectados: calculadoras, plantillas, comparadores, trámites y más. Actualizado a diario.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://TU-DOMINIO-AQUI/categorias.html">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
-<meta name="theme-color" content="#16a34a">
+{FONT_LINKS}
 <style>
-  body {{ font-family: -apple-system, sans-serif; background: #f7f8fa; color: #14161a; margin: 0; padding: 24px; line-height: 1.6; }}
-  .wrap {{ max-width: 700px; margin: 0 auto; }}
-  h1 {{ font-size: 1.5rem; }}
+  .content-wrap {{ max-width: 700px; margin: 0 auto; padding: 40px 24px; line-height: 1.6; }}
+  .content-wrap h1 {{ font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; }}
   ul {{ padding-left: 20px; }}
   li {{ margin-bottom: 10px; }}
-  a {{ color: #16a34a; font-weight: 600; }}
-  {BRAND_STRIP_CSS}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="content-wrap">
   {BRAND_STRIP}
   <h1>Todas las categorías de nichos de negocio</h1>
   <p>Explora por tipo de idea de negocio. Cada categoría se actualiza a diario con datos reales de interés de búsqueda en España.</p>
