@@ -311,6 +311,10 @@
   .seo-kit h4:first-child { margin-top: 0; }
   .domain-chip { display: inline-block; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-size: 0.78rem; font-weight: 600; padding: 5px 10px; border-radius: 8px; margin: 3px 4px 3px 0; }
   .seo-outline { font-size: 0.82rem; color: #374151; line-height: 1.7; background: #f7f8fa; padding: 12px; border-radius: 10px; }
+  .seo-article { font-size: 0.85rem; color: #1f2937; line-height: 1.7; background: #f7f8fa; padding: 16px; border-radius: 10px; max-height: 420px; overflow-y: auto; }
+  .seo-article h2 { font-size: 0.95rem; margin: 14px 0 6px; }
+  .seo-article p { margin: 0 0 10px; }
+  .seo-article ul { margin: 0 0 10px 18px; }
   .seo-locked { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 12px; padding: 16px 18px; text-align: center; }
   .seo-locked p { font-size: 0.85rem; color: #9a3412; margin: 0 0 10px; }
 
@@ -444,6 +448,7 @@ const PREMIUM_PRICE_LABEL = '9€/mes';
 let isPremium = false;
 let HISTORY = {}, DATES = [], LATEST = {}, PREV_IDS = new Set();
 let RUN_HEALTH = null;
+let ARTICLES = {};
 let favorites = new Set(JSON.parse(localStorage.getItem('radar-favoritos') || '[]'));
 let filters = { search: '', category: '', onlyFavorites: false };
 let activeTab = 'daily';
@@ -636,35 +641,51 @@ function contentOutlineFor(category, tema) {
   };
 }
 
-function renderSeoKit(item) {
+function renderSeoKit(item, id) {
   const container = document.getElementById('modal-seo-kit');
   if (!isPremium) {
     const teaserDomain = suggestDomains(item.query)[0];
     container.innerHTML = `
       <div class="seo-locked">
         <p style="margin-bottom:8px;">Dominio sugerido: <code style="background:#fff; padding:2px 8px; border-radius:6px;">${teaserDomain}</code></p>
-        <p><strong>🔒 Kit de lanzamiento SEO (Premium)</strong><br>Título, meta descripción y estructura de contenido para este nicho.</p>
+        <p><strong>🔒 Kit de lanzamiento SEO (Premium)</strong><br>Título, meta descripción y artículo completo listo para publicar en este nicho.</p>
         <button onclick="document.getElementById('upgrade-btn').click()" style="background:#16a34a; color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:700; cursor:pointer;">Hazte Premium</button>
       </div>`;
     return;
   }
 
   const domains = suggestDomains(item.query);
-  const outline = contentOutlineFor(item.category, item.query);
+  const article = ARTICLES[id];
+
+  let contentBlock;
+  if (article) {
+    contentBlock = `
+      <h4>Título y meta descripción</h4>
+      <p style="font-size:0.82rem;"><strong>Título:</strong> ${article.title}<br><strong>Meta descripción:</strong> ${article.meta_description}</p>
+
+      <h4>Artículo listo para publicar</h4>
+      <div class="seo-article">${article.body_html}</div>
+      <p style="font-size:0.75rem; color:#9ca3af; margin-top:8px;">Cópialo tal cual o ajústalo a tu estilo antes de publicarlo — se genera una vez por nicho y se revisa periódicamente.</p>`;
+  } else {
+    const outline = contentOutlineFor(item.category, item.query);
+    contentBlock = `
+      <h4>Título y meta descripción sugeridos</h4>
+      <p style="font-size:0.82rem;"><strong>Título:</strong> ${outline.title}<br><strong>Meta descripción:</strong> ${outline.meta}</p>
+
+      <h4>Estructura de contenido sugerida</h4>
+      <div class="seo-outline">${outline.sections.join('<br>')}</div>
+      <p style="font-size:0.75rem; color:#9ca3af; margin-top:8px;">El artículo completo para este nicho todavía se está generando — se añaden varios nuevos cada día. Mientras tanto, aquí tienes la estructura para escribirlo tú mismo.</p>`;
+  }
 
   container.innerHTML = `
     <h4>Dominios sugeridos</h4>
     <div>${domains.map(d => `<span class="domain-chip">${d}</span>`).join('')}</div>
     <p style="font-size:0.75rem; color:#9ca3af; margin-top:6px;">Comprueba disponibilidad antes de comprar — un registrador (Namecheap, OVH, nic.es) te lo confirma al instante. Coste orientativo: 9-15€/año.</p>
 
-    <h4>Título y meta descripción sugeridos</h4>
-    <p style="font-size:0.82rem;"><strong>Título:</strong> ${outline.title}<br><strong>Meta descripción:</strong> ${outline.meta}</p>
-
-    <h4>Estructura de contenido sugerida</h4>
-    <div class="seo-outline">${outline.sections.join('<br>')}</div>
+    ${contentBlock}
 
     <h4>Pasos para publicar</h4>
-    <div class="seo-outline">1. Compra el dominio sugerido arriba<br>2. Conéctalo a Vercel o GitHub Pages (Settings → Domains)<br>3. Publica contenido siguiendo la estructura de arriba<br>4. Da de alta el sitemap en Google Search Console</div>
+    <div class="seo-outline">1. Compra el dominio sugerido arriba<br>2. Conéctalo a Vercel o GitHub Pages (Settings → Domains)<br>3. Publica el artículo de arriba (o la estructura, si aún no está generado)<br>4. Da de alta el sitemap en Google Search Console</div>
   `;
 }
 
@@ -698,7 +719,7 @@ function openModal(id) {
     options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#9ca3af' } }, y: { ticks: { color: '#9ca3af' } } } }
   });
 
-  renderSeoKit(item);
+  renderSeoKit(item, id);
 
   document.getElementById('modal-overlay').classList.add('active');
 }
@@ -771,6 +792,13 @@ async function load() {
   } catch (e) {
     document.querySelector('.wrap').innerHTML += '<div class="empty">Todavía no hay datos. Se generarán tras la primera ejecución del workflow diario.</div>';
     return;
+  }
+
+  try {
+    const artRes = await fetch('data/articles.json', { cache: 'no-store' });
+    ARTICLES = await artRes.json();
+  } catch (e) {
+    ARTICLES = {};
   }
 
   DATES = Object.keys(HISTORY).sort();
