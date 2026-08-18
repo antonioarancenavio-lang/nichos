@@ -74,11 +74,6 @@
   .hero h1 { font-size: 1.9rem; margin: 0 0 10px; letter-spacing: -0.02em; }
   .hero p { color: #6b7280; font-size: 1rem; max-width: 560px; margin: 0 auto; }
 
-  .value-banner {
-    background: #14161a; color: #fff; border-radius: 14px; padding: 16px 24px;
-    text-align: center; font-size: 0.88rem; margin-bottom: 36px;
-  }
-  .value-banner strong { color: #4ade80; }
 
   .toggle-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 28px; }
   .toggle-label { font-size: 0.88rem; font-weight: 600; color: #6b7280; }
@@ -91,8 +86,7 @@
 
   .plans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 44px; }
   .plan-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 28px 24px; }
-  .plan-card.premium { border: 2px solid #16a34a; position: relative; box-shadow: 0 8px 24px rgba(22,163,74,0.08); }
-  .plan-badge { position: absolute; top: -12px; left: 24px; background: #16a34a; color: #fff; font-size: 0.7rem; font-weight: 800; padding: 4px 12px; border-radius: 999px; letter-spacing: 0.03em; }
+  .plan-card.premium { border: 2px solid #16a34a; }
   .plan-card h2 { font-size: 1.1rem; margin: 0 0 4px; }
   .plan-price { font-size: 2.1rem; font-weight: 800; letter-spacing: -0.02em; margin: 10px 0 2px; }
   .plan-price span { font-size: 0.95rem; font-weight: 500; color: #9ca3af; }
@@ -113,7 +107,6 @@
   .compare-table td.center, .compare-table th.center { text-align: center; }
   .compare-table tr:last-child td { border-bottom: none; }
 
-  .trust-note { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px 20px; font-size: 0.82rem; color: #166534; margin-bottom: 40px; }
 
   .faq-section h2 { font-size: 1.15rem; margin-bottom: 16px; }
   .faq-item { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px 18px; margin-bottom: 10px; }
@@ -146,12 +139,7 @@
 
   <div class="hero">
     <h1>Funciones y planes</h1>
-    <p>Gratis para explorar y validar la idea. Premium te lleva de "este nicho tiene potencial" a "esta web está lista para publicar".</p>
-  </div>
-
-  <div class="value-banner">
-    No vendemos solo una lista de nichos: por cada uno te damos el dominio, el título SEO, la meta descripción y la estructura de contenido listos.
-    Es la diferencia entre <strong>encontrar una idea</strong> y <strong>tener la web arrancada esta misma tarde</strong> — desde <strong>9€/mes</strong>.
+    <p>El plan gratuito es suficiente para explorar. Premium añade el kit de lanzamiento SEO y acceso completo al radar.</p>
   </div>
 
   <div class="toggle-row">
@@ -166,7 +154,7 @@
       <h2>Gratis</h2>
       <div class="plan-price">0€</div>
       <div class="plan-price-sub">Para siempre, sin prueba con caducidad</div>
-      <div class="plan-desc">Para explorar el radar y validar la idea de negocio.</div>
+      <div class="plan-desc">Para explorar el radar y validar una idea.</div>
       <ul class="plan-features">
         <li><span class="check">✓</span> Top 5 de cada ranking (diario, semanal, mensual, oportunidad)</li>
         <li><span class="check">✓</span> Clasificación automática (Explosivo, En subida, etc.)</li>
@@ -180,13 +168,12 @@
     </div>
 
     <div class="plan-card premium">
-      <span class="plan-badge">RECOMENDADO</span>
       <h2>Premium</h2>
       <div class="plan-price" id="premium-price">9€ <span>/ mes</span></div>
       <div class="plan-price-sub" id="premium-price-sub">Facturado mensualmente</div>
-      <div class="plan-desc">Para pasar de la idea a la web publicada, sin perder días buscando dominio y estructura.</div>
+      <div class="plan-desc">Para quien quiere pasar de la idea a tener la web montada.</div>
       <ul class="plan-features">
-        <li><span class="check">✓</span> Kit de lanzamiento SEO por nicho: dominios sugeridos, título, meta descripción y estructura de contenido lista</li>
+        <li><span class="check">✓</span> Kit de lanzamiento SEO por nicho: dominio, título, meta descripción y estructura de contenido</li>
         <li><span class="check">✓</span> Acceso completo a los 150+ nichos en seguimiento</li>
         <li><span class="check">✓</span> Exportar todo a CSV</li>
         <li><span class="check">✓</span> Favoritos ilimitados</li>
@@ -215,9 +202,9 @@
     </tbody>
   </table>
 
-  <div class="trust-note">
-    <strong>Sin permanencia ni letra pequeña:</strong> la suscripción se gestiona directamente con Stripe, puedes cancelarla cuando quieras desde tu propio panel de facturación. No guardamos tus datos de pago — pasan directamente por Stripe.
-  </div>
+  <p style="font-size:0.82rem; color:#6b7280; margin-bottom:40px;">
+    La suscripción se gestiona con Stripe. Puedes cancelarla cuando quieras desde tu panel de facturación, sin permanencia ni contrato. No guardamos tus datos de pago.
+  </p>
 
   <div class="faq-section">
     <h2>Preguntas frecuentes</h2>
