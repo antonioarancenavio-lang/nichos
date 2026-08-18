@@ -44,10 +44,15 @@ jobs:
       - name: Generar página de tendencias (SEO)
         run: python generate_blog.py
 
+      - name: Generar artículos completos (Premium)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python generate_articles.py
+
       - name: Guardar datos actualizados
         run: |
           git config user.name "radar-bot"
           git config user.email "radar-bot@users.noreply.github.com"
-          git add data/history.json data/discarded.json data/pending.json data/last_run.json data/health.json keywords.json tendencias.html categorias.html nichos-*.html
+          git add data/history.json data/discarded.json data/pending.json data/last_run.json data/health.json data/articles.json keywords.json tendencias.html categorias.html nichos-*.html
           git diff --staged --quiet || git commit -m "Actualiza datos $(date +%Y-%m-%d)"
           git push
