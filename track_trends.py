@@ -84,9 +84,13 @@ def save_json(path, data):
 
 
 def pct_change(current, previous):
+    """Devuelve None cuando no hay una base fiable (semana/mes anterior en 0):
+    un salto de 0 a cualquier valor no es una 'subida del 100%' real, es la
+    ausencia de histórico. None se trata como 'sin dato suficiente' en vez
+    de inventar un porcentaje."""
     if previous > 0:
-        return ((current - previous) / previous) * 100
-    return 100.0 if current > 0 else 0.0
+        return round(((current - previous) / previous) * 100, 1)
+    return None
 
 
 def avg(values):
@@ -101,20 +105,20 @@ def analyze_series(values):
     last_week = values[-7:]
     prev_week = values[-14:-7] if len(values) >= 14 else []
     week_avg = avg(last_week)
-    weekly_change = pct_change(week_avg, avg(prev_week)) if prev_week else 0.0
+    weekly_change = pct_change(week_avg, avg(prev_week)) if prev_week else None
 
     last_month = values[-30:]
     prev_month = values[-60:-30] if len(values) >= 60 else []
     month_avg = avg(last_month)
-    monthly_change = pct_change(month_avg, avg(prev_month)) if prev_month else 0.0
+    monthly_change = pct_change(month_avg, avg(prev_month)) if prev_month else None
 
     return {
         "current": round(current, 1),
-        "daily_change_pct": round(daily_change, 1),
+        "daily_change_pct": daily_change,
         "week_avg": round(week_avg, 1),
-        "weekly_change_pct": round(weekly_change, 1),
+        "weekly_change_pct": weekly_change,
         "month_avg": round(month_avg, 1),
-        "monthly_change_pct": round(monthly_change, 1),
+        "monthly_change_pct": monthly_change,
     }
 
 
@@ -173,8 +177,19 @@ def fetch_reddit_mentions(query):
 def classify_trend(stats):
     """Clasificacion inspirada en Exploding Topics (Regular/Peaked/Exploding),
     pero exigiendo crecimiento sostenido en semana Y mes para evitar marcar
-    como 'explosivo' un pico de un solo dia (filtro anti-moda-pasajera)."""
+    como 'explosivo' un pico de un solo dia (filtro anti-moda-pasajera).
+
+    Dos casos especiales para no inventar tendencias sobre datos vacios:
+    - 'sin_interes': Google Trends no registra busquedas (current == 0). No
+      hay nada que clasificar todavia; se excluye de los rankings publicos.
+    - 'nuevo': hay interes real (current > 0) pero aun no hay una semana/mes
+      anterior con el que comparar, asi que no se calcula un % de cambio.
+    """
+    if stats["current"] == 0:
+        return "sin_interes"
     weekly, monthly = stats["weekly_change_pct"], stats["monthly_change_pct"]
+    if weekly is None or monthly is None:
+        return "nuevo"
     if weekly >= 25 and monthly >= 15:
         return "explosivo"
     if weekly <= -15 and monthly <= -10:

@@ -13,44 +13,102 @@
 <link rel="stylesheet" href="/styles.css">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <meta name="theme-color" content="#a33b2b">
-<style>
-  .content-wrap { max-width: 700px; margin: 0 auto; padding: 40px 24px; line-height: 1.6; }
-  .content-wrap h1 { font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; }
-  ul { padding-left: 20px; }
-  li { margin-bottom: 10px; }
-</style>
 </head>
 <body>
-<div class="content-wrap">
-  
-  <a href="/" class="brand-strip-link">
-    <svg width="24" height="24" viewBox="0 0 100 100">
-      <circle cx="50" cy="50" r="44" class="radar-ring"/>
-      <circle cx="50" cy="50" r="29" class="radar-ring"/>
-      <line x1="6" y1="50" x2="94" y2="50" class="radar-crosshair"/>
-      <line x1="50" y1="6" x2="50" y2="94" class="radar-crosshair"/>
-    </svg>
-    Radar de Nichos
-  </a>
-  <div style="display:flex; gap:14px; margin-bottom:28px; font-family:var(--font-mono); font-size:0.78rem;">
-    <a href="/tendencias.html">Ranking diario</a>
-    <a href="/categorias.html">Categorías</a>
-    <a href="/planes.html">Planes</a>
+<header class="masthead">
+  <div class="wrap">
+    <div class="brand">
+      <svg class="radar-mark" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="44" class="radar-ring"/>
+        <circle cx="50" cy="50" r="29" class="radar-ring"/>
+        <circle cx="50" cy="50" r="14" class="radar-ring"/>
+        <line x1="6" y1="50" x2="94" y2="50" class="radar-crosshair"/>
+        <line x1="50" y1="6" x2="50" y2="94" class="radar-crosshair"/>
+        <defs>
+          <linearGradient id="sweepGradientMark" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#a33b2b" stop-opacity="0"/>
+            <stop offset="100%" stop-color="#a33b2b" stop-opacity="0.55"/>
+          </linearGradient>
+        </defs>
+        <g class="radar-sweep-group">
+          <path d="M50,50 L50,6 A44,44 0 0,1 81,19 Z" class="radar-sweep-fill"/>
+        </g>
+        <circle cx="72" cy="34" r="2.6" class="radar-blip" style="animation-delay:0s"/>
+        <circle cx="32" cy="66" r="2.6" class="radar-blip" style="animation-delay:1.4s"/>
+        <circle cx="64" cy="72" r="2.6" class="radar-blip" style="animation-delay:2.8s"/>
+      </svg>
+      <div>
+        <h1>Radar de Nichos</h1>
+        <div class="tag">Explora los nichos de negocio por categoría</div>
+      </div>
+    </div>
+    <div>
+      <div class="subtitle">Actualizado: 18 de agosto de 2026</div>
+      <a href="/" style="font-size:0.8rem; color:#a33b2b; font-weight:600; text-decoration:none; font-family:var(--font-mono);">Ver dashboard interactivo →</a>
+    </div>
   </div>
-
-  <h1>Todas las categorías de nichos de negocio</h1>
-  <p>Explora por tipo de idea de negocio. Cada categoría se actualiza a diario con datos reales de interés de búsqueda en España.</p>
-  <ul><li><a href="/nichos-calculadora.html">Calculadoras online más buscadas en España</a> — 12 nichos</li><li><a href="/nichos-comparador.html">Comparadores de producto más buscados en España</a> — 13 nichos</li><li><a href="/nichos-meta.html">Demanda real de herramientas para buscar nichos de negocio</a> — 1 nichos</li><li><a href="/nichos-plantilla.html">Plantillas y modelos legales más buscados en España</a> — 17 nichos</li><li><a href="/nichos-tramite.html">Guías de trámites más buscadas en España</a> — 8 nichos</li></ul>
-  
-  <footer>
-    <a href="/">Buscador de nichos</a> ·
-    <a href="/planes.html">Funciones y planes</a> ·
-    <a href="/tendencias.html">Ranking diario</a> ·
-    <a href="/guia-nicho-rentable.html">Guía: nicho rentable</a> ·
-    <a href="/herramientas-encontrar-nichos.html">Comparativa de herramientas</a> ·
-    <a href="/buscador-de-nichos.html">Qué es este buscador</a>
-  </footer>
-
+  <div class="wrap">
+    <div class="trust-bar">
+      <div class="trust-item"><div class="num">28</div><div class="label">Nichos con interés real</div></div>
+      <div class="trust-item"><div class="num">Diaria</div><div class="label">Frecuencia de actualización</div></div>
+      <div class="trust-item"><div class="num">0 €</div><div class="label">Coste, sin registro</div></div>
+      <div class="trust-item"><div class="num">100%</div><div class="label">Datos de Google Trends</div></div>
+    </div>
+  </div>
+  <nav class="site-nav">
+    <div class="wrap">
+      <a href="/">Inicio</a><a href="/tendencias.html">Ranking diario</a><a href="/categorias.html" class="current">Categorías</a><a href="/planes.html">Planes</a>
+    </div>
+  </nav>
+</header>
+<div class="wrap content-wrap">
+  <div class="content-hero">
+    <div class="updated">Última actualización: 18 de agosto de 2026 · datos de Google Trends (España)</div>
+    <h1>Todas las categorías de nichos de negocio</h1>
+    <p class="lede">Explora por tipo de idea de negocio. Cada categoría se actualiza a diario con datos
+    reales de interés de búsqueda en España.</p>
+  </div>
+  <div class="category-tiles">
+    <a class="category-tile" href="/nichos-plantilla.html">
+      <h3>Plantillas y modelos legales más buscados en España</h3>
+      <div class="tile-count">9</div>
+      <div class="tile-label">nichos en seguimiento</div>
+    </a>
+    <a class="category-tile" href="/nichos-tramite.html">
+      <h3>Guías de trámites más buscadas en España</h3>
+      <div class="tile-count">8</div>
+      <div class="tile-label">nichos en seguimiento</div>
+    </a>
+    <a class="category-tile" href="/nichos-calculadora.html">
+      <h3>Calculadoras online más buscadas en España</h3>
+      <div class="tile-count">6</div>
+      <div class="tile-label">nichos en seguimiento</div>
+    </a>
+    <a class="category-tile" href="/nichos-comparador.html">
+      <h3>Comparadores de producto más buscados en España</h3>
+      <div class="tile-count">4</div>
+      <div class="tile-label">nichos en seguimiento</div>
+    </a>
+    <a class="category-tile" href="/nichos-meta.html">
+      <h3>Demanda real de herramientas para buscar nichos de negocio</h3>
+      <div class="tile-count">1</div>
+      <div class="tile-label">nichos en seguimiento</div>
+    </a></div>
+  <hr class="section-divider">
+  <p style="margin-top:24px;">¿Prefieres verlo todo junto, filtrar y guardar favoritos?
+  Entra en el <a href="/">dashboard interactivo de Radar de Nichos</a> — es gratis y no necesita registro.</p>
 </div>
+<footer class="site-footer">
+    <div style="margin-bottom:10px;">
+      <a href="/">Buscador de nichos</a> ·
+      <a href="/planes.html">Funciones y planes</a> ·
+      <a href="/tendencias.html">Ranking diario</a> ·
+      <a href="/categorias.html">Categorías</a> ·
+      <a href="/guia-nicho-rentable.html">Guía: nicho rentable</a> ·
+      <a href="/herramientas-encontrar-nichos.html">Comparativa de herramientas</a> ·
+      <a href="/buscador-de-nichos.html">Qué es este buscador</a>
+    </div>
+    <div style="color:var(--ink-faint); font-family:var(--font-mono); font-size:0.72rem;">Sin anuncios · Sin tracking de terceros · Metodología abierta en la página de inicio</div>
+  </footer>
 </body>
 </html>

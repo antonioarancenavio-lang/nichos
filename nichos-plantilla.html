@@ -18,169 +18,159 @@
 <link rel="stylesheet" href="/styles.css">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <meta name="theme-color" content="#a33b2b">
-<style>
-  .content-wrap { max-width: 800px; margin: 0 auto; padding: 40px 24px; line-height: 1.6; }
-  .content-wrap h1 { font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; }
-  .updated { color: var(--ink-faint); font-size: 0.85rem; margin-bottom: 24px; font-family: var(--font-mono); }
-  table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
-  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border-soft); }
-  th { color: var(--ink-faint); font-size: 0.72rem; text-transform: uppercase; font-family: var(--font-mono); }
-</style>
 </head>
 <body>
-<div class="content-wrap">
-  
-  <a href="/" class="brand-strip-link">
-    <svg width="24" height="24" viewBox="0 0 100 100">
-      <circle cx="50" cy="50" r="44" class="radar-ring"/>
-      <circle cx="50" cy="50" r="29" class="radar-ring"/>
-      <line x1="6" y1="50" x2="94" y2="50" class="radar-crosshair"/>
-      <line x1="50" y1="6" x2="50" y2="94" class="radar-crosshair"/>
-    </svg>
-    Radar de Nichos
-  </a>
-  <div style="display:flex; gap:14px; margin-bottom:28px; font-family:var(--font-mono); font-size:0.78rem;">
-    <a href="/tendencias.html">Ranking diario</a>
-    <a href="/categorias.html">Categorías</a>
-    <a href="/planes.html">Planes</a>
+<header class="masthead">
+  <div class="wrap">
+    <div class="brand">
+      <svg class="radar-mark" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="44" class="radar-ring"/>
+        <circle cx="50" cy="50" r="29" class="radar-ring"/>
+        <circle cx="50" cy="50" r="14" class="radar-ring"/>
+        <line x1="6" y1="50" x2="94" y2="50" class="radar-crosshair"/>
+        <line x1="50" y1="6" x2="50" y2="94" class="radar-crosshair"/>
+        <defs>
+          <linearGradient id="sweepGradientMark" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#a33b2b" stop-opacity="0"/>
+            <stop offset="100%" stop-color="#a33b2b" stop-opacity="0.55"/>
+          </linearGradient>
+        </defs>
+        <g class="radar-sweep-group">
+          <path d="M50,50 L50,6 A44,44 0 0,1 81,19 Z" class="radar-sweep-fill"/>
+        </g>
+        <circle cx="72" cy="34" r="2.6" class="radar-blip" style="animation-delay:0s"/>
+        <circle cx="32" cy="66" r="2.6" class="radar-blip" style="animation-delay:1.4s"/>
+        <circle cx="64" cy="72" r="2.6" class="radar-blip" style="animation-delay:2.8s"/>
+      </svg>
+      <div>
+        <h1>Radar de Nichos</h1>
+        <div class="tag">Categoría: Plantillas y modelos legales más buscados en España</div>
+      </div>
+    </div>
+    <div>
+      <div class="subtitle">Actualizado: 18 de agosto de 2026</div>
+      <a href="/" style="font-size:0.8rem; color:#a33b2b; font-weight:600; text-decoration:none; font-family:var(--font-mono);">Ver dashboard interactivo →</a>
+    </div>
   </div>
-
-  <h1>Plantillas y modelos legales más buscados en España</h1>
-  <div class="updated">Última actualización: 18 de agosto de 2026 · datos de Google Trends (España)</div>
-  <p>Ranking de nichos de tipo <strong>plantilla</strong> detectados por <a href="/">Radar de Nichos</a>, ordenados por crecimiento de interés esta semana.</p>
-  <table>
-    <thead><tr><th>Nicho</th><th>Categoría</th><th>Clasificación</th><th>Interés</th><th>Cambio semanal</th></tr></thead>
+  <div class="wrap">
+    <div class="trust-bar">
+      <div class="trust-item"><div class="num">28</div><div class="label">Nichos con interés real</div></div>
+      <div class="trust-item"><div class="num">Diaria</div><div class="label">Frecuencia de actualización</div></div>
+      <div class="trust-item"><div class="num">0 €</div><div class="label">Coste, sin registro</div></div>
+      <div class="trust-item"><div class="num">100%</div><div class="label">Datos de Google Trends</div></div>
+    </div>
+  </div>
+  <nav class="site-nav">
+    <div class="wrap">
+      <a href="/">Inicio</a><a href="/tendencias.html">Ranking diario</a><a href="/categorias.html" class="current">Categorías</a><a href="/planes.html">Planes</a>
+    </div>
+  </nav>
+</header>
+<div class="wrap content-wrap">
+  <div class="content-hero">
+    <div class="updated">Última actualización: 18 de agosto de 2026 · datos de Google Trends (España)</div>
+    <h1>Plantillas y modelos legales más buscados en España</h1>
+    <p class="lede">Ranking de nichos de tipo <strong>plantilla</strong> detectados por <a href="/">Radar de Nichos</a>,
+    ordenados por crecimiento de interés real esta semana frente a la anterior.</p>
+  </div>
+  
+  
+  <h2>Con más crecimiento esta semana</h2>
+  <div class="content-highlights">
+      <div class="card">
+        <div class="card-top"><span class="rank-badge">#1</span></div>
+        <span class="cat-pill">plantilla</span><span class="class-tag en_subida">📈 En subida</span>
+        <h3>Contrato de arras</h3>
+        <div class="big-change up"><span class="arrow-icon">▲</span>+109.8%</div>
+        <div class="card-meta">Interés: 37/100 esta semana</div>
+      </div>
+      <div class="card">
+        <div class="card-top"><span class="rank-badge">#2</span></div>
+        <span class="cat-pill">plantilla</span><span class="class-tag en_subida">📈 En subida</span>
+        <h3>Carta de despido</h3>
+        <div class="big-change up"><span class="arrow-icon">▲</span>+100.0%</div>
+        <div class="card-meta">Interés: 17/100 esta semana</div>
+      </div>
+      <div class="card">
+        <div class="card-top"><span class="rank-badge">#3</span></div>
+        <span class="cat-pill">plantilla</span><span class="class-tag en_subida">📈 En subida</span>
+        <h3>Modelo de carro</h3>
+        <div class="big-change up"><span class="arrow-icon">▲</span>+100.0%</div>
+        <div class="card-meta">Interés: 35/100 esta semana</div>
+      </div>
+      <div class="card">
+        <div class="card-top"><span class="rank-badge">#4</span></div>
+        <span class="cat-pill">plantilla</span><span class="class-tag en_subida">📈 En subida</span>
+        <h3>Modelo de casas</h3>
+        <div class="big-change up"><span class="arrow-icon">▲</span>+44.5%</div>
+        <div class="card-meta">Interés: 23/100 esta semana</div>
+      </div></div>
+  
+  <h2>Resto del ranking <span class="h2-count">— 5</span></h2>
+  <table class="content-table">
+    <thead>
+      <tr><th>#</th><th>Nicho</th><th>Categoría</th><th>Clasificación</th><th>Interés</th><th>Cambio semanal</th></tr>
+    </thead>
     <tbody>
         <tr>
-          <td>Contrato de arras</td>
-          <td>plantilla</td>
-          <td>📈 En subida</td>
-          <td>37/100</td>
-          <td>+109.8%</td>
+          <td class="rank-cell">#5</td>
+          <td class="name-cell">Modelo contrato de trabajo</td>
+          <td><span class="cat-pill">plantilla</span></td>
+          <td><span class="class-tag en_caida">📉 En caída</span></td>
+          <td class="num-cell">23/100</td>
+          <td class="chg-cell down">-5.7%</td>
         </tr>
         <tr>
-          <td>Carta de despido</td>
-          <td>plantilla</td>
-          <td>📈 En subida</td>
-          <td>17/100</td>
-          <td>+100.0%</td>
+          <td class="rank-cell">#6</td>
+          <td class="name-cell">Modelo de factura</td>
+          <td><span class="cat-pill">plantilla</span></td>
+          <td><span class="class-tag en_caida">📉 En caída</span></td>
+          <td class="num-cell">14/100</td>
+          <td class="chg-cell down">-6.5%</td>
         </tr>
         <tr>
-          <td>Modelo de curriculum</td>
-          <td>plantilla</td>
-          <td>📈 En subida</td>
-          <td>0.0/100</td>
-          <td>+100.0%</td>
+          <td class="rank-cell">#7</td>
+          <td class="name-cell">Modelo de uñas</td>
+          <td><span class="cat-pill">plantilla</span></td>
+          <td><span class="class-tag en_caida">📉 En caída</span></td>
+          <td class="num-cell">31/100</td>
+          <td class="chg-cell down">-27.9%</td>
         </tr>
         <tr>
-          <td>Contrato alquiler habitacion</td>
-          <td>plantilla</td>
-          <td>🆕 Sin histórico suficiente</td>
-          <td>0/100</td>
-          <td>+100.0%</td>
+          <td class="rank-cell">#8</td>
+          <td class="name-cell">Modelo declaracion responsable</td>
+          <td><span class="cat-pill">plantilla</span></td>
+          <td><span class="class-tag en_caida">📉 En caída</span></td>
+          <td class="num-cell">18/100</td>
+          <td class="chg-cell down">-32.6%</td>
         </tr>
         <tr>
-          <td>Baja voluntaria trabajo</td>
-          <td>plantilla</td>
-          <td>📈 En subida</td>
-          <td>0.0/100</td>
-          <td>+100.0%</td>
-        </tr>
-        <tr>
-          <td>Modelo de testamento</td>
-          <td>plantilla</td>
-          <td>📈 En subida</td>
-          <td>0.0/100</td>
-          <td>+100.0%</td>
-        </tr>
-        <tr>
-          <td>Modelo de carro</td>
-          <td>plantilla</td>
-          <td>📈 En subida</td>
-          <td>35/100</td>
-          <td>+100.0%</td>
-        </tr>
-        <tr>
-          <td>Modelo contrato alquiler vivienda 2026</td>
-          <td>plantilla</td>
-          <td>📈 En subida</td>
-          <td>0.0/100</td>
-          <td>+100.0%</td>
-        </tr>
-        <tr>
-          <td>Modelo de lata</td>
-          <td>plantilla</td>
-          <td>📈 En subida</td>
-          <td>0.0/100</td>
-          <td>+100.0%</td>
-        </tr>
-        <tr>
-          <td>Modelo de casas</td>
-          <td>plantilla</td>
-          <td>📈 En subida</td>
-          <td>23/100</td>
-          <td>+44.5%</td>
-        </tr>
-        <tr>
-          <td>Acta junta de vecinos</td>
-          <td>plantilla</td>
-          <td>➡️ Estable</td>
-          <td>0.0/100</td>
-          <td>0.0%</td>
-        </tr>
-        <tr>
-          <td>Modelo contrato de trabajo</td>
-          <td>plantilla</td>
-          <td>📉 En caída</td>
-          <td>23/100</td>
-          <td>-5.7%</td>
-        </tr>
-        <tr>
-          <td>Modelo de factura</td>
-          <td>plantilla</td>
-          <td>📉 En caída</td>
-          <td>14/100</td>
-          <td>-6.5%</td>
-        </tr>
-        <tr>
-          <td>Modelo de uñas</td>
-          <td>plantilla</td>
-          <td>📉 En caída</td>
-          <td>31/100</td>
-          <td>-27.9%</td>
-        </tr>
-        <tr>
-          <td>Modelo declaracion responsable</td>
-          <td>plantilla</td>
-          <td>📉 En caída</td>
-          <td>18/100</td>
-          <td>-32.6%</td>
-        </tr>
-        <tr>
-          <td>Carta de renuncia</td>
-          <td>plantilla</td>
-          <td>📉 En caída</td>
-          <td>36/100</td>
-          <td>-43.5%</td>
-        </tr>
-        <tr>
-          <td>Carta de reclamacion</td>
-          <td>plantilla</td>
-          <td>📉 En caída</td>
-          <td>0.0/100</td>
-          <td>-93.0%</td>
+          <td class="rank-cell">#9</td>
+          <td class="name-cell">Carta de renuncia</td>
+          <td><span class="cat-pill">plantilla</span></td>
+          <td><span class="class-tag en_caida">📉 En caída</span></td>
+          <td class="num-cell">36/100</td>
+          <td class="chg-cell down">-43.5%</td>
         </tr></tbody>
   </table>
   
-  <footer>
-    <a href="/">Buscador de nichos</a> ·
-    <a href="/planes.html">Funciones y planes</a> ·
-    <a href="/tendencias.html">Ranking diario</a> ·
-    <a href="/guia-nicho-rentable.html">Guía: nicho rentable</a> ·
-    <a href="/herramientas-encontrar-nichos.html">Comparativa de herramientas</a> ·
-    <a href="/buscador-de-nichos.html">Qué es este buscador</a>
-  </footer>
-
+  <p class="transparency-note">8 nichos más están en seguimiento pero Google Trends no registra
+  todavía búsquedas para ellos (interés 0/100) — se excluyen de este ranking hasta que muestren demanda real.</p>
+  <hr class="section-divider">
+  <p style="margin-top:24px;">¿Quieres ver todas las categorías o el listado interactivo completo?
+  Entra en el <a href="/">dashboard de Radar de Nichos</a> — es gratis y no necesita registro.</p>
 </div>
+<footer class="site-footer">
+    <div style="margin-bottom:10px;">
+      <a href="/">Buscador de nichos</a> ·
+      <a href="/planes.html">Funciones y planes</a> ·
+      <a href="/tendencias.html">Ranking diario</a> ·
+      <a href="/categorias.html">Categorías</a> ·
+      <a href="/guia-nicho-rentable.html">Guía: nicho rentable</a> ·
+      <a href="/herramientas-encontrar-nichos.html">Comparativa de herramientas</a> ·
+      <a href="/buscador-de-nichos.html">Qué es este buscador</a>
+    </div>
+    <div style="color:var(--ink-faint); font-family:var(--font-mono); font-size:0.72rem;">Sin anuncios · Sin tracking de terceros · Metodología abierta en la página de inicio</div>
+  </footer>
 </body>
 </html>

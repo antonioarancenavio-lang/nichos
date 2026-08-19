@@ -216,7 +216,7 @@
 </div>
 
 <script>
-const CLASS_LABELS = { explosivo: '🚀 Explosivo', en_subida: '📈 En subida', estable: '➡️ Estable', en_caida: '📉 En caída', pico_pasado: '🏔️ Pico pasado' };
+const CLASS_LABELS = { explosivo: '🚀 Explosivo', en_subida: '📈 En subida', estable: '➡️ Estable', en_caida: '📉 En caída', pico_pasado: '🏔️ Pico pasado', nuevo: '🆕 Nuevo', sin_interes: '— Sin interés' };
 const METRIC_BY_TAB = { daily: 'daily_change_pct', weekly: 'weekly_change_pct', monthly: 'monthly_change_pct', opportunity: 'opportunity' };
 const FREE_LIMIT = 10;
 const FREE_FAVORITES_LIMIT = 3;
@@ -229,7 +229,11 @@ let activeTab = 'daily';
 let modalChart = null;
 let ARTICLES = {};
 
-function trendClass(pct) { return pct > 5 ? 'up' : pct < -5 ? 'down' : 'flat'; }
+function trendClass(pct) { return pct == null ? 'flat' : pct > 5 ? 'up' : pct < -5 ? 'down' : 'flat'; }
+// Para ordenar: los nichos sin histórico (null) no tienen un % real que
+// comparar, así que se colocan al final en vez de competir con datos reales.
+function sortableMetric(val) { return val == null ? -Infinity : val; }
+function formatPct(val) { return val == null ? 'Nuevo' : (val > 0 ? '+' : '') + val + '%'; }
 function saveFavorites() { localStorage.setItem('radar-favoritos', JSON.stringify([...favorites])); }
 
 async function checkPremiumStatus() {
@@ -282,8 +286,10 @@ function renderTab(tab) {
   const container = document.getElementById('list-' + tab);
   const metricKey = METRIC_BY_TAB[tab];
 
-  let entries = Object.entries(LATEST).filter(([id, item]) => matchesFilters(id, item));
-  entries.sort((a, b) => b[1][metricKey] - a[1][metricKey]);
+  // current === 0 significa que Google Trends no registra búsquedas reales:
+  // se excluye de los rankings públicos en vez de mezclarse con datos reales.
+  let entries = Object.entries(LATEST).filter(([id, item]) => item.current > 0 && matchesFilters(id, item));
+  entries.sort((a, b) => sortableMetric(b[1][metricKey]) - sortableMetric(a[1][metricKey]));
   const totalMatching = entries.length;
   const limited = filters.onlyFavorites
     ? entries
@@ -312,7 +318,7 @@ function renderTab(tab) {
       </div>
       <span class="cat-pill">${item.category || 'otros'}</span><span class="class-tag ${item.classification || 'estable'}">${CLASS_LABELS[item.classification] || ''}</span>${isNew ? '<span class="new-tag">NUEVO</span>' : ''}
       <h3>${item.name}</h3>
-      <div class="big-change ${cls}"><span class="arrow-icon">${arrow}</span>${isOpportunity ? val : (val > 0 ? '+' : '') + val + '%'}</div>
+      <div class="big-change ${cls}"><span class="arrow-icon">${arrow}</span>${isOpportunity ? val : formatPct(val)}</div>
       <div class="card-meta">Interés: ${item.current}/100 · Oportunidad: ${item.opportunity}</div>
       <canvas class="spark" id="spark-${tab}-${id}"></canvas>
     `;
@@ -471,9 +477,9 @@ function openModal(id) {
   document.getElementById('modal-title').textContent = item.name;
   document.getElementById('modal-meta').textContent = `"${item.query}" · categoría: ${item.category || 'otros'} · ${CLASS_LABELS[item.classification] || ''}`;
   document.getElementById('modal-stats').innerHTML = `
-    <div class="modal-stat"><div class="label">Diario</div><div class="value">${item.daily_change_pct > 0 ? '+' : ''}${item.daily_change_pct}%</div></div>
-    <div class="modal-stat"><div class="label">Semanal</div><div class="value">${item.weekly_change_pct > 0 ? '+' : ''}${item.weekly_change_pct}%</div></div>
-    <div class="modal-stat"><div class="label">Mensual</div><div class="value">${item.monthly_change_pct > 0 ? '+' : ''}${item.monthly_change_pct}%</div></div>
+    <div class="modal-stat"><div class="label">Diario</div><div class="value">${formatPct(item.daily_change_pct)}</div></div>
+    <div class="modal-stat"><div class="label">Semanal</div><div class="value">${formatPct(item.weekly_change_pct)}</div></div>
+    <div class="modal-stat"><div class="label">Mensual</div><div class="value">${formatPct(item.monthly_change_pct)}</div></div>
   `;
   const terms = (item.sample_terms || []).filter(Boolean);
   const redditLine = item.reddit_mentions != null ? ` · ${item.reddit_mentions} discusiones recientes en Reddit` : '';
