@@ -105,6 +105,16 @@
   </nav>
 </header>
 
+<div class="wrap" id="premium-soon-wrap">
+  <div class="premium-soon-banner" id="premium-soon-banner">
+    <span class="premium-soon-text">🔜 <strong>Premium llega muy pronto</strong> — ranking completo, nombres y cifras sin límite, kit de lanzamiento SEO por nicho.</span>
+    <form id="waitlist-form" class="waitlist-form">
+      <input type="email" id="waitlist-email" placeholder="tu@email.com" required>
+      <button type="submit" class="btn-primary">Avísame</button>
+    </form>
+  </div>
+</div>
+
 <div class="wrap" id="main-content">
   <div class="radar-hero-wrap">
     <svg class="radar-hero" viewBox="0 0 100 100">
@@ -227,6 +237,10 @@ const METRIC_BY_TAB = { daily: 'daily_change_pct', weekly: 'weekly_change_pct', 
 const FREE_LIMIT = 10;
 const FREE_FAVORITES_LIMIT = 3;
 const PREMIUM_PRICE_LABEL = '9€/mes';
+// Cambia esto a true el dia que actives Stripe de verdad -- mientras sea
+// false, todos los botones de Premium (dashboard, tarjetas, modal) abren
+// la lista de espera en vez de intentar cobrar.
+const PREMIUM_LAUNCHED = false;
 let isPremium = false;
 let HISTORY = {}, DATES = [], LATEST = {}, PREV_IDS = new Set();
 let favorites = new Set(JSON.parse(localStorage.getItem('radar-favoritos') || '[]'));
@@ -271,14 +285,15 @@ async function checkPremiumStatus() {
   }
   document.getElementById('premium-badge').style.display = isPremium ? 'flex' : 'none';
   document.getElementById('upgrade-btn').style.display = isPremium ? 'none' : 'inline-block';
+  document.getElementById('upgrade-btn').textContent = PREMIUM_LAUNCHED ? '★ Hazte Premium' : '🔜 Aviso Premium';
   document.getElementById('telegram-link-btn').style.display = isPremium ? 'inline-block' : 'none';
 }
 
 function upgradeBannerHTML(hiddenCount) {
   return `<div class="premium-teaser" style="grid-column:1/-1;">
     <div class="premium-teaser-num">+${hiddenCount}</div>
-    <div class="premium-teaser-text"><strong>nichos más</strong>, nombres de los puestos #6-#10 y cifras exactas de interés/crecimiento — todo desbloqueado con Premium.</div>
-    <button onclick="document.getElementById('upgrade-btn').click()" class="btn-primary">Hazte Premium →</button>
+    <div class="premium-teaser-text"><strong>nichos más</strong>, nombres de los puestos #6-#10 y cifras exactas de interés/crecimiento — todo se desbloqueará con Premium.</div>
+    <button onclick="document.getElementById('upgrade-btn').click()" class="btn-primary">${PREMIUM_LAUNCHED ? 'Hazte Premium →' : 'Avísame cuando esté listo'}</button>
   </div>`;
 }
 
@@ -320,9 +335,11 @@ function renderTab(tab) {
     const series = DATES.map(d => (HISTORY[d][id] ? HISTORY[d][id].week_avg : null));
 
     // Plan gratuito: puestos #1-#5 muestran el nombre pero sin cifras
-    // exactas (solo tendencia); puestos #6-#10 también ocultan el nombre.
-    // Premium siempre ve todo.
-    const nameLocked = !isPremium && index >= 5;
+    // exactas (solo tendencia); puestos #6-#10 tambien ocultan el nombre
+    // -- pero solo cuando Premium esta activo de verdad. Mientras esta en
+    // "muy pronto" no tiene sentido esconder algo que todavia no se puede
+    // comprar: se ve el nombre igual, solo faltan las cifras.
+    const nameLocked = PREMIUM_LAUNCHED && !isPremium && index >= 5;
     const numbersLocked = !isPremium;
 
     const card = document.createElement('div');
@@ -339,7 +356,7 @@ function renderTab(tab) {
           ? `<span class="arrow-icon">${arrow}</span><span class="locked-metric">🔒 Premium</span>`
           : `<span class="arrow-icon">${arrow}</span>${isOpportunity ? val : formatPct(val)}`}
       </div>
-      <div class="card-meta">${numbersLocked ? `Interés: ${interestBucket(item.current)} · <a href="#" class="unlock-link">cifras exactas →</a>` : `Interés: ${item.current}/100 · Oportunidad: ${item.opportunity}`}</div>
+      <div class="card-meta">${numbersLocked ? `Interés: ${interestBucket(item.current)} · <a href="#" class="unlock-link">${PREMIUM_LAUNCHED ? 'cifras exactas →' : 'cifras exactas: muy pronto'}</a>` : `Interés: ${item.current}/100 · Oportunidad: ${item.opportunity}`}</div>
       <canvas class="spark" id="spark-${tab}-${id}"></canvas>
     `;
     card.addEventListener('click', (e) => {
@@ -456,7 +473,7 @@ function renderSeoKit(item, id) {
       <div class="seo-locked">
         <p style="margin-bottom:8px;">Dominio sugerido: <code style="background:var(--white); padding:2px 8px; border-radius:2px; font-family:var(--font-mono);">${teaserDomain}</code></p>
         <p><strong>🔒 Kit de lanzamiento SEO (Premium)</strong><br>Título, meta descripción y artículo completo listo para publicar en este nicho.</p>
-        <button onclick="document.getElementById('upgrade-btn').click()" class="btn-primary" style="margin-top:6px;">Hazte Premium</button>
+        <button onclick="document.getElementById('upgrade-btn').click()" class="btn-primary" style="margin-top:6px;">${PREMIUM_LAUNCHED ? 'Hazte Premium' : 'Avísame cuando esté listo'}</button>
       </div>`;
     return;
   }
@@ -521,7 +538,7 @@ function openModal(id) {
       <div class="modal-stat"><div class="label">Semanal</div><div class="value locked">🔒</div></div>
       <div class="modal-stat"><div class="label">Mensual</div><div class="value locked">🔒</div></div>
     `;
-    document.getElementById('modal-related').innerHTML = '🔒 Términos relacionados y menciones en Reddit disponibles con <a href="#" onclick="document.getElementById(\'upgrade-btn\').click(); return false;">Premium</a>.';
+    document.getElementById('modal-related').innerHTML = `🔒 Términos relacionados y menciones en Reddit disponibles con <a href="#" onclick="document.getElementById('upgrade-btn').click(); return false;">Premium${PREMIUM_LAUNCHED ? '' : ' (muy pronto)'}</a>.`;
   }
 
   const series = DATES.map(d => (HISTORY[d][id] ? HISTORY[d][id].week_avg : null));
@@ -578,6 +595,7 @@ document.getElementById('export-csv').addEventListener('click', () => {
 });
 
 document.getElementById('upgrade-btn').addEventListener('click', async () => {
+  if (!PREMIUM_LAUNCHED) { openWaitlist(); return; }
   const btn = document.getElementById('upgrade-btn');
   const original = btn.textContent;
   btn.textContent = 'Cargando...';
@@ -597,6 +615,33 @@ document.getElementById('upgrade-btn').addEventListener('click', async () => {
     btn.textContent = original;
     btn.disabled = false;
   }
+});
+
+function openWaitlist() {
+  document.getElementById('waitlist-email').focus();
+  document.getElementById('premium-soon-banner').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  document.getElementById('premium-soon-banner').classList.add('pulse');
+  setTimeout(() => document.getElementById('premium-soon-banner').classList.remove('pulse'), 1200);
+}
+
+document.getElementById('waitlist-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const input = document.getElementById('waitlist-email');
+  const form = e.target;
+  const email = input.value.trim();
+  if (!email) return;
+  const btn = form.querySelector('button');
+  const original = btn.textContent;
+  btn.textContent = 'Enviando...';
+  btn.disabled = true;
+  try {
+    await fetch('/api/waitlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+  } catch (e) { /* seguimos igual, no bloqueamos el mensaje de confirmacion */ }
+  form.innerHTML = '<span class="waitlist-done">✓ Apuntado — te avisamos en cuanto esté listo.</span>';
 });
 
 document.getElementById('telegram-link-btn').addEventListener('click', async () => {

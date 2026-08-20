@@ -359,6 +359,25 @@ a.category-tile .tile-label { font-family: var(--font-mono); font-size: 0.68rem;
 .premium-teaser-text { flex: 1; min-width: 220px; font-size: 0.85rem; color: #6b241a; line-height: 1.5; }
 .premium-teaser .btn-primary { flex-shrink: 0; text-decoration: none; display: inline-block; }
 
+/* Aviso sitewide "Premium llega muy pronto" + lista de espera */
+.premium-soon-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  background: var(--gold-soft); border: 1px solid var(--gold);
+  border-radius: 4px; padding: 12px 18px; margin: 18px 0 0; transition: box-shadow 0.3s;
+}
+.premium-soon-banner.pulse { box-shadow: 0 0 0 4px rgba(169,120,44,0.25); }
+.premium-soon-text { font-size: 0.85rem; color: #5c4308; }
+.waitlist-form { display: flex; gap: 8px; flex-shrink: 0; }
+.waitlist-form input[type=email] {
+  font-family: var(--font-mono); font-size: 0.82rem; padding: 8px 12px;
+  border: 1px solid var(--border); border-radius: 3px; width: 200px;
+}
+.waitlist-form .btn-primary { padding: 8px 16px; font-size: 0.82rem; white-space: nowrap; }
+.waitlist-done { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; color: #2f4531; }
+@media (max-width: 620px) {
+  .waitlist-form input[type=email] { width: 140px; }
+}
+
 @media (max-width: 700px) {
   .content-table { font-size: 0.78rem; }
   .content-table th, .content-table td { padding: 8px 8px; }

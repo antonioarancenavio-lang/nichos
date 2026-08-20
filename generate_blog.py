@@ -67,6 +67,11 @@ MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
 FREE_LIMIT = 10
 TOP_HIGHLIGHT_COUNT = 5
 
+# Mientras Stripe no este activo de verdad, no tiene sentido difuminar
+# nombres detras de un boton que no lleva a ningun sitio -- mismo flag que
+# index.html/planes.html, cambialo a True el dia que actives el cobro.
+PREMIUM_LAUNCHED = False
+
 
 def load_history():
     if not HISTORY_FILE.exists():
@@ -230,6 +235,7 @@ FONT_LINKS = """<link rel="preconnect" href="https://fonts.googleapis.com">
 
 
 def build_highlight_cards(items, rank_offset=1):
+    lock_label = "🔒 Premium" if PREMIUM_LAUNCHED else "🔒 Muy pronto"
     cards = []
     for i, item in enumerate(items):
         cls = chg_class(item["weekly_change_pct"])
@@ -241,34 +247,42 @@ def build_highlight_cards(items, rank_offset=1):
         <div class="card-top"><span class="rank-badge">#{rank_offset + i}</span></div>
         <span class="cat-pill">{item.get('category', 'otros')}</span><span class="class-tag {classification}">{CLASS_LABELS.get(classification, '')}</span>
         <h3><a href="/nicho-{slug}.html">{item['name']}</a></h3>
-        <div class="big-change {cls}"><span class="arrow-icon">{arrow}</span><span class="locked-metric">🔒 Premium</span></div>
+        <div class="big-change {cls}"><span class="arrow-icon">{arrow}</span><span class="locked-metric">{lock_label}</span></div>
         <div class="card-meta">Interés: {interest_bucket(item['current'])} · <a href="/planes.html">cifras exactas →</a></div>
       </div>""")
     return "".join(cards)
 
 
 def build_growth_table(items, rank_offset=1):
-    """Estos nichos ya no llevan el nombre a la vista -- el plan gratuito
-    muestra las 5 tarjetas destacadas de arriba; el resto de la tabla es
-    la zona de conversion a Premium: categoria, clasificacion y tendencia
-    (flecha) visibles, nombre difuminado."""
+    """Estos nichos ya no llevan la cifra exacta a la vista -- el plan
+    gratuito muestra las 5 tarjetas destacadas de arriba con la tendencia,
+    y esta tabla amplia esa misma info. El nombre se difumina solo cuando
+    Premium esta realmente activo (PREMIUM_LAUNCHED=True); mientras esta
+    en "muy pronto" no tiene sentido esconder algo que no se puede
+    desbloquear todavia."""
     rows = []
     for i, item in enumerate(items):
         cls = chg_class(item["weekly_change_pct"])
         arrow = "▲" if cls == "up" else ("▼" if cls == "down" else "→")
         classification = item.get("classification", "estable")
+        if PREMIUM_LAUNCHED:
+            name_cell = f'<a href="/planes.html" class="niche-blurred-link"><span class="niche-blurred">{item["name"]}</span></a>'
+        else:
+            slug = slugify(item["name"])
+            name_cell = f'<a href="/nicho-{slug}.html">{item["name"]}</a>'
         rows.append(f"""
         <tr>
           <td class="rank-cell">#{rank_offset + i}</td>
-          <td class="name-cell"><a href="/planes.html" class="niche-blurred-link"><span class="niche-blurred">{item['name']}</span></a></td>
+          <td class="name-cell">{name_cell}</td>
           <td><span class="cat-pill">{item.get('category', 'otros')}</span></td>
           <td><span class="class-tag {classification}">{CLASS_LABELS.get(classification, '')}</span></td>
           <td class="num-cell">{interest_bucket(item['current'])}</td>
           <td class="chg-cell {cls}">{arrow}</td>
         </tr>""")
+    header_note = "🔒 Premium" if PREMIUM_LAUNCHED else "🔒 cifras: muy pronto"
     return f"""<table class="content-table">
     <thead>
-      <tr><th>#</th><th>Nicho <span style="text-transform:none; font-weight:400;">(🔒 Premium)</span></th><th>Categoría</th><th>Clasificación</th><th>Interés</th><th>Tendencia</th></tr>
+      <tr><th>#</th><th>Nicho <span style="text-transform:none; font-weight:400;">({header_note})</span></th><th>Categoría</th><th>Clasificación</th><th>Interés</th><th>Tendencia</th></tr>
     </thead>
     <tbody>{''.join(rows)}</tbody>
   </table>"""
@@ -343,11 +357,18 @@ def premium_teaser(rest_count, hidden_count):
     if rest_count <= 0 and hidden_count <= 0:
         return ""
     text_extra = f" y otros {hidden_count} nichos fuera del Top 10" if hidden_count > 0 else ""
+    if PREMIUM_LAUNCHED:
+        cta = '<a class="btn-primary" href="/planes.html">Ver planes Premium →</a>'
+        headline = "Nombres bloqueados y cifras exactas"
+    else:
+        cta = '<a class="btn-primary" href="/planes.html">Avísame cuando esté listo</a>'
+        headline = "Cifras exactas"
     return f"""
   <div class="premium-teaser">
     <div class="premium-teaser-num">🔒</div>
-    <div class="premium-teaser-text"><strong>Nombres bloqueados y cifras exactas</strong> de interés/crecimiento{text_extra} — todo se desbloquea con Premium, junto con el kit de lanzamiento SEO por nicho (dominio + artículo listo para publicar).</div>
-    <a class="btn-primary" href="/planes.html">Ver planes Premium →</a>
+    <div class="premium-teaser-text"><strong>{headline}</strong> de interés/crecimiento{text_extra} — llegan con Premium, que
+    está a punto de activarse, junto con el kit de lanzamiento SEO por nicho (dominio + artículo listo para publicar).</div>
+    {cta}
   </div>"""
 
 
@@ -495,6 +516,11 @@ def build_categorias_hub(by_category, fecha, total_tracked):
 <meta name="description" content="Explora por categoría todos los nichos de negocio detectados: calculadoras, plantillas, comparadores, trámites y más. Actualizado a diario.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://TU-DOMINIO-AQUI/categorias.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Todas las categorías de nichos de negocio en España">
+<meta property="og:description" content="Explora por categoría todos los nichos de negocio detectados, actualizado a diario.">
+<meta property="og:url" content="https://TU-DOMINIO-AQUI/categorias.html">
+<meta property="og:image" content="https://TU-DOMINIO-AQUI/og-image.png">
 {FONT_LINKS}
 </head>
 <body>
@@ -541,6 +567,11 @@ def build_niche_page(item, fecha, total_tracked):
 <meta name="description" content="¿Cuánto interés de búsqueda tiene &quot;{name}&quot; en España ahora mismo? Tendencia, categoría y kit de lanzamiento SEO. Actualizado: {fecha}.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://TU-DOMINIO-AQUI/nicho-{slug}.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="{name}: interés de búsqueda y tendencia en España">
+<meta property="og:description" content="Tendencia, categoría y kit de lanzamiento SEO para &quot;{name}&quot;. Actualizado a diario.">
+<meta property="og:url" content="https://TU-DOMINIO-AQUI/nicho-{slug}.html">
+<meta property="og:image" content="https://TU-DOMINIO-AQUI/og-image.png">
 {FONT_LINKS}
 </head>
 <body>
@@ -565,8 +596,8 @@ def build_niche_page(item, fecha, total_tracked):
   <h2>Kit de lanzamiento SEO</h2>
   <div class="seo-locked">
     <p style="margin-bottom:8px;">Dominio sugerido: <code style="background:var(--white); padding:2px 8px; border-radius:2px; font-family:var(--font-mono);">{teaser_domain}</code></p>
-    <p><strong>🔒 Título, meta descripción y artículo completo listo para publicar (Premium)</strong></p>
-    <a class="btn-primary" href="/planes.html" style="margin-top:6px; display:inline-block; text-decoration:none;">Hazte Premium</a>
+    <p><strong>🔒 Título, meta descripción y artículo completo listo para publicar</strong> — llega con Premium, que está a punto de activarse.</p>
+    <a class="btn-primary" href="/planes.html" style="margin-top:6px; display:inline-block; text-decoration:none;">{'Hazte Premium' if PREMIUM_LAUNCHED else 'Avísame cuando esté listo'}</a>
   </div>
 
   <hr class="section-divider">

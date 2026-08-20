@@ -145,6 +145,14 @@
     y con un plan gratuito real, no una prueba de 7 días.
   </div>
 
+  <div class="premium-soon-banner" id="premium-soon-banner">
+    <span class="premium-soon-text">🔜 <strong>Premium llega muy pronto.</strong> Apúntate y te avisamos en cuanto se pueda contratar.</span>
+    <form id="waitlist-form" class="waitlist-form">
+      <input type="email" id="waitlist-email" placeholder="tu@email.com" required>
+      <button type="submit" class="btn-primary">Avísame</button>
+    </form>
+  </div>
+
   <div class="toggle-row">
     <span class="toggle-label active-label" id="label-monthly">Mensual</span>
     <button class="toggle-switch" id="billing-toggle" aria-label="Cambiar a facturación anual"><span class="knob"></span></button>
@@ -184,8 +192,8 @@
         <li><span class="check">✓</span> Kit de lanzamiento SEO por nicho: dominios sugeridos, título, meta descripción y estructura de contenido</li>
         <li><span class="check">✓</span> Cancela cuando quieras, sin permanencia</li>
       </ul>
-      <button class="plan-cta premium" id="upgrade-btn-planes">Hazte Premium</button>
-      <div class="secure-note">🔒 Pago seguro procesado por Stripe</div>
+      <button class="plan-cta premium" id="upgrade-btn-planes">🔜 Avísame cuando esté listo</button>
+      <div class="secure-note">🔒 Pago seguro procesado por Stripe (en cuanto esté activo)</div>
     </div>
   </div>
 
@@ -246,6 +254,9 @@
 
 <script>
 let billingAnnual = false;
+// Cambia esto a true el dia que actives Stripe de verdad (mismo flag que
+// en index.html, mantenlos sincronizados).
+const PREMIUM_LAUNCHED = false;
 
 document.getElementById('billing-toggle').addEventListener('click', () => {
   billingAnnual = !billingAnnual;
@@ -263,7 +274,34 @@ document.getElementById('billing-toggle').addEventListener('click', () => {
   }
 });
 
+function focusWaitlist() {
+  document.getElementById('waitlist-email').focus();
+  document.getElementById('premium-soon-banner').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  document.getElementById('premium-soon-banner').classList.add('pulse');
+  setTimeout(() => document.getElementById('premium-soon-banner').classList.remove('pulse'), 1200);
+}
+
+document.getElementById('waitlist-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const input = document.getElementById('waitlist-email');
+  const form = e.target;
+  const email = input.value.trim();
+  if (!email) return;
+  const btn = form.querySelector('button');
+  btn.textContent = 'Enviando...';
+  btn.disabled = true;
+  try {
+    await fetch('/api/waitlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+  } catch (e) { /* seguimos igual */ }
+  form.innerHTML = '<span class="waitlist-done">✓ Apuntado — te avisamos en cuanto esté listo.</span>';
+});
+
 document.getElementById('upgrade-btn-planes').addEventListener('click', async () => {
+  if (!PREMIUM_LAUNCHED) { focusWaitlist(); return; }
   const btn = document.getElementById('upgrade-btn-planes');
   const original = btn.textContent;
   btn.textContent = 'Cargando...';
