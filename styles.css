@@ -235,6 +235,11 @@ details.info-details p { line-height: 1.6; margin: 14px 0 0; }
 .arrow-icon { font-size: 1rem; margin-right: 2px; }
 
 .card-meta { color: var(--ink-faint); font-size: 0.75rem; margin-bottom: 10px; font-family: var(--font-mono); }
+.card-meta .unlock-link { color: var(--stamp-red); font-weight: 600; text-decoration: none; }
+.locked-metric { font-size: 1rem; color: var(--ink-faint); font-family: var(--font-mono); font-weight: 600; }
+.card.name-locked { cursor: pointer; }
+.card.name-locked:hover { border-color: var(--stamp-red); }
+.niche-blurred { filter: blur(5px); user-select: none; }
 canvas.spark { max-height: 46px; margin-top: 4px; }
 
 .empty { color: var(--ink-faint); text-align: center; padding: 60px 20px; background: var(--white); border-radius: 3px; border: 1px dashed var(--border); }
@@ -249,6 +254,7 @@ canvas.spark { max-height: 46px; margin-top: 4px; }
 .modal-stat { background: var(--paper); border-radius: 3px; padding: 12px; text-align: center; }
 .modal-stat .label { font-size: 0.65rem; color: var(--ink-faint); font-weight: 600; text-transform: uppercase; }
 .modal-stat .value { font-family: var(--font-mono); font-size: 1.1rem; font-weight: 700; margin-top: 3px; }
+.modal-stat .value.locked { color: var(--ink-faint); font-size: 1.3rem; }
 .modal-close { float: right; background: var(--paper-alt); border: none; color: var(--ink-soft); font-size: 1.1rem; cursor: pointer; width: 30px; height: 30px; border-radius: 50%; }
 .modal canvas { max-height: 200px; }
 .related-terms { margin-top: 16px; font-size: 0.82rem; color: var(--ink-soft); background: var(--paper); padding: 12px; border-radius: 3px; }
@@ -342,6 +348,16 @@ a.category-tile:hover { border-color: var(--stamp-red); box-shadow: 0 3px 12px r
 a.category-tile h3 { font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; margin: 0 0 6px; color: var(--ink); }
 a.category-tile .tile-count { font-family: var(--font-mono); font-size: 1.4rem; font-weight: 700; color: var(--stamp-red); }
 a.category-tile .tile-label { font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+
+/* Aviso de limite gratuito alcanzado, con CTA a /planes.html */
+.premium-teaser {
+  display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+  background: var(--stamp-red-soft); border: 1px solid var(--stamp-red);
+  border-radius: 4px; padding: 20px 22px; margin: 28px 0 8px;
+}
+.premium-teaser-num { font-family: var(--font-mono); font-size: 1.7rem; font-weight: 700; color: var(--stamp-red); }
+.premium-teaser-text { flex: 1; min-width: 220px; font-size: 0.85rem; color: #6b241a; line-height: 1.5; }
+.premium-teaser .btn-primary { flex-shrink: 0; text-decoration: none; display: inline-block; }
 
 @media (max-width: 700px) {
   .content-table { font-size: 0.78rem; }

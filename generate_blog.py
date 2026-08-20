@@ -23,6 +23,8 @@ Se ejecuta automaticamente en el workflow diario, despues de track_trends.py.
 """
 
 import json
+import re
+import unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -53,11 +55,12 @@ CATEGORY_TITLES = {
 MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
          "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
 
-# Cuantos nichos con crecimiento real se destacan como tarjeta / se listan
-# en la tabla completa antes de remitir al dashboard interactivo.
+# El limite gratuito real del producto (ver planes.html: "Nichos visibles
+# por ranking: Gratis = Top 10, Premium = Todos"). Las paginas publicas de
+# SEO tienen que respetar el mismo limite que el dashboard -- si aqui se
+# ve el ranking completo gratis, nadie paga por Premium.
+FREE_LIMIT = 10
 TOP_HIGHLIGHT_COUNT = 5
-TABLE_EXTRA_COUNT = 20
-NUEVOS_COUNT = 12
 
 
 def load_history():
@@ -70,6 +73,36 @@ def load_history():
 def fecha_legible(iso_date):
     y, m, d = iso_date.split("-")
     return f"{int(d)} de {MESES[int(m) - 1]} de {y}"
+
+
+def slugify(text):
+    text = unicodedata.normalize("NFD", text)
+    text = "".join(c for c in text if unicodedata.category(c) != "Mn")
+    text = text.lower()
+    text = re.sub(r"[^a-z0-9]+", "-", text).strip("-")
+    return text
+
+
+def slugify_domain(text):
+    text = unicodedata.normalize("NFD", text)
+    text = "".join(c for c in text if unicodedata.category(c) != "Mn")
+    text = text.lower()
+    return re.sub(r"[^a-z0-9]", "", text)
+
+
+def suggest_domain(query):
+    slug = slugify_domain(query)
+    return f"{slug}.es"
+
+
+def interest_bucket(current):
+    """Cifra exacta -> Premium. Aqui solo el nivel, para no regalar el dato
+    que justifica pagar por la herramienta."""
+    if current >= 50:
+        return "Alto"
+    if current >= 20:
+        return "Medio"
+    return "Bajo"
 
 
 def split_entries(entries):
@@ -191,34 +224,40 @@ def build_highlight_cards(items, rank_offset=1):
         cls = chg_class(item["weekly_change_pct"])
         arrow = "▲" if cls == "up" else ("▼" if cls == "down" else "→")
         classification = item.get("classification", "estable")
+        slug = slugify(item["name"])
         cards.append(f"""
       <div class="card">
         <div class="card-top"><span class="rank-badge">#{rank_offset + i}</span></div>
         <span class="cat-pill">{item.get('category', 'otros')}</span><span class="class-tag {classification}">{CLASS_LABELS.get(classification, '')}</span>
-        <h3>{item['name']}</h3>
-        <div class="big-change {cls}"><span class="arrow-icon">{arrow}</span>{fmt_pct(item['weekly_change_pct'])}</div>
-        <div class="card-meta">Interés: {item['current']}/100 esta semana</div>
+        <h3><a href="/nicho-{slug}.html">{item['name']}</a></h3>
+        <div class="big-change {cls}"><span class="arrow-icon">{arrow}</span><span class="locked-metric">🔒 Premium</span></div>
+        <div class="card-meta">Interés: {interest_bucket(item['current'])} · <a href="/planes.html">cifras exactas →</a></div>
       </div>""")
     return "".join(cards)
 
 
 def build_growth_table(items, rank_offset=1):
+    """Estos nichos ya no llevan el nombre a la vista -- el plan gratuito
+    muestra las 5 tarjetas destacadas de arriba; el resto de la tabla es
+    la zona de conversion a Premium: categoria, clasificacion y tendencia
+    (flecha) visibles, nombre difuminado."""
     rows = []
     for i, item in enumerate(items):
         cls = chg_class(item["weekly_change_pct"])
+        arrow = "▲" if cls == "up" else ("▼" if cls == "down" else "→")
         classification = item.get("classification", "estable")
         rows.append(f"""
         <tr>
           <td class="rank-cell">#{rank_offset + i}</td>
-          <td class="name-cell">{item['name']}</td>
+          <td class="name-cell"><a href="/planes.html" class="niche-blurred-link"><span class="niche-blurred">{item['name']}</span></a></td>
           <td><span class="cat-pill">{item.get('category', 'otros')}</span></td>
           <td><span class="class-tag {classification}">{CLASS_LABELS.get(classification, '')}</span></td>
-          <td class="num-cell">{item['current']}/100</td>
-          <td class="chg-cell {cls}">{fmt_pct(item['weekly_change_pct'])}</td>
+          <td class="num-cell">{interest_bucket(item['current'])}</td>
+          <td class="chg-cell {cls}">{arrow}</td>
         </tr>""")
     return f"""<table class="content-table">
     <thead>
-      <tr><th>#</th><th>Nicho</th><th>Categoría</th><th>Clasificación</th><th>Interés</th><th>Cambio semanal</th></tr>
+      <tr><th>#</th><th>Nicho <span style="text-transform:none; font-weight:400;">(🔒 Premium)</span></th><th>Categoría</th><th>Clasificación</th><th>Interés</th><th>Tendencia</th></tr>
     </thead>
     <tbody>{''.join(rows)}</tbody>
   </table>"""
@@ -229,12 +268,13 @@ def build_nuevos_table(items):
         return ""
     rows = []
     for item in items:
+        slug = slugify(item["name"])
         rows.append(f"""
         <tr>
-          <td class="name-cell">{item['name']}</td>
+          <td class="name-cell"><a href="/nicho-{slug}.html">{item['name']}</a></td>
           <td><span class="cat-pill">{item.get('category', 'otros')}</span></td>
           <td><span class="class-tag nuevo">🆕 Nuevo</span></td>
-          <td class="num-cell">{item['current']}/100</td>
+          <td class="num-cell">{interest_bucket(item['current'])}</td>
         </tr>""")
     table = f"""<table class="content-table">
     <thead>
@@ -256,20 +296,53 @@ def transparency_note(excluded_count):
 
 
 def top_and_rest(growth):
-    """growth ya viene ordenado desc por weekly_change_pct. Las tarjetas
-    destacadas solo deben llevar crecimiento REAL (positivo) -- un nicho en
-    caída no es un 'destacado' aunque le toque el puesto #5 por descarte."""
+    """Ya no se usa para las paginas publicas (ver select_free_slice), se
+    mantiene por si algun otro script la importa."""
     positive_count = sum(1 for it in growth if it["weekly_change_pct"] > 0)
     top_count = min(positive_count, TOP_HIGHLIGHT_COUNT)
     top = growth[:top_count]
-    rest = growth[top_count:top_count + TABLE_EXTRA_COUNT]
+    rest = growth[top_count:]
     return top, rest
+
+
+def select_free_slice(growth, nuevos):
+    """Reparte el limite gratuito (FREE_LIMIT=10, igual que el dashboard)
+    entre tarjetas destacadas + resto de tabla + nichos nuevos, en ese
+    orden de prioridad (primero lo que tiene una tendencia real que
+    contar). Devuelve tambien cuantos nichos quedan ocultos tras el muro
+    de Premium, para el aviso de conversion."""
+    positive_count = sum(1 for it in growth if it["weekly_change_pct"] > 0)
+    top_count = min(positive_count, TOP_HIGHLIGHT_COUNT, FREE_LIMIT)
+    top = growth[:top_count]
+
+    budget = FREE_LIMIT - len(top)
+    rest = growth[top_count:top_count + max(budget, 0)]
+    budget -= len(rest)
+
+    nuevos_shown = nuevos[:max(budget, 0)]
+
+    total_available = len(growth) + len(nuevos)
+    total_shown = len(top) + len(rest) + len(nuevos_shown)
+    hidden_count = total_available - total_shown
+
+    return top, rest, nuevos_shown, hidden_count
+
+
+def premium_teaser(rest_count, hidden_count):
+    if rest_count <= 0 and hidden_count <= 0:
+        return ""
+    text_extra = f" y otros {hidden_count} nichos fuera del Top 10" if hidden_count > 0 else ""
+    return f"""
+  <div class="premium-teaser">
+    <div class="premium-teaser-num">🔒</div>
+    <div class="premium-teaser-text"><strong>Nombres bloqueados y cifras exactas</strong> de interés/crecimiento{text_extra} — todo se desbloquea con Premium, junto con el kit de lanzamiento SEO por nicho (dominio + artículo listo para publicar).</div>
+    <a class="btn-primary" href="/planes.html">Ver planes Premium →</a>
+  </div>"""
 
 
 def build_category_page(category, growth, nuevos, excluded_count, fecha, total_tracked):
     title_text = CATEGORY_TITLES.get(category, f"Nichos de tipo {category} en España")
-    top, rest = top_and_rest(growth)
-    nuevos_shown = nuevos[:NUEVOS_COUNT]
+    top, rest, nuevos_shown, hidden_count = select_free_slice(growth, nuevos)
 
     highlights_html = ""
     if top:
@@ -316,6 +389,7 @@ def build_category_page(category, growth, nuevos, excluded_count, fecha, total_t
   {highlights_html}
   {rest_html}
   {build_nuevos_table(nuevos_shown)}
+  {premium_teaser(len(rest), hidden_count)}
   {transparency_note(excluded_count)}
   <hr class="section-divider">
   <p style="margin-top:24px;">¿Quieres ver todas las categorías o el listado interactivo completo?
@@ -328,14 +402,19 @@ def build_category_page(category, growth, nuevos, excluded_count, fecha, total_t
 
 
 def build_tendencias_page(growth, nuevos, excluded_count, fecha, total_tracked):
-    top, rest = top_and_rest(growth)
-    nuevos_shown = nuevos[:NUEVOS_COUNT]
+    top, rest, nuevos_shown, hidden_count = select_free_slice(growth, nuevos)
 
     highlights_html = ""
     if top:
         highlights_html = f"""
   <h2>Lo más destacado de hoy</h2>
   <div class="content-highlights">{build_highlight_cards(top)}</div>"""
+
+    rest_html = ""
+    if rest:
+        rest_html = f"""
+  <h2>Resto del ranking <span class="h2-count">— {len(rest)}</span></h2>
+  {build_growth_table(rest, rank_offset=len(top) + 1)}"""
 
     return f"""<!DOCTYPE html>
 <html lang="es">
@@ -361,15 +440,15 @@ def build_tendencias_page(growth, nuevos, excluded_count, fecha, total_tracked):
     <h1>Los nichos de negocio con más demanda en España</h1>
     <p class="lede">Este ranking se genera automáticamente cada día a partir de <a href="/">Radar de Nichos</a>,
     una herramienta gratuita que analiza el interés de búsqueda real en Google España para detectar
-    ideas de negocio con demanda creciente. Solo entran nichos con interés de búsqueda real: nada de
-    porcentajes inflados por falta de datos.</p>
+    ideas de negocio con demanda creciente. El plan gratuito muestra los 10 nichos con interés más
+    reciente; nada de porcentajes inflados por falta de datos.</p>
   </div>
   {highlights_html}
-
-  <h2>Resto del ranking <span class="h2-count">— {len(rest)}</span></h2>
-  {build_growth_table(rest, rank_offset=len(top) + 1)}
+  {rest_html}
 
   {build_nuevos_table(nuevos_shown)}
+
+  {premium_teaser(len(rest), hidden_count)}
 
   {transparency_note(excluded_count)}
 
@@ -427,6 +506,68 @@ def build_categorias_hub(by_category, fecha, total_tracked):
 """
 
 
+def build_niche_page(item, fecha, total_tracked):
+    """Pagina propia por nicho: publica e indexable (buena para SEO de
+    cola larga, tipo 'contrato de arras interes de busqueda'), pero solo
+    con el mismo nivel de detalle cualitativo que el resto del plan
+    gratuito -- nunca la cifra exacta ni el kit SEO completo, eso sigue
+    siendo exclusivo de Premium."""
+    name = item["name"]
+    slug = slugify(name)
+    category = item.get("category", "otros")
+    classification = item.get("classification", "estable")
+    cls = chg_class(item.get("weekly_change_pct"))
+    arrow = "▲" if cls == "up" else ("▼" if cls == "down" else "→")
+    title_text = CATEGORY_TITLES.get(category, category)
+    teaser_domain = suggest_domain(item.get("query", name))
+
+    return f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{name}: interés de búsqueda y tendencia en España — {fecha}</title>
+<meta name="description" content="¿Cuánto interés de búsqueda tiene &quot;{name}&quot; en España ahora mismo? Tendencia, categoría y kit de lanzamiento SEO. Actualizado: {fecha}.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://TU-DOMINIO-AQUI/nicho-{slug}.html">
+{FONT_LINKS}
+</head>
+<body>
+{build_masthead('tendencias', f'Ficha de nicho: {name}', fecha, total_tracked)}
+<div class="wrap content-wrap">
+  <div class="content-hero">
+    <div class="updated">Última actualización: {fecha} · datos de Google Trends (España)</div>
+    <h1>{name}</h1>
+    <p class="lede">Ficha de seguimiento de <strong>{name}</strong>, dentro de la categoría
+    <a href="/nichos-{category}.html">{title_text.lower()}</a>, generada por <a href="/">Radar de Nichos</a>.</p>
+  </div>
+
+  <div class="content-highlights">
+    <div class="card">
+      <span class="cat-pill">{category}</span><span class="class-tag {classification}">{CLASS_LABELS.get(classification, '')}</span>
+      <h3>Tendencia esta semana</h3>
+      <div class="big-change {cls}"><span class="arrow-icon">{arrow}</span><span class="locked-metric">🔒 Premium</span></div>
+      <div class="card-meta">Interés: {interest_bucket(item['current'])} · <a href="/planes.html">cifras exactas →</a></div>
+    </div>
+  </div>
+
+  <h2>Kit de lanzamiento SEO</h2>
+  <div class="seo-locked">
+    <p style="margin-bottom:8px;">Dominio sugerido: <code style="background:var(--white); padding:2px 8px; border-radius:2px; font-family:var(--font-mono);">{teaser_domain}</code></p>
+    <p><strong>🔒 Título, meta descripción y artículo completo listo para publicar (Premium)</strong></p>
+    <a class="btn-primary" href="/planes.html" style="margin-top:6px; display:inline-block; text-decoration:none;">Hazte Premium</a>
+  </div>
+
+  <hr class="section-divider">
+  <p style="margin-top:24px;">Consulta el <a href="/tendencias.html">ranking diario completo</a> o entra en el
+  <a href="/">dashboard interactivo</a> para ver la evolución de {name} día a día.</p>
+</div>
+{FOOTER_NAV}
+</body>
+</html>
+"""
+
+
 def main():
     history = load_history()
     dates = sorted(history.keys())
@@ -469,6 +610,18 @@ def main():
         encoding="utf-8",
     )
     print(f"Generado categorias.html ({len(by_category_split)} categorias).")
+
+    # Paginas individuales por nicho (todas las que tienen interes real,
+    # no solo las visibles gratis -- son la puerta de entrada por SEO de
+    # cola larga, y todas ensenan lo mismo: dato cualitativo + Premium
+    # para el resto).
+    niche_count = 0
+    for item in growth + nuevos:
+        page_html = build_niche_page(item, fecha, total_tracked)
+        slug = slugify(item["name"])
+        (ROOT / f"nicho-{slug}.html").write_text(page_html, encoding="utf-8")
+        niche_count += 1
+    print(f"Generadas {niche_count} fichas individuales de nicho (nicho-<slug>.html).")
 
 
 if __name__ == "__main__":

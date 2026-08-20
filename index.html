@@ -143,7 +143,7 @@
 
   <details class="info-details">
     <summary>¿Cómo funciona y por qué confiar en estos datos?</summary>
-    <p><strong>Estudio en expansión continua, inspirado en herramientas como Exploding Topics:</strong> cada día se descubren nichos nuevos vía autocompletado de Google, se validan con Google Trends, y se contrastan con menciones recientes en Reddit. Cada nicho se clasifica como 🚀 Explosivo (crecimiento sostenido en semana Y mes, no solo un pico puntual), 📈 En subida, ➡️ Estable, 📉 En caída, o 🏔️ Pico ya pasado. El <strong>índice de oportunidad</strong> es una heurística (demanda ÷ amplitud del nicho), no un dato real de competencia.</p>
+    <p><strong>Estudio en expansión continua:</strong> cada día se descubren nichos nuevos vía autocompletado de Google, se validan con Google Trends, y se contrastan con menciones recientes en Reddit. Cada nicho se clasifica como 🚀 Explosivo (crecimiento sostenido en semana Y mes, no solo un pico puntual), 📈 En subida, ➡️ Estable, 📉 En caída, o 🏔️ Pico ya pasado. El <strong>índice de oportunidad</strong> es una heurística (demanda ÷ amplitud del nicho), no un dato real de competencia.</p>
     <p>Encontrar un nicho de negocio rentable significa detectar una necesidad con demanda real y poca competencia antes de que se sature. Radar de Nichos automatiza ese proceso: en vez de adivinar qué idea de negocio puede funcionar, analiza a diario datos reales de búsqueda en Google España para mostrar qué está creciendo de verdad, ahora mismo. A diferencia de un buscador de nichos genérico o en inglés, esta herramienta está centrada 100% en el mercado español, es gratuita, y se actualiza sola cada día sin necesidad de registro ni tarjeta de crédito.</p>
     <p style="margin-top:14px; font-size:0.82rem; font-family:var(--font-mono);">
       <a href="/guia-nicho-rentable.html">Guía: cómo buscar un nicho rentable</a> ·
@@ -234,6 +234,10 @@ function trendClass(pct) { return pct == null ? 'flat' : pct > 5 ? 'up' : pct < 
 // comparar, así que se colocan al final en vez de competir con datos reales.
 function sortableMetric(val) { return val == null ? -Infinity : val; }
 function formatPct(val) { return val == null ? 'Nuevo' : (val > 0 ? '+' : '') + val + '%'; }
+// El plan gratuito ve la tendencia (arriba/abajo/estable) pero no la cifra
+// exacta -- esa es la diferencia real con Premium, no solo la cantidad de
+// nichos visibles.
+function interestBucket(current) { return current >= 50 ? 'Alto' : current >= 20 ? 'Medio' : 'Bajo'; }
 function saveFavorites() { localStorage.setItem('radar-favoritos', JSON.stringify([...favorites])); }
 
 async function checkPremiumStatus() {
@@ -265,10 +269,10 @@ async function checkPremiumStatus() {
 }
 
 function upgradeBannerHTML(hiddenCount) {
-  return `<div style="grid-column:1/-1; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:14px; padding:22px; text-align:center;">
-    <strong style="font-size:1.05rem;">+${hiddenCount} nichos más disponibles con Premium</strong><br>
-    <span style="font-size:0.85rem; color:#166534;">Acceso completo, favoritos ilimitados y exportación a CSV — ${PREMIUM_PRICE_LABEL}</span><br>
-    <button onclick="document.getElementById('upgrade-btn').click()" style="margin-top:12px; background:#16a34a; color:#fff; border:none; padding:11px 22px; border-radius:9px; font-weight:700; cursor:pointer; font-size:0.9rem;">Hazte Premium</button>
+  return `<div class="premium-teaser" style="grid-column:1/-1;">
+    <div class="premium-teaser-num">+${hiddenCount}</div>
+    <div class="premium-teaser-text"><strong>nichos más</strong>, nombres de los puestos #6-#10 y cifras exactas de interés/crecimiento — todo desbloqueado con Premium.</div>
+    <button onclick="document.getElementById('upgrade-btn').click()" class="btn-primary">Hazte Premium →</button>
   </div>`;
 }
 
@@ -309,20 +313,35 @@ function renderTab(tab) {
     const isNew = PREV_IDS.size > 0 && !PREV_IDS.has(id);
     const series = DATES.map(d => (HISTORY[d][id] ? HISTORY[d][id].week_avg : null));
 
+    // Plan gratuito: puestos #1-#5 muestran el nombre pero sin cifras
+    // exactas (solo tendencia); puestos #6-#10 también ocultan el nombre.
+    // Premium siempre ve todo.
+    const nameLocked = !isPremium && index >= 5;
+    const numbersLocked = !isPremium;
+
     const card = document.createElement('div');
-    card.className = 'card';
+    card.className = 'card' + (nameLocked ? ' name-locked' : '');
     card.innerHTML = `
       <div class="card-top">
         <span class="rank-badge">#${index + 1}</span>
         <span class="star ${favorites.has(id) ? 'active' : ''}" data-id="${id}">⭐</span>
       </div>
       <span class="cat-pill">${item.category || 'otros'}</span><span class="class-tag ${item.classification || 'estable'}">${CLASS_LABELS[item.classification] || ''}</span>${isNew ? '<span class="new-tag">NUEVO</span>' : ''}
-      <h3>${item.name}</h3>
-      <div class="big-change ${cls}"><span class="arrow-icon">${arrow}</span>${isOpportunity ? val : formatPct(val)}</div>
-      <div class="card-meta">Interés: ${item.current}/100 · Oportunidad: ${item.opportunity}</div>
+      <h3 class="${nameLocked ? 'niche-blurred' : ''}">${nameLocked ? '████████ ████████' : item.name}</h3>
+      <div class="big-change ${cls}">
+        ${numbersLocked
+          ? `<span class="arrow-icon">${arrow}</span><span class="locked-metric">🔒 Premium</span>`
+          : `<span class="arrow-icon">${arrow}</span>${isOpportunity ? val : formatPct(val)}`}
+      </div>
+      <div class="card-meta">${numbersLocked ? `Interés: ${interestBucket(item.current)} · <a href="#" class="unlock-link">cifras exactas →</a>` : `Interés: ${item.current}/100 · Oportunidad: ${item.opportunity}`}</div>
       <canvas class="spark" id="spark-${tab}-${id}"></canvas>
     `;
-    card.addEventListener('click', (e) => { if (!e.target.classList.contains('star')) openModal(id); });
+    card.addEventListener('click', (e) => {
+      if (e.target.classList.contains('star')) return;
+      if (e.target.classList.contains('unlock-link')) { e.preventDefault(); e.stopPropagation(); document.getElementById('upgrade-btn').click(); return; }
+      if (nameLocked) { document.getElementById('upgrade-btn').click(); return; }
+      openModal(id);
+    });
     card.querySelector('.star').addEventListener('click', (e) => {
       e.stopPropagation();
       if (favorites.has(id)) {
@@ -476,23 +495,36 @@ function openModal(id) {
   if (!item) return;
   document.getElementById('modal-title').textContent = item.name;
   document.getElementById('modal-meta').textContent = `"${item.query}" · categoría: ${item.category || 'otros'} · ${CLASS_LABELS[item.classification] || ''}`;
-  document.getElementById('modal-stats').innerHTML = `
-    <div class="modal-stat"><div class="label">Diario</div><div class="value">${formatPct(item.daily_change_pct)}</div></div>
-    <div class="modal-stat"><div class="label">Semanal</div><div class="value">${formatPct(item.weekly_change_pct)}</div></div>
-    <div class="modal-stat"><div class="label">Mensual</div><div class="value">${formatPct(item.monthly_change_pct)}</div></div>
-  `;
-  const terms = (item.sample_terms || []).filter(Boolean);
-  const redditLine = item.reddit_mentions != null ? ` · ${item.reddit_mentions} discusiones recientes en Reddit` : '';
-  document.getElementById('modal-related').textContent = (terms.length
-    ? `Términos relacionados: ${terms.join(', ')} (${item.breadth} en total)`
-    : 'Sin términos relacionados registrados.') + redditLine;
+
+  if (isPremium) {
+    document.getElementById('modal-stats').innerHTML = `
+      <div class="modal-stat"><div class="label">Diario</div><div class="value">${formatPct(item.daily_change_pct)}</div></div>
+      <div class="modal-stat"><div class="label">Semanal</div><div class="value">${formatPct(item.weekly_change_pct)}</div></div>
+      <div class="modal-stat"><div class="label">Mensual</div><div class="value">${formatPct(item.monthly_change_pct)}</div></div>
+    `;
+    const terms = (item.sample_terms || []).filter(Boolean);
+    const redditLine = item.reddit_mentions != null ? ` · ${item.reddit_mentions} discusiones recientes en Reddit` : '';
+    document.getElementById('modal-related').textContent = (terms.length
+      ? `Términos relacionados: ${terms.join(', ')} (${item.breadth} en total)`
+      : 'Sin términos relacionados registrados.') + redditLine;
+  } else {
+    // Detalle numerico y terminos relacionados: solo Premium. El plan
+    // gratuito ya vio la tendencia (flecha) en la tarjeta.
+    document.getElementById('modal-stats').innerHTML = `
+      <div class="modal-stat"><div class="label">Diario</div><div class="value locked">🔒</div></div>
+      <div class="modal-stat"><div class="label">Semanal</div><div class="value locked">🔒</div></div>
+      <div class="modal-stat"><div class="label">Mensual</div><div class="value locked">🔒</div></div>
+    `;
+    document.getElementById('modal-related').innerHTML = '🔒 Términos relacionados y menciones en Reddit disponibles con <a href="#" onclick="document.getElementById(\'upgrade-btn\').click(); return false;">Premium</a>.';
+  }
 
   const series = DATES.map(d => (HISTORY[d][id] ? HISTORY[d][id].week_avg : null));
   if (modalChart) modalChart.destroy();
+  const tickColor = isPremium ? '#9ca3af' : 'transparent';
   modalChart = new Chart(document.getElementById('modal-chart'), {
     type: 'line',
     data: { labels: DATES, datasets: [{ data: series, borderColor: '#16a34a', backgroundColor: '#16a34a15', fill: true, borderWidth: 2, pointRadius: 0, tension: 0.3 }] },
-    options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#9ca3af' } }, y: { ticks: { color: '#9ca3af' } } } }
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#9ca3af' } }, y: { ticks: { color: tickColor } } } }
   });
 
   renderSeoKit(item, id);
