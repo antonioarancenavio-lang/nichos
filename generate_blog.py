@@ -31,6 +31,11 @@ ROOT = Path(__file__).resolve().parent
 HISTORY_FILE = ROOT / "data" / "history.json"
 OUTPUT_FILE = ROOT / "tendencias.html"
 
+# Mismo placeholder que el resto del sitio (canonical/OG tags) -- se
+# reemplaza una vez por el dominio real y se propaga a todo, incluido
+# el sitemap.
+SITE_BASE = "https://TU-DOMINIO-AQUI"
+
 CLASS_LABELS = {
     "explosivo": "🚀 Explosivo",
     "en_subida": "📈 En subida",
@@ -206,6 +211,12 @@ FOOTER_NAV = """<footer class="site-footer">
       <a href="/guia-nicho-rentable.html">Guía: nicho rentable</a> ·
       <a href="/herramientas-encontrar-nichos.html">Comparativa de herramientas</a> ·
       <a href="/buscador-de-nichos.html">Qué es este buscador</a>
+    </div>
+    <div style="margin-bottom:10px; font-size:0.78rem;">
+      <a href="/aviso-legal.html">Aviso legal</a> ·
+      <a href="/privacidad.html">Privacidad</a> ·
+      <a href="/cookies.html">Cookies</a> ·
+      <a href="/condiciones.html">Condiciones de contratación</a>
     </div>
     <div style="color:var(--ink-faint); font-family:var(--font-mono); font-size:0.72rem;">Sin anuncios · Sin tracking de terceros · Metodología abierta en la página de inicio</div>
   </footer>"""
@@ -568,6 +579,43 @@ def build_niche_page(item, fecha, total_tracked):
 """
 
 
+STATIC_PAGES = [
+    ("/", "daily", "1.0"),
+    ("/tendencias.html", "daily", "0.9"),
+    ("/planes.html", "monthly", "0.9"),
+    ("/categorias.html", "daily", "0.8"),
+    ("/guia-nicho-rentable.html", "monthly", "0.8"),
+    ("/herramientas-encontrar-nichos.html", "monthly", "0.8"),
+    ("/buscador-de-nichos.html", "monthly", "0.8"),
+    ("/aviso-legal.html", "yearly", "0.2"),
+    ("/privacidad.html", "yearly", "0.2"),
+    ("/cookies.html", "yearly", "0.2"),
+    ("/condiciones.html", "yearly", "0.2"),
+]
+
+
+def build_sitemap(categories, niche_slugs):
+    """El sitemap se regenera cada dia junto con el resto de paginas --
+    antes era un fichero estatico de 7 URLs, escrito a mano, que no incluia
+    ni las paginas de categoria ni las fichas de nicho (habia decenas de
+    paginas indexables que Google ni conocia)."""
+    urls = list(STATIC_PAGES)
+    for cat in sorted(categories):
+        urls.append((f"/nichos-{cat}.html", "daily", "0.7"))
+    for slug in sorted(niche_slugs):
+        urls.append((f"/nicho-{slug}.html", "weekly", "0.5"))
+
+    entries = "\n".join(
+        f"  <url>\n    <loc>{SITE_BASE}{path}</loc>\n    <changefreq>{freq}</changefreq>\n    <priority>{prio}</priority>\n  </url>"
+        for path, freq, prio in urls
+    )
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{entries}
+</urlset>
+"""
+
+
 def main():
     history = load_history()
     dates = sorted(history.keys())
@@ -616,12 +664,20 @@ def main():
     # cola larga, y todas ensenan lo mismo: dato cualitativo + Premium
     # para el resto).
     niche_count = 0
+    niche_slugs = []
     for item in growth + nuevos:
         page_html = build_niche_page(item, fecha, total_tracked)
         slug = slugify(item["name"])
         (ROOT / f"nicho-{slug}.html").write_text(page_html, encoding="utf-8")
+        niche_slugs.append(slug)
         niche_count += 1
     print(f"Generadas {niche_count} fichas individuales de nicho (nicho-<slug>.html).")
+
+    (ROOT / "sitemap.xml").write_text(
+        build_sitemap(by_category_split.keys(), niche_slugs),
+        encoding="utf-8",
+    )
+    print(f"Generado sitemap.xml ({len(STATIC_PAGES) + len(by_category_split) + len(niche_slugs)} URLs).")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Política de privacidad — Radar de Nichos</title>
+<meta name="description" content="Qué datos recoge Radar de Nichos, para qué los usa y con quién los comparte.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://TU-DOMINIO-AQUI/privacidad.html">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<meta name="theme-color" content="#a33b2b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .content-wrap { max-width: 760px; margin: 0 auto; padding: 40px 24px; }
+  .content-wrap h1 { font-family: var(--font-display); font-size: 1.8rem; font-weight: 600; }
+  .content-wrap h2 { font-family: var(--font-display); font-size: 1.15rem; margin-top: 30px; font-weight: 600; }
+  .updated { color: var(--ink-faint); font-size: 0.85rem; margin-bottom: 24px; font-family: var(--font-mono); }
+  a.back { display: inline-block; margin-top: 28px; font-weight: 600; text-decoration: none; font-family: var(--font-mono); font-size: 0.85rem; }
+  .legal-warning { background: var(--stamp-red-soft); border: 1px solid var(--stamp-red); border-radius: 3px; padding: 16px 18px; margin: 0 0 28px; font-size: 0.85rem; color: #6b241a; line-height: 1.6; }
+  .fill-me { background: #fff3cd; padding: 1px 5px; border-radius: 2px; font-family: var(--font-mono); font-size: 0.88em; }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 0.88rem; }
+  th, td { text-align: left; padding: 8px 10px; border: 1px solid var(--border-soft); vertical-align: top; }
+  th { background: var(--paper-alt); font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; }
+  ul { padding-left: 20px; } li { margin-bottom: 6px; }
+</style>
+</head>
+<body>
+<div class="content-wrap">
+  <a href="/" class="brand-strip-link">
+    <svg width="24" height="24" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="44" class="radar-ring"/>
+      <circle cx="50" cy="50" r="29" class="radar-ring"/>
+      <line x1="6" y1="50" x2="94" y2="50" class="radar-crosshair"/>
+      <line x1="50" y1="6" x2="50" y2="94" class="radar-crosshair"/>
+    </svg>
+    Radar de Nichos
+  </a>
+  <div style="display:flex; gap:14px; margin-bottom:28px; font-family:var(--font-mono); font-size:0.78rem;"><a href="/tendencias.html">Ranking diario</a> <a href="/categorias.html">Categorías</a> <a href="/planes.html">Planes</a></div>
+
+  <h1>Política de privacidad</h1>
+  <div class="updated">Última actualización: <span class="fill-me">[FECHA]</span></div>
+
+  <div class="legal-warning">
+    Plantilla base, no asesoramiento legal — revísala con una gestoría o abogado antes de publicarla, sobre todo el
+    apartado de "Responsable del tratamiento". El contenido de qué datos se tratan y con quién se comparten está
+    descrito con precisión a partir del código real del sitio, pero la responsabilidad legal de quién los trata
+    (el titular) tienes que rellenarla tú.
+  </div>
+
+  <h2>1. Responsable del tratamiento</h2>
+  <ul>
+    <li><strong>Responsable:</strong> <span class="fill-me">[Nombre y apellidos o razón social]</span></li>
+    <li><strong>NIF/CIF:</strong> <span class="fill-me">[NIF o CIF]</span></li>
+    <li><strong>Contacto:</strong> <span class="fill-me">[email@tudominio.es]</span></li>
+  </ul>
+
+  <h2>2. Qué datos se recogen y para qué</h2>
+  <p>Radar de Nichos está diseñado para pedir el mínimo dato posible. Esto es exactamente lo que se trata:</p>
+  <table>
+    <tr><th>Situación</th><th>Dato</th><th>Para qué</th></tr>
+    <tr><td>Uso del plan gratuito (dashboard, ranking, categorías)</td><td>Ninguno. No hay registro ni cuenta.</td><td>—</td></tr>
+    <tr><td>Favoritos guardados en el dashboard</td><td>Se guardan solo en tu navegador (localStorage). No se envían a ningún servidor.</td><td>Que veas tus favoritos al volver a entrar desde el mismo navegador.</td></tr>
+    <tr><td>Alta como Premium</td><td>Email y datos de pago, gestionados directamente por <strong>Stripe</strong> (nunca pasan por nuestro servidor ni se almacenan aquí).</td><td>Gestionar el cobro de la suscripción.</td></tr>
+    <tr><td>Comprobar si eres Premium</td><td>Un identificador de cliente de Stripe ("customerId"), guardado en tu navegador.</td><td>Desbloquear las funciones Premium sin pedirte que inicies sesión cada vez.</td></tr>
+    <tr><td>Vincular tu cuenta de Telegram (alertas Premium)</td><td>Tu chat_id de Telegram, asociado a tu customerId de Stripe.</td><td>Poder enviarte el aviso de nichos nuevos por Telegram.</td></tr>
+    <tr><td>Alertas por email (Premium)</td><td>Tu email (el mismo que usaste al pagar en Stripe).</td><td>Enviarte el resumen diario de nichos nuevos.</td></tr>
+  </table>
+
+  <h2>3. Base legal</h2>
+  <p>El tratamiento de tus datos como cliente Premium se basa en la <strong>ejecución del contrato de suscripción</strong>
+  (art. 6.1.b RGPD): necesitamos tu email para prestarte el servicio que has contratado. No se usan tus datos para
+  publicidad ni se venden a terceros.</p>
+
+  <h2>4. Encargados del tratamiento (proveedores)</h2>
+  <p>Para prestar el servicio se apoya en los siguientes proveedores, que actúan como encargados del tratamiento:</p>
+  <ul>
+    <li><strong>Stripe</strong> — procesamiento de pagos y datos de facturación.</li>
+    <li><strong>Resend</strong> — envío de los emails de alerta a clientes Premium.</li>
+    <li><strong>Upstash</strong> — almacenamiento del vínculo entre tu suscripción y tu chat_id de Telegram.</li>
+    <li><strong>Vercel</strong> — alojamiento del sitio y las funciones del servidor.</li>
+    <li><strong>GitHub</strong> — alojamiento del código y de los datos de seguimiento de nichos (públicos, sin datos personales).</li>
+  </ul>
+  <p>Cada uno de estos proveedores tiene su propia política de privacidad y puede estar ubicado fuera del Espacio
+  Económico Europeo; todos ofrecen garantías estándar de transferencia internacional de datos (cláusulas
+  contractuales tipo o mecanismo equivalente).</p>
+
+  <h2>5. Conservación</h2>
+  <p>Tus datos de suscripción se conservan mientras tu suscripción Premium esté activa y durante el plazo que exija
+  la normativa fiscal/contable tras la baja. El vínculo con Telegram se elimina si desvinculas tu cuenta o das de
+  baja la suscripción.</p>
+
+  <h2>6. Tus derechos</h2>
+  <p>Puedes ejercer tus derechos de acceso, rectificación, supresión, oposición, limitación y portabilidad
+  escribiendo a <span class="fill-me">[email@tudominio.es]</span>. También puedes reclamar ante la Agencia Española
+  de Protección de Datos (<a href="https://www.aepd.es" target="_blank" rel="noopener">aepd.es</a>) si consideras
+  que no se ha atendido tu solicitud correctamente.</p>
+
+  <h2>7. Cookies y almacenamiento local</h2>
+  <p>Detalle completo en la <a href="/cookies.html">política de cookies</a>.</p>
+
+  <a class="back" href="/">← Volver al Radar de Nichos</a>
+</div>
+</body>
+</html>
