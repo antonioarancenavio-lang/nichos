@@ -12,6 +12,8 @@ on:
       - "tendencias.html"
       - "categorias.html"
       - "nichos-*.html"
+      - "nicho-*.html"
+      - "sitemap.xml"
 
 permissions:
   contents: write
@@ -64,6 +66,6 @@ jobs:
         run: |
           git config user.name "radar-bot"
           git config user.email "radar-bot@users.noreply.github.com"
-          git add data/history.json data/discarded.json data/pending.json data/last_run.json data/articles.json data/last_alert_sent.json keywords.json tendencias.html categorias.html nichos-*.html
+          git add data/history.json data/history.json.bak data/discarded.json data/pending.json data/last_run.json data/articles.json data/last_alert_sent.json keywords.json tendencias.html categorias.html nichos-*.html nicho-*.html sitemap.xml
           git diff --staged --quiet || git commit -m "Actualiza datos $(date +%Y-%m-%d)"
           git push
