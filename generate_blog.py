@@ -22,6 +22,7 @@ Uso local:
 Se ejecuta automaticamente en el workflow diario, despues de track_trends.py.
 """
 
+import html
 import json
 import re
 import unicodedata
@@ -115,6 +116,36 @@ def interest_bucket(current):
     return "Bajo"
 
 
+def build_slug_map(items):
+    """Calcula el slug de cada nicho una sola vez, resolviendo colisiones
+    (dos nombres distintos que normalizan al mismo slug) con un sufijo
+    numerico. Se hace aqui, ANTES de generar ninguna pagina, para que
+    todos los enlaces del sitio (tarjetas, tablas, ficha del propio nicho)
+    apunten siempre al mismo fichero real -- nunca a uno que no existe."""
+    slug_map = {}
+    seen = set()
+    for item in items:
+        name = item["name"]
+        base_slug = slugify(name)
+        slug = base_slug
+        suffix = 2
+        while slug in seen:
+            slug = f"{base_slug}-{suffix}"
+            suffix += 1
+        if slug != base_slug:
+            print(f"AVISO: colision de slug para '{name}' -> usando nicho-{slug}.html")
+        seen.add(slug)
+        slug_map[name] = slug
+    return slug_map
+
+
+def esc(text):
+    """Los nombres de nicho vienen del autocompletado de Google (fuente
+    externa, no controlada) -- si alguno trae &, <, > o comillas, esto
+    evita que rompa el HTML de las paginas generadas."""
+    return html.escape(str(text), quote=True)
+
+
 def split_entries(entries):
     """entries: lista de (id, item). Devuelve (visibles_con_crecimiento,
     nuevos_sin_historico, excluidos_sin_interes)."""
@@ -173,10 +204,11 @@ NAV_ITEMS = [
 
 
 def build_nav(current_slug):
-    links = "".join(
-        f'<a href="{href}"{" class=\"current\"" if slug == current_slug else ""}>{label}</a>'
-        for href, label, slug in NAV_ITEMS
-    )
+    parts = []
+    for href, label, slug in NAV_ITEMS:
+        cls_attr = ' class="current"' if slug == current_slug else ""
+        parts.append(f'<a href="{href}"{cls_attr}>{label}</a>')
+    links = "".join(parts)
     return f'<nav class="site-nav">\n    <div class="wrap">\n      {links}\n    </div>\n  </nav>'
 
 
@@ -234,26 +266,26 @@ FONT_LINKS = """<link rel="preconnect" href="https://fonts.googleapis.com">
 <meta name="theme-color" content="#a33b2b">"""
 
 
-def build_highlight_cards(items, rank_offset=1):
+def build_highlight_cards(items, slug_map, rank_offset=1):
     lock_label = "🔒 Premium" if PREMIUM_LAUNCHED else "🔒 Muy pronto"
     cards = []
     for i, item in enumerate(items):
         cls = chg_class(item["weekly_change_pct"])
         arrow = "▲" if cls == "up" else ("▼" if cls == "down" else "→")
         classification = item.get("classification", "estable")
-        slug = slugify(item["name"])
+        slug = slug_map[item["name"]]
         cards.append(f"""
       <div class="card">
         <div class="card-top"><span class="rank-badge">#{rank_offset + i}</span></div>
         <span class="cat-pill">{item.get('category', 'otros')}</span><span class="class-tag {classification}">{CLASS_LABELS.get(classification, '')}</span>
-        <h3><a href="/nicho-{slug}.html">{item['name']}</a></h3>
+        <h3><a href="/nicho-{slug}.html">{esc(item['name'])}</a></h3>
         <div class="big-change {cls}"><span class="arrow-icon">{arrow}</span><span class="locked-metric">{lock_label}</span></div>
         <div class="card-meta">Interés: {interest_bucket(item['current'])} · <a href="/planes.html">cifras exactas →</a></div>
       </div>""")
     return "".join(cards)
 
 
-def build_growth_table(items, rank_offset=1):
+def build_growth_table(items, slug_map, rank_offset=1):
     """Estos nichos ya no llevan la cifra exacta a la vista -- el plan
     gratuito muestra las 5 tarjetas destacadas de arriba con la tendencia,
     y esta tabla amplia esa misma info. El nombre se difumina solo cuando
@@ -266,10 +298,10 @@ def build_growth_table(items, rank_offset=1):
         arrow = "▲" if cls == "up" else ("▼" if cls == "down" else "→")
         classification = item.get("classification", "estable")
         if PREMIUM_LAUNCHED:
-            name_cell = f'<a href="/planes.html" class="niche-blurred-link"><span class="niche-blurred">{item["name"]}</span></a>'
+            name_cell = f'<a href="/planes.html" class="niche-blurred-link"><span class="niche-blurred">{esc(item["name"])}</span></a>'
         else:
-            slug = slugify(item["name"])
-            name_cell = f'<a href="/nicho-{slug}.html">{item["name"]}</a>'
+            slug = slug_map[item["name"]]
+            name_cell = f'<a href="/nicho-{slug}.html">{esc(item["name"])}</a>'
         rows.append(f"""
         <tr>
           <td class="rank-cell">#{rank_offset + i}</td>
@@ -288,15 +320,15 @@ def build_growth_table(items, rank_offset=1):
   </table>"""
 
 
-def build_nuevos_table(items):
+def build_nuevos_table(items, slug_map):
     if not items:
         return ""
     rows = []
     for item in items:
-        slug = slugify(item["name"])
+        slug = slug_map[item["name"]]
         rows.append(f"""
         <tr>
-          <td class="name-cell"><a href="/nicho-{slug}.html">{item['name']}</a></td>
+          <td class="name-cell"><a href="/nicho-{slug}.html">{esc(item['name'])}</a></td>
           <td><span class="cat-pill">{item.get('category', 'otros')}</span></td>
           <td><span class="class-tag nuevo">🆕 Nuevo</span></td>
           <td class="num-cell">{interest_bucket(item['current'])}</td>
@@ -372,7 +404,7 @@ def premium_teaser(rest_count, hidden_count):
   </div>"""
 
 
-def build_category_page(category, growth, nuevos, excluded_count, fecha, total_tracked):
+def build_category_page(category, growth, nuevos, excluded_count, fecha, total_tracked, slug_map):
     title_text = CATEGORY_TITLES.get(category, f"Nichos de tipo {category} en España")
     top, rest, nuevos_shown, hidden_count = select_free_slice(growth, nuevos)
 
@@ -380,13 +412,13 @@ def build_category_page(category, growth, nuevos, excluded_count, fecha, total_t
     if top:
         highlights_html = f"""
   <h2>Con más crecimiento esta semana</h2>
-  <div class="content-highlights">{build_highlight_cards(top)}</div>"""
+  <div class="content-highlights">{build_highlight_cards(top, slug_map)}</div>"""
 
     rest_html = ""
     if rest:
         rest_html = f"""
   <h2>Resto del ranking <span class="h2-count">— {len(rest)}</span></h2>
-  {build_growth_table(rest, rank_offset=len(top) + 1)}"""
+  {build_growth_table(rest, slug_map, rank_offset=len(top) + 1)}"""
 
     empty_html = ""
     if not top and not rest and not nuevos_shown:
@@ -420,7 +452,7 @@ def build_category_page(category, growth, nuevos, excluded_count, fecha, total_t
   {empty_html}
   {highlights_html}
   {rest_html}
-  {build_nuevos_table(nuevos_shown)}
+  {build_nuevos_table(nuevos_shown, slug_map)}
   {premium_teaser(len(rest), hidden_count)}
   {transparency_note(excluded_count)}
   <hr class="section-divider">
@@ -433,20 +465,20 @@ def build_category_page(category, growth, nuevos, excluded_count, fecha, total_t
 """
 
 
-def build_tendencias_page(growth, nuevos, excluded_count, fecha, total_tracked):
+def build_tendencias_page(growth, nuevos, excluded_count, fecha, total_tracked, slug_map):
     top, rest, nuevos_shown, hidden_count = select_free_slice(growth, nuevos)
 
     highlights_html = ""
     if top:
         highlights_html = f"""
   <h2>Lo más destacado de hoy</h2>
-  <div class="content-highlights">{build_highlight_cards(top)}</div>"""
+  <div class="content-highlights">{build_highlight_cards(top, slug_map)}</div>"""
 
     rest_html = ""
     if rest:
         rest_html = f"""
   <h2>Resto del ranking <span class="h2-count">— {len(rest)}</span></h2>
-  {build_growth_table(rest, rank_offset=len(top) + 1)}"""
+  {build_growth_table(rest, slug_map, rank_offset=len(top) + 1)}"""
 
     return f"""<!DOCTYPE html>
 <html lang="es">
@@ -478,7 +510,7 @@ def build_tendencias_page(growth, nuevos, excluded_count, fecha, total_tracked):
   {highlights_html}
   {rest_html}
 
-  {build_nuevos_table(nuevos_shown)}
+  {build_nuevos_table(nuevos_shown, slug_map)}
 
   {premium_teaser(len(rest), hidden_count)}
 
@@ -543,20 +575,22 @@ def build_categorias_hub(by_category, fecha, total_tracked):
 """
 
 
-def build_niche_page(item, fecha, total_tracked):
+def build_niche_page(item, slug, fecha, total_tracked):
     """Pagina propia por nicho: publica e indexable (buena para SEO de
     cola larga, tipo 'contrato de arras interes de busqueda'), pero solo
     con el mismo nivel de detalle cualitativo que el resto del plan
     gratuito -- nunca la cifra exacta ni el kit SEO completo, eso sigue
-    siendo exclusivo de Premium."""
-    name = item["name"]
-    slug = slugify(name)
+    siendo exclusivo de Premium. El slug lo decide build_slug_map() en
+    main() (no se recalcula aqui) para que nunca pueda desincronizarse
+    del nombre de fichero real."""
+    name_raw = item["name"]
+    name = esc(name_raw)  # a partir de aqui, siempre la version escapada
     category = item.get("category", "otros")
     classification = item.get("classification", "estable")
     cls = chg_class(item.get("weekly_change_pct"))
     arrow = "▲" if cls == "up" else ("▼" if cls == "down" else "→")
     title_text = CATEGORY_TITLES.get(category, category)
-    teaser_domain = suggest_domain(item.get("query", name))
+    teaser_domain = suggest_domain(item.get("query", name_raw))
 
     return f"""<!DOCTYPE html>
 <html lang="es">
@@ -661,9 +695,14 @@ def main():
 
     growth, nuevos, excluded_count = split_entries(entries)
     total_tracked = len(growth) + len(nuevos)
+    # Un solo mapa nombre->slug para todo el sitio -- todas las paginas
+    # (tendencias, categorias, fichas propias) enlazan usando este mismo
+    # mapa, asi que un enlace nunca puede apuntar a un slug distinto del
+    # fichero que realmente se genera mas abajo.
+    slug_map = build_slug_map(growth + nuevos)
 
     OUTPUT_FILE.write_text(
-        build_tendencias_page(growth, nuevos, excluded_count, fecha, total_tracked),
+        build_tendencias_page(growth, nuevos, excluded_count, fecha, total_tracked, slug_map),
         encoding="utf-8",
     )
     print(f"Generado tendencias.html con datos de {last_date} "
@@ -679,7 +718,7 @@ def main():
     for cat, cat_entries in by_category_raw.items():
         cat_growth, cat_nuevos, cat_excluded = split_entries(cat_entries)
         by_category_split[cat] = (cat_growth, cat_nuevos, cat_excluded)
-        page_html = build_category_page(cat, cat_growth, cat_nuevos, cat_excluded, fecha, total_tracked)
+        page_html = build_category_page(cat, cat_growth, cat_nuevos, cat_excluded, fecha, total_tracked, slug_map)
         cat_file = ROOT / f"nichos-{cat}.html"
         cat_file.write_text(page_html, encoding="utf-8")
         print(f"Generado nichos-{cat}.html ({len(cat_growth) + len(cat_nuevos)} nichos con interés real).")
@@ -697,8 +736,8 @@ def main():
     niche_count = 0
     niche_slugs = []
     for item in growth + nuevos:
-        page_html = build_niche_page(item, fecha, total_tracked)
-        slug = slugify(item["name"])
+        slug = slug_map[item["name"]]
+        page_html = build_niche_page(item, slug, fecha, total_tracked)
         (ROOT / f"nicho-{slug}.html").write_text(page_html, encoding="utf-8")
         niche_slugs.append(slug)
         niche_count += 1

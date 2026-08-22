@@ -59,6 +59,13 @@ MAX_CORE_KEYWORDS = 150
 # reintentos si trendspyg falla de forma intermitente (timeouts, bloqueos puntuales)
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 20
+# cuantos dias de historico se conservan (60 es lo minimo que necesita el
+# calculo mensual; se deja el doble de margen)
+HISTORY_RETENTION_DAYS = 120
+# si fallan mas de esta proporcion de consultas, el snapshot de hoy no es
+# fiable -- mejor no guardarlo (dejaria "agujeros" falsos en el historico
+# de casi todos los nichos) que envenenar la base de datos con un dia malo
+CATASTROPHIC_ERROR_RATE = 0.7
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
@@ -71,16 +78,80 @@ def slugify(text):
 
 
 def load_json(path, default):
-    if path.exists():
+    """Si el fichero esta corrupto (JSON a medias, disco lleno a mitad de
+    escritura anterior, etc.) no queremos que el script reviente sin mas
+    -- se intenta restaurar desde el backup que deja save_json() y, si
+    tampoco existe o tambien esta mal, se avisa fuerte y se sigue con el
+    valor por defecto en vez de tirar todo el proceso abajo."""
+    if not path.exists():
+        return default
+    try:
         with open(path, encoding="utf-8") as f:
             return json.load(f)
-    return default
+    except json.JSONDecodeError as e:
+        print(f"AVISO GRAVE: {path.name} esta corrupto ({e}).")
+        backup_path = path.with_suffix(path.suffix + ".bak")
+        if backup_path.exists():
+            try:
+                with open(backup_path, encoding="utf-8") as f:
+                    data = json.load(f)
+                print(f"Restaurado {path.name} desde el backup {backup_path.name}.")
+                return data
+            except json.JSONDecodeError:
+                print(f"El backup {backup_path.name} tambien esta corrupto.")
+        print(f"Sin backup valido para {path.name} -- se continua con datos vacios.")
+        return default
 
 
-def save_json(path, data):
+def save_json(path, data, keep_backup=False, compact=False):
+    """Escritura atomica: se escribe primero en un fichero temporal en el
+    MISMO directorio y solo al final se renombra sobre el definitivo
+    (os.replace es atomico en POSIX). Si el proceso se corta a mitad
+    (falla la Action, se queda sin memoria, lo que sea), el fichero
+    original queda intacto en vez de a medio escribir -- antes una
+    interrupcion en mal momento podia dejar el JSON corrupto y tirar
+    todo el sitio abajo, porque todo depende de estos ficheros.
+
+    keep_backup=True ademas guarda una copia del contenido ANTERIOR en
+    <fichero>.bak antes de sustituirlo, como red de seguridad extra para
+    history.json: si un bug (no un crash) escribe datos malos pero
+    validos como JSON, el backup permite recuperar el ultimo estado bueno
+    a mano.
+
+    compact=True quita la indentacion (para history.json, que el
+    navegador descarga entero en cada visita y nadie lee a mano). El
+    resto de ficheros se guardan legibles porque sirven tambien como
+    registro humano en los diffs de Git."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    if keep_backup and path.exists():
+        backup_path = path.with_suffix(path.suffix + ".bak")
+        try:
+            backup_path.write_text(path.read_text(encoding="utf-8"), encoding="utf-8")
+        except OSError:
+            pass  # el backup es un extra, no bloquea el guardado principal
+
+    tmp_path = path.with_suffix(path.suffix + ".tmp")
+    with open(tmp_path, "w", encoding="utf-8") as f:
+        if compact:
+            json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
+        else:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+    os.replace(tmp_path, path)
+
+
+def prune_history(history, keep_days=120):
+    """Solo hacen falta 60 dias de historico para el calculo mensual
+    (values[-60:-30] en analyze_series) -- guardar mas no aporta nada a
+    los calculos, solo hace crecer el fichero para siempre y lo hace mas
+    lento de descargar en cada visita al dashboard. Se deja un margen
+    generoso (120 dias, el doble de lo necesario) en vez del minimo justo."""
+    dates = sorted(history.keys())
+    if len(dates) <= keep_days:
+        return history, 0
+    to_drop = dates[:-keep_days]
+    for d in to_drop:
+        del history[d]
+    return history, len(to_drop)
 
 
 def pct_change(current, previous):
@@ -271,7 +342,8 @@ def main():
             keywords.append({"id": item["id"], "name": item["name"], "query": item["query"], "category": category})
             promoted_names.append(item["name"])
         else:
-            discarded.append(item["query"])
+            if item["query"] not in discarded:
+                discarded.append(item["query"])
             discarded_names.append(item["name"])
 
     # Si el nucleo se paso del limite, jubila los de peor interes semanal actual
@@ -287,8 +359,31 @@ def main():
     save_json(DISCARDED_FILE, discarded)
     save_json(PENDING_FILE, [])  # ya evaluados, se vacia hasta el proximo descubrimiento
 
-    history[today] = day_snapshot
-    save_json(HISTORY_FILE, history)
+    total_for_rate = total if total else 1
+    error_rate = (total - len(day_snapshot)) / total_for_rate
+
+    # Guardia de sanidad: si hoy ha fallado la gran mayoria de consultas
+    # (Google Trends bloqueando, Chrome roto en el runner, lo que sea), no
+    # tiene sentido escribir un snapshot practicamente vacio -- eso
+    # envenenaria el historico con un "dia hueco" para casi todos los
+    # nichos y desajustaria sus calculos de tendencia. Mejor conservar el
+    # ultimo dia bueno y avisar fuerte que guardar basura silenciosamente.
+    if error_rate >= CATASTROPHIC_ERROR_RATE:
+        print(
+            f"AVISO GRAVE: {total - len(day_snapshot)}/{total} consultas fallaron hoy "
+            f"({error_rate:.0%}) -- NO se guarda el snapshot de hoy para no danar el historico. "
+            f"Se mantiene el ultimo dia bueno."
+        )
+        alerts.append(
+            f"\u26D4 Fallo grave: {error_rate:.0%} de las consultas fallaron hoy. No se ha "
+            f"actualizado el historico para no guardar datos malos -- revisa el runner."
+        )
+    else:
+        history[today] = day_snapshot
+        history, dropped = prune_history(history, keep_days=HISTORY_RETENTION_DAYS)
+        if dropped:
+            print(f"Historico podado: {dropped} dia(s) mas antiguos que {HISTORY_RETENTION_DAYS} dias eliminados.")
+        save_json(HISTORY_FILE, history, keep_backup=True, compact=True)
 
     if promoted_names:
         alerts.append(
@@ -306,8 +401,7 @@ def main():
     }
     save_json(RUN_LOG_FILE, run_log)
 
-    error_rate = run_log["con_error"] / total if total else 0
-    if error_rate >= 0.3:
+    if 0.3 <= error_rate < CATASTROPHIC_ERROR_RATE:
         alerts.append(
             f"\u26A0\uFE0F Aviso de salud: {run_log['con_error']}/{total} consultas fallaron hoy "
             f"({error_rate:.0%}). Puede que Google Trends este bloqueando o que algo se haya roto."

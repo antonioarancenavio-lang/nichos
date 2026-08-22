@@ -163,7 +163,7 @@
   </details>
 
   <div class="search-row">
-    <input type="text" id="search" placeholder="Buscar nicho...">
+    <input type="text" id="search" placeholder="Buscar nicho..." aria-label="Buscar nicho">
     <button class="btn" id="fav-toggle">★ Favoritos</button>
     <button class="btn" id="export-csv">⬇ CSV</button>
     <button class="btn-primary" id="upgrade-btn">★ Hazte Premium</button>
@@ -221,7 +221,7 @@
 
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal">
-    <button class="modal-close" id="modal-close">✕</button>
+    <button class="modal-close" id="modal-close" aria-label="Cerrar">✕</button>
     <h2 id="modal-title"></h2>
     <div class="modal-meta" id="modal-meta"></div>
     <div class="modal-stats" id="modal-stats"></div>
@@ -257,6 +257,11 @@ function formatPct(val) { return val == null ? 'Nuevo' : (val > 0 ? '+' : '') + 
 // El plan gratuito ve la tendencia (arriba/abajo/estable) pero no la cifra
 // exacta -- esa es la diferencia real con Premium, no solo la cantidad de
 // nichos visibles.
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = String(text ?? '');
+  return div.innerHTML;
+}
 function interestBucket(current) { return current >= 50 ? 'Alto' : current >= 20 ? 'Medio' : 'Bajo'; }
 function saveFavorites() { localStorage.setItem('radar-favoritos', JSON.stringify([...favorites])); }
 
@@ -347,10 +352,10 @@ function renderTab(tab) {
     card.innerHTML = `
       <div class="card-top">
         <span class="rank-badge">#${index + 1}</span>
-        <span class="star ${favorites.has(id) ? 'active' : ''}" data-id="${id}">⭐</span>
+        <span class="star ${favorites.has(id) ? 'active' : ''}" data-id="${id}" role="button" tabindex="0" aria-label="${favorites.has(id) ? 'Quitar de favoritos' : 'Añadir a favoritos'}">⭐</span>
       </div>
       <span class="cat-pill">${item.category || 'otros'}</span><span class="class-tag ${item.classification || 'estable'}">${CLASS_LABELS[item.classification] || ''}</span>${isNew ? '<span class="new-tag">NUEVO</span>' : ''}
-      <h3 class="${nameLocked ? 'niche-blurred' : ''}">${nameLocked ? '████████ ████████' : item.name}</h3>
+      <h3 class="${nameLocked ? 'niche-blurred' : ''}">${nameLocked ? '████████ ████████' : escapeHtml(item.name)}</h3>
       <div class="big-change ${cls}">
         ${numbersLocked
           ? `<span class="arrow-icon">${arrow}</span><span class="locked-metric">🔒 Premium</span>`
@@ -676,16 +681,22 @@ document.getElementById('telegram-link-btn').addEventListener('click', async () 
 
 async function load() {
   try {
-    const res = await fetch('data/history.json', { cache: 'no-store' });
+    // Sin 'no-store': los datos solo cambian una vez al dia, así que
+    // dejar que el navegador (y la CDN) cacheen el fichero evita
+    // redescargarlo entero en cada visita del mismo día.
+    const res = await fetch('data/history.json');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     HISTORY = await res.json();
   } catch (e) {
-    document.getElementById('main-content').innerHTML += '<div class="empty">Todavía no hay datos. Se generarán tras la primera ejecución del workflow diario.</div>';
+    console.error('No se pudo cargar data/history.json:', e);
+    document.getElementById('main-content').innerHTML += '<div class="empty">No se han podido cargar los datos ahora mismo. Si el problema persiste, es que el fichero de datos está caído o corrupto — reintenta en unos minutos.</div>';
     return;
   }
 
   DATES = Object.keys(HISTORY).sort();
   if (DATES.length === 0) {
     document.getElementById('last-update').textContent = 'Todavía no hay datos.';
+    document.getElementById('main-content').innerHTML += '<div class="empty">Todavía no hay datos. Se generarán tras la primera ejecución del workflow diario.</div>';
     return;
   }
 
@@ -717,8 +728,8 @@ async function load() {
   });
 
   try {
-    const artRes = await fetch('data/articles.json', { cache: 'no-store' });
-    ARTICLES = await artRes.json();
+    const artRes = await fetch('data/articles.json');
+    ARTICLES = artRes.ok ? await artRes.json() : {};
   } catch (e) {
     ARTICLES = {};
   }
