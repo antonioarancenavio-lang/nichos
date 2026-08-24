@@ -40,6 +40,7 @@ from pathlib import Path
 
 import requests
 from trendspyg import download_google_trends_explore
+from trendspyg.exceptions import RateLimitError
 
 ROOT = Path(__file__).resolve().parent
 KEYWORDS_FILE = ROOT / "keywords.json"
@@ -57,8 +58,24 @@ PROMOTION_THRESHOLD = 15
 # tope maximo de nichos en el nucleo (evita que la ejecucion diaria crezca sin fin)
 MAX_CORE_KEYWORDS = 150
 # reintentos si trendspyg falla de forma intermitente (timeouts, bloqueos puntuales)
-MAX_RETRIES = 3
-RETRY_BACKOFF_SECONDS = 20
+MAX_RETRIES = 2
+RETRY_BACKOFF_SECONDS = 15
+# limite de intentos/espera que trendspyg hace POR DENTRO esperando a que el
+# grafico de Google Trends renderice antes de darse por vencido con esa
+# consulta. Los valores por defecto de la libreria (10 intentos x 8s) hacen
+# que el "peor caso" de una sola consulta bloqueada sean ~100s; combinado con
+# los reintentos de arriba, una tanda de nichos bloqueados por Google (algo
+# habitual con las IPs compartidas de GitHub Actions) podia hacer que la
+# ejecucion completa se fuera a 3+ horas antes de fallar. Se recorta aqui
+# para que una consulta bloqueada falle rapido (~30s) en vez de colgar.
+CHART_LOAD_ATTEMPTS = 4
+CHART_LOAD_WAIT_SECONDS = 6.0
+# si se encadenan tantos fallos SEGUIDOS, asumimos que Google ha bloqueado
+# la IP del runner por completo (no tiene sentido seguir reintentando nicho
+# a nicho durante horas): se corta el resto del lote como "sin dato" y se
+# sigue con el resto del workflow. Esto es lo que evita que la ejecucion se
+# quede colgada 3-6 horas y termine en error/timeout del job.
+CIRCUIT_BREAKER_CONSECUTIVE_FAILURES = 8
 # cuantos dias de historico se conservan (60 es lo minimo que necesita el
 # calculo mensual; se deja el doble de margen)
 HISTORY_RETENTION_DAYS = 120
@@ -197,8 +214,23 @@ def fetch_trend(query):
     last_exc = None
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            env = download_google_trends_explore(query, geo="ES")
+            env = download_google_trends_explore(
+                query,
+                geo="ES",
+                max_retries=CHART_LOAD_ATTEMPTS,
+                retry_wait=CHART_LOAD_WAIT_SECONDS,
+                cookies="disk",
+            )
             break
+        except RateLimitError:
+            # Un RateLimitError real de Google no se arregla reintentando --
+            # trendspyg (1.5.1+) ya lo distingue de un fallo de renderizado
+            # puntual, y la propia libreria documenta que la IP tarda
+            # ~35 min o mas en recuperarse. Reintentar aqui solo quema
+            # minutos del workflow para repetir el mismo bloqueo. Se deja
+            # subir de inmediato para que el llamador corte el lote entero,
+            # no solo esta consulta.
+            raise
         except Exception as exc:
             last_exc = exc
             if attempt < MAX_RETRIES:
@@ -290,6 +322,9 @@ def send_telegram_alert(message):
 def score_one(kw_id, query, name, category, day_snapshot, alerts):
     try:
         stats = fetch_trend(query)
+    except RateLimitError as exc:
+        print(f"  Rate limit de Google Trends consultando '{query}': {exc}", file=sys.stderr)
+        return "rate_limited"
     except Exception as exc:
         print(f"  Error consultando '{query}': {exc}", file=sys.stderr)
         return None
@@ -324,17 +359,69 @@ def main():
     # 1) Nucleo ya validado
     total = len(keywords) + len(pending)
     n = 0
+    consecutive_failures = 0
+    circuit_open = False
+
     for item in keywords:
         n += 1
+        if circuit_open:
+            print(f"[{n}/{total}] (nucleo) Omitido: '{item['query']}' (circuito abierto).")
+            continue
         print(f"[{n}/{total}] (nucleo) Consultando '{item['query']}'...")
-        score_one(item["id"], item["query"], item["name"], item.get("category", "otros"), day_snapshot, alerts)
+        stats = score_one(item["id"], item["query"], item.get("name", item["query"]), item.get("category", "otros"), day_snapshot, alerts)
+        if stats == "rate_limited":
+            circuit_open = True
+            print(
+                "  AVISO GRAVE: Google Trends ha devuelto un bloqueo de rate-limit "
+                "explicito -- corto el resto del lote de hoy en vez de seguir "
+                "reintentando (la IP tarda ~35+ min en recuperarse, segun trendspyg)."
+            )
+            alerts.append(
+                "\u26D4 Google Trends ha bloqueado el runner por rate-limit. Se ha "
+                "cortado la ejecucion de hoy antes de tiempo para no colgar el workflow."
+            )
+            continue
+        consecutive_failures = 0 if stats is not None else consecutive_failures + 1
+        if consecutive_failures >= CIRCUIT_BREAKER_CONSECUTIVE_FAILURES:
+            circuit_open = True
+            print(
+                f"  AVISO GRAVE: {consecutive_failures} consultas seguidas han fallado -- "
+                "asumo que Google esta bloqueando esta IP y corto el resto del lote de hoy "
+                "en vez de seguir horas reintentando."
+            )
+            alerts.append(
+                "\u26D4 Google Trends parece estar bloqueando el runner (muchos fallos "
+                "seguidos). Se ha cortado la ejecucion de hoy antes de tiempo para no "
+                "colgar el workflow."
+            )
 
     # 2) Candidatos nuevos descubiertos hoy
     for item in pending:
         n += 1
         category = item.get("category", "otros")
+        if circuit_open:
+            print(f"[{n}/{total}] (candidato) Omitido: '{item['query']}' (circuito abierto).")
+            continue
         print(f"[{n}/{total}] (candidato) Consultando '{item['query']}'...")
         stats = score_one(item["id"], item["query"], item["name"], category, day_snapshot, alerts)
+        if stats == "rate_limited":
+            circuit_open = True
+            print(
+                "  AVISO GRAVE: Google Trends ha devuelto un bloqueo de rate-limit "
+                "explicito -- corto el resto del lote de candidatos de hoy."
+            )
+            alerts.append(
+                "\u26D4 Google Trends ha bloqueado el runner por rate-limit durante "
+                "la evaluacion de candidatos. Se ha cortado antes de tiempo."
+            )
+            continue
+        consecutive_failures = 0 if stats is not None else consecutive_failures + 1
+        if consecutive_failures >= CIRCUIT_BREAKER_CONSECUTIVE_FAILURES:
+            circuit_open = True
+            print(
+                f"  AVISO GRAVE: {consecutive_failures} consultas seguidas han fallado -- "
+                "corto el resto del lote de candidatos de hoy."
+            )
         if stats is None:
             continue
 
