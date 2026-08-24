@@ -42,11 +42,24 @@ jobs:
       - name: Instalar Chrome (necesario para el radar de nichos)
         uses: browser-actions/setup-chrome@v1
 
+      # trendspyg (>=1.6.0) puede reutilizar la cookie de sesion de Google
+      # entre ejecuciones ("returning visitor") si se le da un fichero
+      # persistente -- sin esto, cada Action empieza desde cero y es tratada
+      # como visitante nueva, lo que Google bloquea mucho antes en runners
+      # compartidos como los de GitHub Actions.
+      - name: Restaurar cookie de Google Trends (sesion "returning visitor")
+        uses: actions/cache@v4
+        with:
+          path: .trendspyg-cookies.json
+          key: trendspyg-cookies-${{ github.run_id }}
+          restore-keys: trendspyg-cookies-
+
       - name: Ejecutar radar de nichos (nucleo + candidatos nuevos)
         timeout-minutes: 25
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TRENDSPYG_COOKIES: ${{ github.workspace }}/.trendspyg-cookies.json
         run: python track_trends.py
 
       - name: Generar página de tendencias (SEO)
