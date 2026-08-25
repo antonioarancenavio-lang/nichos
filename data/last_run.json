@@ -1,12 +1,9 @@
 {
-  "fecha": "2026-08-18",
-  "total_procesados": 79,
-  "nucleo_final": 68,
-  "promocionados": 4,
-  "descartados": 8,
-  "con_datos": 51,
-  "con_error": 17,
-  "datos_frescos": 48,
-  "datos_heredados_stale": 3,
-  "reintentando_candidatos": 3
+  "fecha": "2026-08-25",
+  "total_procesados": 70,
+  "nucleo_final": 55,
+  "promocionados": 0,
+  "descartados": 0,
+  "con_datos": 4,
+  "con_error": 66
 }
