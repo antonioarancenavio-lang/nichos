@@ -18,14 +18,15 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: radar-diario
-  cancel-in-progress: false
-
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    # Red de seguridad extra ademas del disyuntor de track_trends.py: si
+    # algo se cuelga por completo (Chrome no responde, etc.) esto corta
+    # la ejecucion en vez de dejarla colgada horas. Con el disyuntor ya
+    # activo, un dia normal (incluso uno malo, con Google bloqueando) no
+    # deberia acercarse a este limite.
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
 
@@ -42,24 +43,10 @@ jobs:
       - name: Instalar Chrome (necesario para el radar de nichos)
         uses: browser-actions/setup-chrome@v1
 
-      # trendspyg (>=1.6.0) puede reutilizar la cookie de sesion de Google
-      # entre ejecuciones ("returning visitor") si se le da un fichero
-      # persistente -- sin esto, cada Action empieza desde cero y es tratada
-      # como visitante nueva, lo que Google bloquea mucho antes en runners
-      # compartidos como los de GitHub Actions.
-      - name: Restaurar cookie de Google Trends (sesion "returning visitor")
-        uses: actions/cache@v4
-        with:
-          path: .trendspyg-cookies.json
-          key: trendspyg-cookies-${{ github.run_id }}
-          restore-keys: trendspyg-cookies-
-
       - name: Ejecutar radar de nichos (nucleo + candidatos nuevos)
-        timeout-minutes: 25
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TRENDSPYG_COOKIES: ${{ github.workspace }}/.trendspyg-cookies.json
         run: python track_trends.py
 
       - name: Generar página de tendencias (SEO)
@@ -85,15 +72,6 @@ jobs:
         run: |
           git config user.name "radar-bot"
           git config user.email "radar-bot@users.noreply.github.com"
-          # git add con rutas literales falla (exit 128, "pathspec did not
-          # match any files") si el fichero no existe todavia -- varios de
-          # estos son condicionales (p.ej. data/articles.json solo se crea
-          # si ANTHROPIC_API_KEY esta puesta y se genero algun articulo;
-          # data/history.json.bak solo aparece a partir del 2o guardado).
-          # Se filtra a los que realmente existen para no abortar el commit.
-          FILES="data/history.json data/history.json.bak data/discarded.json data/pending.json data/last_run.json data/articles.json data/last_alert_sent.json keywords.json tendencias.html categorias.html sitemap.xml"
-          for f in $FILES nicho-*.html nichos-*.html; do
-            [ -e "$f" ] && git add "$f"
-          done
+          git add data/history.json data/history.json.bak data/discarded.json data/pending.json data/last_run.json data/articles.json data/last_alert_sent.json keywords.json tendencias.html categorias.html nichos-*.html nicho-*.html sitemap.xml
           git diff --staged --quiet || git commit -m "Actualiza datos $(date +%Y-%m-%d)"
           git push
