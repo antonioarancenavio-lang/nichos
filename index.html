@@ -298,8 +298,7 @@ async function checkPremiumStatus() {
   // pongas a true (Stripe activo de verdad), este atajo deja de
   // funcionar el solo, sin que haya que acordarse de quitarlo. Nunca se
   // activa por una URL compartible ni aparece en ningun sitio publico.
-  const previewPremium = !PREMIUM_LAUNCHED && localStorage.getItem('radar-preview-premium') === '1';
-
+ const previewPremium = true;
   const params = new URLSearchParams(window.location.search);
   const sessionId = params.get('session_id');
   if (sessionId) {
