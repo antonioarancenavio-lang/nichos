@@ -257,7 +257,7 @@ const PREMIUM_PRICE_LABEL = '9€/mes';
 // false, todos los botones de Premium (dashboard, tarjetas, modal) abren
 // la lista de espera en vez de intentar cobrar.
 const PREMIUM_LAUNCHED = false;
-let isPremium = false;
+let isPremium = true;
 let HISTORY = {}, DATES = [], LATEST = {}, PREV_IDS = new Set();
 let favorites = new Set(JSON.parse(localStorage.getItem('radar-favoritos') || '[]'));
 let opportunityMapChart = null;
