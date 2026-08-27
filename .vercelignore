@@ -1,0 +1,14 @@
+# Estos ficheros solo los usa el workflow diario de GitHub Actions
+# (.github/workflows/daily.yml) para generar los datos y las paginas.
+# Vercel solo tiene que servir el sitio estatico + las funciones de
+# /api -- no necesita nada de esto, y su presencia en la raiz del repo
+# (sobre todo requirements.txt) hacia que Vercel detectase mal el
+# proyecto como una app Python y fallase el build buscando un
+# app.py/main.py que nunca existio.
+*.py
+scripts/
+data/*.bak
+data/*.tmp
+__pycache__/
+*.pyc
+.github/
