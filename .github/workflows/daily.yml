@@ -35,7 +35,7 @@ jobs:
           python-version: "3.11"
 
       - name: Instalar dependencias
-        run: pip install -r requirements.txt
+        run: pip install -r scripts/requirements.txt
 
       - name: Descubrir nichos nuevos
         run: python discover_niches.py
