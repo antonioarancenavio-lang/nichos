@@ -288,6 +288,18 @@ function interestBucket(current) { return current >= 50 ? 'Alto' : current >= 20
 function saveFavorites() { localStorage.setItem('radar-favoritos', JSON.stringify([...favorites])); }
 
 async function checkPremiumStatus() {
+  // Vista previa SOLO para ti (el dueño de la web), para ver el sitio como
+  // lo veria un cliente Premium antes de activar Stripe de verdad. Se
+  // activa a mano desde la consola del navegador (F12 -> Console):
+  //     localStorage.setItem('radar-preview-premium', '1')
+  // y recargando la pagina. Para desactivarla:
+  //     localStorage.removeItem('radar-preview-premium')
+  // Solo funciona mientras PREMIUM_LAUNCHED sea false -- en cuanto lo
+  // pongas a true (Stripe activo de verdad), este atajo deja de
+  // funcionar el solo, sin que haya que acordarse de quitarlo. Nunca se
+  // activa por una URL compartible ni aparece en ningun sitio publico.
+  const previewPremium = !PREMIUM_LAUNCHED && localStorage.getItem('radar-preview-premium') === '1';
+
   const params = new URLSearchParams(window.location.search);
   const sessionId = params.get('session_id');
   if (sessionId) {
@@ -301,16 +313,24 @@ async function checkPremiumStatus() {
     window.history.replaceState({}, '', window.location.pathname);
   }
 
-  const customerId = localStorage.getItem('radar-premium-customer');
-  if (!customerId) { isPremium = false; return; }
-  try {
-    const res = await fetch(`/api/check-premium?customerId=${encodeURIComponent(customerId)}`);
-    const data = await res.json();
-    isPremium = !!data.active;
-  } catch (e) {
-    isPremium = false;
+  if (previewPremium) {
+    isPremium = true;
+  } else {
+    const customerId = localStorage.getItem('radar-premium-customer');
+    if (!customerId) {
+      isPremium = false;
+    } else {
+      try {
+        const res = await fetch(`/api/check-premium?customerId=${encodeURIComponent(customerId)}`);
+        const data = await res.json();
+        isPremium = !!data.active;
+      } catch (e) {
+        isPremium = false;
+      }
+    }
   }
   document.getElementById('premium-badge').style.display = isPremium ? 'flex' : 'none';
+  document.getElementById('premium-badge').textContent = previewPremium ? '★ Premium (vista previa)' : '★ Premium activo';
   document.getElementById('upgrade-btn').style.display = isPremium ? 'none' : 'inline-block';
   document.getElementById('upgrade-btn').textContent = PREMIUM_LAUNCHED ? '★ Hazte Premium' : '🔜 Aviso Premium';
   document.getElementById('telegram-link-btn').style.display = isPremium ? 'inline-block' : 'none';
