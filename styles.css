@@ -359,6 +359,16 @@ a.category-tile .tile-label { font-family: var(--font-mono); font-size: 0.68rem;
 .premium-teaser-text { flex: 1; min-width: 220px; font-size: 0.85rem; color: #6b241a; line-height: 1.5; }
 .premium-teaser .btn-primary { flex-shrink: 0; text-decoration: none; display: inline-block; }
 
+/* Mapa de oportunidades (burbujas) */
+.map-wrap { position: relative; background: var(--white); border: 1px solid var(--border-soft); border-radius: 6px; padding: 16px; }
+#opportunity-map { width: 100% !important; }
+.map-locked {
+  display: flex; align-items: center; justify-content: center;
+  position: absolute; inset: 0; background: rgba(250,247,240,0.88);
+  border-radius: 6px; backdrop-filter: blur(2px);
+}
+.map-locked-inner { text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center; padding: 20px; }
+
 /* Aviso sitewide "Premium llega muy pronto" + lista de espera */
 .premium-soon-banner {
   display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;

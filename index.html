@@ -181,6 +181,7 @@
     <button class="tab-btn" data-tab="weekly">Semanal</button>
     <button class="tab-btn" data-tab="monthly">Mensual</button>
     <button class="tab-btn" data-tab="opportunity">Oportunidad</button>
+    <button class="tab-btn" data-tab="map">🗺️ Mapa</button>
   </div>
 
   <div class="tab-panel active" id="panel-daily">
@@ -198,6 +199,21 @@
   <div class="tab-panel" id="panel-opportunity">
     <p class="tab-desc">Ordenado por índice de oportunidad: demanda alta con pocos términos relacionados alrededor.</p>
     <div class="grid" id="list-opportunity"></div>
+  </div>
+
+  <div class="tab-panel" id="panel-map">
+    <p class="tab-desc">Cada burbuja es un nicho: a la derecha y arriba, más interés y más crecimiento a la vez — el cuadrante que interesa. El tamaño es el índice de oportunidad (demanda entre pocos términos relacionados).</p>
+    <div class="map-wrap" id="map-wrap">
+      <canvas id="opportunity-map" height="130"></canvas>
+      <div class="map-locked" id="map-locked">
+        <div class="map-locked-inner">
+          <div style="font-size:1.6rem;">🔒</div>
+          <div><strong>Mapa de oportunidades</strong> — Premium, muy pronto.</div>
+          <div style="font-size:0.8rem; color:var(--ink-faint); max-width:340px; margin:0 auto;">Visualiza los 150+ nichos de un vistazo: crecimiento, interés y oportunidad, coloreados por categoría.</div>
+          <button onclick="document.getElementById('upgrade-btn').click()" class="btn-primary" style="margin-top:4px;">Avísame cuando esté listo</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <footer class="site-footer">
@@ -244,6 +260,12 @@ const PREMIUM_LAUNCHED = false;
 let isPremium = false;
 let HISTORY = {}, DATES = [], LATEST = {}, PREV_IDS = new Set();
 let favorites = new Set(JSON.parse(localStorage.getItem('radar-favoritos') || '[]'));
+let opportunityMapChart = null;
+const CATEGORY_COLORS = {
+  calculadora: '#a33b2b', plantilla: '#3b6ea3', comparador: '#2f7d4f',
+  tramite: '#a9782c', generador: '#7a4ba3', guia: '#c2554e',
+  costes: '#4b8ba3', meta: '#8c8c4b', otros: '#7a7a7a',
+};
 let filters = { search: '', category: '', onlyFavorites: false };
 let activeTab = 'daily';
 let modalChart = null;
@@ -401,7 +423,68 @@ function renderTab(tab) {
   }
 }
 
-function renderAll() { Object.keys(METRIC_BY_TAB).forEach(renderTab); }
+function renderAll() { Object.keys(METRIC_BY_TAB).forEach(renderTab); renderOpportunityMap(); }
+
+function renderOpportunityMap() {
+  const lockedOverlay = document.getElementById('map-locked');
+  const canvas = document.getElementById('opportunity-map');
+  if (!canvas) return;
+
+  // El mapa ensena crecimiento + interes exactos de golpe para 150+ nichos
+  // -- exactamente el dato que en el resto del dashboard se guarda para
+  // Premium. Coherente con esa misma regla en vez de una excepcion.
+  if (!isPremium) {
+    lockedOverlay.style.display = 'flex';
+    if (opportunityMapChart) { opportunityMapChart.destroy(); opportunityMapChart = null; }
+    return;
+  }
+  lockedOverlay.style.display = 'none';
+
+  const entries = Object.entries(LATEST).filter(([id, item]) => item.current > 0 && matchesFilters(id, item));
+  const byCategory = {};
+  entries.forEach(([id, item]) => {
+    const cat = item.category || 'otros';
+    (byCategory[cat] = byCategory[cat] || []).push({
+      x: item.weekly_change_pct == null ? 0 : item.weekly_change_pct,
+      y: item.current,
+      r: Math.max(4, Math.min(28, Math.sqrt(item.opportunity || 1) * 4)),
+      name: item.name,
+      opportunity: item.opportunity,
+    });
+  });
+
+  const datasets = Object.entries(byCategory).map(([cat, points]) => ({
+    label: cat,
+    data: points,
+    backgroundColor: (CATEGORY_COLORS[cat] || '#7a7a7a') + '99',
+    borderColor: CATEGORY_COLORS[cat] || '#7a7a7a',
+    borderWidth: 1,
+  }));
+
+  if (opportunityMapChart) opportunityMapChart.destroy();
+  opportunityMapChart = new Chart(canvas, {
+    type: 'bubble',
+    data: { datasets },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 10, font: { family: 'IBM Plex Mono', size: 10 } } },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const p = ctx.raw;
+              return `${p.name}: interés ${p.y}/100, semana ${p.x > 0 ? '+' : ''}${p.x}%, oportunidad ${p.opportunity}`;
+            },
+          },
+        },
+      },
+      scales: {
+        x: { title: { display: true, text: 'Cambio semanal (%)' }, grid: { color: '#e5ddd0' } },
+        y: { title: { display: true, text: 'Interés actual (0-100)' }, min: 0, max: 100, grid: { color: '#e5ddd0' } },
+      },
+    },
+  });
+}
 
 function slugifyDomain(text) {
   return text
