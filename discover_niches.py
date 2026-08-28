@@ -17,6 +17,7 @@ Uso local:
 """
 
 import json
+import os
 import re
 import sys
 import unicodedata
@@ -68,16 +69,26 @@ def is_near_duplicate(candidate_words, known_word_sets, threshold=0.75):
 
 
 def load_json(path, default):
-    if path.exists():
+    """Misma logica de recuperacion que track_trends.py: si el fichero esta
+    corrupto, se avisa y se sigue con el valor por defecto en vez de tirar
+    todo el script abajo por un problema de datos, no de codigo."""
+    if not path.exists():
+        return default
+    try:
         with open(path, encoding="utf-8") as f:
             return json.load(f)
-    return default
+    except json.JSONDecodeError as e:
+        print(f"AVISO: {path.name} esta corrupto ({e}) -- se continua con datos vacios.", file=sys.stderr)
+        return default
 
 
 def save_json(path, data):
+    """Escritura atomica (temp + rename), igual que en track_trends.py."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
+    tmp_path = path.with_suffix(path.suffix + ".tmp")
+    with open(tmp_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+    os.replace(tmp_path, path)
 
 
 def fetch_suggestions(seed):
@@ -99,9 +110,13 @@ def main():
     keywords = load_json(KEYWORDS_FILE, [])
     discarded = load_json(DISCARDED_FILE, [])
 
-    known_normalized = {normalize(item["query"]) for item in keywords}
+    # Si keywords.json tiene alguna entrada mal formada (sin "query"), se
+    # ignora esa entrada suelta en vez de tirar todo el descubrimiento abajo
+    # -- un dato local raro no deberia impedir que se busquen candidatos
+    # nuevos hoy.
+    known_normalized = {normalize(item["query"]) for item in keywords if "query" in item}
     known_normalized |= {normalize(q) for q in discarded}
-    known_word_sets = [word_set(item["query"]) for item in keywords]
+    known_word_sets = [word_set(item["query"]) for item in keywords if "query" in item]
 
     candidates = []  # lista de (texto, categoria)
     seen_this_run = set()
@@ -134,4 +149,12 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as exc:
+        # Descubrir candidatos nuevos es un extra, no el nucleo del radar --
+        # si algo inesperado revienta aqui (no solo un fallo de red, que ya
+        # esta cubierto arriba), se avisa y se sale limpio en vez de tirar
+        # todo el workflow por un paso que no es critico.
+        print(f"AVISO: discover_niches.py fallo de forma inesperada: {exc}", file=sys.stderr)
+        print("Se continua sin candidatos nuevos hoy -- no afecta al nucleo ya en seguimiento.", file=sys.stderr)

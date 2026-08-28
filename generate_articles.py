@@ -70,10 +70,17 @@ def slugify(text):
 
 
 def load_json(path, default):
-    if path.exists():
+    """Misma logica de recuperacion que track_trends.py: si el fichero esta
+    corrupto, se avisa y se sigue con el valor por defecto en vez de tirar
+    todo el script abajo por un problema de datos, no de codigo."""
+    if not path.exists():
+        return default
+    try:
         with open(path, encoding="utf-8") as f:
             return json.load(f)
-    return default
+    except json.JSONDecodeError as e:
+        print(f"AVISO: {path.name} esta corrupto ({e}) -- se continua con datos vacios.", file=sys.stderr)
+        return default
 
 
 def save_json(path, data):
@@ -95,8 +102,8 @@ def pick_candidates(keywords, snapshot, cache, limit):
     """Nichos sin articulo en cache, ordenados por prioridad de clasificacion."""
     pending = []
     for item in keywords:
-        kw_id = item["id"]
-        if kw_id in cache:
+        kw_id = item.get("id")
+        if not kw_id or kw_id in cache:
             continue
         classification = snapshot.get(kw_id, {}).get("classification", "estable")
         priority = CLASSIFICATION_PRIORITY.get(classification, 5)
@@ -185,4 +192,10 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as exc:
+        # Los articulos son un extra Premium, no el nucleo del radar -- si
+        # algo inesperado revienta aqui, se avisa y se sale limpio en vez de
+        # tirar todo el workflow por un paso que no es critico.
+        print(f"AVISO: generate_articles.py fallo de forma inesperada: {exc}", file=sys.stderr)

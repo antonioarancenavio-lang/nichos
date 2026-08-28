@@ -57,10 +57,17 @@ UPSTASH_REDIS_REST_TOKEN = os.environ.get("UPSTASH_REDIS_REST_TOKEN", "")
 
 
 def load_json(path, default):
-    if path.exists():
+    """Misma logica de recuperacion que track_trends.py: si el fichero esta
+    corrupto, se avisa y se sigue con el valor por defecto en vez de tirar
+    todo el script abajo por un problema de datos, no de codigo."""
+    if not path.exists():
+        return default
+    try:
         with open(path, encoding="utf-8") as f:
             return json.load(f)
-    return default
+    except json.JSONDecodeError as e:
+        print(f"AVISO: {path.name} esta corrupto ({e}) -- se continua con datos vacios.", file=sys.stderr)
+        return default
 
 
 def save_json(path, data):
@@ -120,26 +127,34 @@ def fetch_active_subscriber_customers():
 def redis_get(key):
     if not (UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN):
         return None
-    resp = requests.get(
-        f"{UPSTASH_REDIS_REST_URL}/get/{key}",
-        headers={"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"},
-        timeout=10,
-    )
-    if resp.status_code != 200:
+    try:
+        resp = requests.get(
+            f"{UPSTASH_REDIS_REST_URL}/get/{key}",
+            headers={"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"},
+            timeout=10,
+        )
+        if resp.status_code != 200:
+            return None
+        return resp.json().get("result")
+    except requests.exceptions.RequestException as exc:
+        print(f"Error de red consultando Upstash ({key}): {exc}", file=sys.stderr)
         return None
-    return resp.json().get("result")
 
 
 def send_telegram_message(chat_id, text):
-    resp = requests.post(
-        f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
-        json={"chat_id": chat_id, "text": text},
-        timeout=15,
-    )
-    if resp.status_code != 200:
-        print(f"Error enviando Telegram a chat {chat_id}: {resp.status_code} {resp.text}", file=sys.stderr)
+    try:
+        resp = requests.post(
+            f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
+            json={"chat_id": chat_id, "text": text},
+            timeout=15,
+        )
+        if resp.status_code != 200:
+            print(f"Error enviando Telegram a chat {chat_id}: {resp.status_code} {resp.text}", file=sys.stderr)
+            return False
+        return True
+    except requests.exceptions.RequestException as exc:
+        print(f"Error de red enviando Telegram a chat {chat_id}: {exc}", file=sys.stderr)
         return False
-    return True
 
 
 def build_telegram_text(niches):
@@ -168,21 +183,25 @@ def build_email_html(niches):
 
 
 def send_email(to_email, html):
-    resp = requests.post(
-        "https://api.resend.com/emails",
-        headers={"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"},
-        json={
-            "from": RESEND_FROM_EMAIL,
-            "to": [to_email],
-            "subject": "🚀 Nuevos nichos explosivos en el radar",
-            "html": html,
-        },
-        timeout=20,
-    )
-    if resp.status_code >= 300:
-        print(f"Error enviando a {to_email}: {resp.status_code} {resp.text}", file=sys.stderr)
+    try:
+        resp = requests.post(
+            "https://api.resend.com/emails",
+            headers={"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"},
+            json={
+                "from": RESEND_FROM_EMAIL,
+                "to": [to_email],
+                "subject": "🚀 Nuevos nichos explosivos en el radar",
+                "html": html,
+            },
+            timeout=20,
+        )
+        if resp.status_code >= 300:
+            print(f"Error enviando a {to_email}: {resp.status_code} {resp.text}", file=sys.stderr)
+            return False
+        return True
+    except requests.exceptions.RequestException as exc:
+        print(f"Error de red enviando a {to_email}: {exc}", file=sys.stderr)
         return False
-    return True
 
 
 def main():
@@ -252,4 +271,10 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as exc:
+        # Las alertas son un extra Premium, no el nucleo del radar -- si algo
+        # inesperado revienta aqui, se avisa y se sale limpio en vez de tirar
+        # todo el workflow por un paso que no es critico.
+        print(f"AVISO: alert_premium.py fallo de forma inesperada: {exc}", file=sys.stderr)

@@ -237,13 +237,22 @@
 
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal">
-    <button class="modal-close" id="modal-close" aria-label="Cerrar">✕</button>
-    <h2 id="modal-title"></h2>
-    <div class="modal-meta" id="modal-meta"></div>
-    <div class="modal-stats" id="modal-stats"></div>
-    <canvas id="modal-chart"></canvas>
-    <div class="related-terms" id="modal-related"></div>
-    <div class="seo-kit" id="modal-seo-kit"></div>
+    <div class="modal-inner">
+      <button class="modal-close" id="modal-close" aria-label="Cerrar">✕</button>
+      <div class="modal-badges" id="modal-badges"></div>
+      <h2 id="modal-title"></h2>
+      <div class="modal-meta" id="modal-meta"></div>
+
+      <div class="modal-section-label">Tendencia</div>
+      <div class="modal-stats" id="modal-stats"></div>
+      <div class="modal-chart-wrap"><canvas id="modal-chart"></canvas></div>
+
+      <div class="modal-section-label">Términos relacionados</div>
+      <div class="related-terms-wrap" id="modal-related"></div>
+
+      <div class="modal-section-label">Kit de lanzamiento SEO</div>
+      <div class="seo-kit" id="modal-seo-kit"></div>
+    </div>
   </div>
 </div>
 
@@ -257,7 +266,7 @@ const PREMIUM_PRICE_LABEL = '9€/mes';
 // false, todos los botones de Premium (dashboard, tarjetas, modal) abren
 // la lista de espera en vez de intentar cobrar.
 const PREMIUM_LAUNCHED = false;
-let isPremium = true;
+let isPremium = false;
 let HISTORY = {}, DATES = [], LATEST = {}, PREV_IDS = new Set();
 let favorites = new Set(JSON.parse(localStorage.getItem('radar-favoritos') || '[]'));
 let opportunityMapChart = null;
@@ -298,7 +307,8 @@ async function checkPremiumStatus() {
   // pongas a true (Stripe activo de verdad), este atajo deja de
   // funcionar el solo, sin que haya que acordarse de quitarlo. Nunca se
   // activa por una URL compartible ni aparece en ningun sitio publico.
- const previewPremium = true;
+  const previewPremium = !PREMIUM_LAUNCHED && localStorage.getItem('radar-preview-premium') === '1';
+
   const params = new URLSearchParams(window.location.search);
   const sessionId = params.get('session_id');
   if (sessionId) {
@@ -578,9 +588,10 @@ function renderSeoKit(item, id) {
     const teaserDomain = suggestDomains(item.query)[0];
     container.innerHTML = `
       <div class="seo-locked">
-        <p style="margin-bottom:8px;">Dominio sugerido: <code style="background:var(--white); padding:2px 8px; border-radius:2px; font-family:var(--font-mono);">${teaserDomain}</code></p>
-        <p><strong>🔒 Kit de lanzamiento SEO (Premium)</strong><br>Título, meta descripción y artículo completo listo para publicar en este nicho.</p>
-        <button onclick="document.getElementById('upgrade-btn').click()" class="btn-primary" style="margin-top:6px;">${PREMIUM_LAUNCHED ? 'Hazte Premium' : 'Avísame cuando esté listo'}</button>
+        <div class="seo-locked-icon">🔒</div>
+        <p><strong>Dominio sugerido:</strong> <code>${teaserDomain}</code></p>
+        <p>Título, meta descripción y artículo completo listo para publicar en este nicho${PREMIUM_LAUNCHED ? ', con Premium' : ' — llega con Premium, a punto de activarse'}.</p>
+        <button onclick="document.getElementById('upgrade-btn').click()" class="btn-primary">${PREMIUM_LAUNCHED ? 'Hazte Premium' : 'Avísame cuando esté listo'}</button>
       </div>`;
     return;
   }
@@ -591,32 +602,47 @@ function renderSeoKit(item, id) {
   let contentBlock;
   if (article) {
     contentBlock = `
-      <h4>Título y meta descripción</h4>
-      <p style="font-size:0.82rem;"><strong>Título:</strong> ${article.title}<br><strong>Meta descripción:</strong> ${article.meta_description}</p>
-
-      <h4>Artículo listo para publicar</h4>
-      <div class="seo-article">${article.body_html}</div>
-      <p style="font-size:0.72rem; color:var(--ink-faint); margin-top:8px; font-family:var(--font-mono);">Cópialo tal cual o ajústalo a tu estilo antes de publicarlo — se genera una vez por nicho y se revisa periódicamente.</p>`;
+      <div class="seo-kit-section">
+        <h4>📝 Título y meta descripción</h4>
+        <div class="seo-meta-line"><strong>Título:</strong> ${escapeHtml(article.title)}<br><strong>Meta descripción:</strong> ${escapeHtml(article.meta_description)}</div>
+      </div>
+      <div class="seo-kit-section">
+        <h4>📄 Artículo listo para publicar</h4>
+        <div class="seo-article">${article.body_html}</div>
+        <div class="seo-kit-note">Cópialo tal cual o ajústalo a tu estilo antes de publicarlo — se genera una vez por nicho y se revisa periódicamente.</div>
+      </div>`;
   } else {
     const outline = contentOutlineFor(item.category, item.query);
     contentBlock = `
-      <h4>Título y meta descripción sugeridos</h4>
-      <p style="font-size:0.82rem;"><strong>Título:</strong> ${outline.title}<br><strong>Meta descripción:</strong> ${outline.meta}</p>
-
-      <h4>Estructura de contenido sugerida</h4>
-      <div class="seo-outline">${outline.sections.join('<br>')}</div>
-      <p style="font-size:0.72rem; color:var(--ink-faint); margin-top:6px; font-family:var(--font-mono);">El artículo completo para este nicho todavía no se ha generado — se van generando unos pocos cada día, pronto estará disponible aquí.</p>`;
+      <div class="seo-kit-section">
+        <h4>📝 Título y meta descripción sugeridos</h4>
+        <div class="seo-meta-line"><strong>Título:</strong> ${escapeHtml(outline.title)}<br><strong>Meta descripción:</strong> ${escapeHtml(outline.meta)}</div>
+      </div>
+      <div class="seo-kit-section">
+        <h4>🗂️ Estructura de contenido sugerida</h4>
+        <div class="seo-outline">${outline.sections.map(escapeHtml).join('<br>')}</div>
+        <div class="seo-kit-note">El artículo completo para este nicho todavía no se ha generado — se van generando unos pocos cada día, pronto estará disponible aquí.</div>
+      </div>`;
   }
 
   container.innerHTML = `
-    <h4>Dominios sugeridos</h4>
-    <div>${domains.map(d => `<span class="domain-chip">${d}</span>`).join('')}</div>
-    <p style="font-size:0.72rem; color:var(--ink-faint); margin-top:6px; font-family:var(--font-mono);">Comprueba disponibilidad antes de comprar — un registrador (Namecheap, OVH, nic.es) te lo confirma al instante. Coste orientativo: 9-15€/año.</p>
+    <div class="seo-kit-section">
+      <h4>🌐 Dominios sugeridos</h4>
+      <div>${domains.map(d => `<span class="domain-chip">${d}</span>`).join('')}</div>
+      <div class="seo-kit-note">Comprueba disponibilidad antes de comprar — un registrador (Namecheap, OVH, nic.es) te lo confirma al instante. Coste orientativo: 9-15€/año.</div>
+    </div>
 
     ${contentBlock}
 
-    <h4>Pasos para publicar</h4>
-    <div class="seo-outline">1. Compra el dominio sugerido arriba<br>2. Conéctalo a Vercel o GitHub Pages (Settings → Domains)<br>3. Publica el artículo de arriba (o la estructura, si aún no hay artículo)<br>4. Da de alta el sitemap en Google Search Console</div>
+    <div class="seo-kit-section">
+      <h4>🚀 Pasos para publicar</h4>
+      <ol class="seo-steps">
+        <li><span class="step-num">1</span>Compra el dominio sugerido arriba</li>
+        <li><span class="step-num">2</span>Conéctalo a Vercel o GitHub Pages (Settings → Domains)</li>
+        <li><span class="step-num">3</span>Publica el artículo de arriba (o la estructura, si aún no hay artículo)</li>
+        <li><span class="step-num">4</span>Da de alta el sitemap en Google Search Console</li>
+      </ol>
+    </div>
   `;
 }
 
@@ -624,19 +650,28 @@ function openModal(id) {
   const item = LATEST[id];
   if (!item) return;
   document.getElementById('modal-title').textContent = item.name;
-  document.getElementById('modal-meta').textContent = `"${item.query}" · categoría: ${item.category || 'otros'} · ${CLASS_LABELS[item.classification] || ''}`;
+  document.getElementById('modal-badges').innerHTML = `
+    <span class="cat-pill">${item.category || 'otros'}</span>
+    <span class="class-tag ${item.classification || 'estable'}">${CLASS_LABELS[item.classification] || ''}</span>
+  `;
+  document.getElementById('modal-meta').innerHTML = `<code>"${escapeHtml(item.query)}"</code> · interés actual: ${isPremium ? item.current + '/100' : interestBucket(item.current)}`;
+
+  const statRow = (label, val) => {
+    const cls = trendClass(val);
+    return `<div class="modal-stat ${cls}"><div class="label">${label}</div><div class="value">${formatPct(val)}</div></div>`;
+  };
 
   if (isPremium) {
-    document.getElementById('modal-stats').innerHTML = `
-      <div class="modal-stat"><div class="label">Diario</div><div class="value">${formatPct(item.daily_change_pct)}</div></div>
-      <div class="modal-stat"><div class="label">Semanal</div><div class="value">${formatPct(item.weekly_change_pct)}</div></div>
-      <div class="modal-stat"><div class="label">Mensual</div><div class="value">${formatPct(item.monthly_change_pct)}</div></div>
-    `;
+    document.getElementById('modal-stats').innerHTML =
+      statRow('Diario', item.daily_change_pct) +
+      statRow('Semanal', item.weekly_change_pct) +
+      statRow('Mensual', item.monthly_change_pct);
+
     const terms = (item.sample_terms || []).filter(Boolean);
-    const redditLine = item.reddit_mentions != null ? ` · ${item.reddit_mentions} discusiones recientes en Reddit` : '';
-    document.getElementById('modal-related').textContent = (terms.length
-      ? `Términos relacionados: ${terms.join(', ')} (${item.breadth} en total)`
-      : 'Sin términos relacionados registrados.') + redditLine;
+    const redditLine = item.reddit_mentions != null ? `<div class="related-extra">💬 ${item.reddit_mentions} discusiones recientes en Reddit</div>` : '';
+    document.getElementById('modal-related').innerHTML = (terms.length
+      ? terms.map(t => `<span class="term-chip">${escapeHtml(t)}</span>`).join('') + `<div class="related-extra">${item.breadth} términos relacionados en total</div>`
+      : '<div class="related-extra">Sin términos relacionados registrados.</div>') + redditLine;
   } else {
     // Detalle numerico y terminos relacionados: solo Premium. El plan
     // gratuito ya vio la tendencia (flecha) en la tarjeta.
@@ -645,16 +680,21 @@ function openModal(id) {
       <div class="modal-stat"><div class="label">Semanal</div><div class="value locked">🔒</div></div>
       <div class="modal-stat"><div class="label">Mensual</div><div class="value locked">🔒</div></div>
     `;
-    document.getElementById('modal-related').innerHTML = `🔒 Términos relacionados y menciones en Reddit disponibles con <a href="#" onclick="document.getElementById('upgrade-btn').click(); return false;">Premium${PREMIUM_LAUNCHED ? '' : ' (muy pronto)'}</a>.`;
+    document.getElementById('modal-related').innerHTML = `
+      <div class="related-locked">
+        <span style="font-size:1.2rem;">🔒</span>
+        <span>Términos relacionados y menciones en Reddit disponibles con <a href="#" onclick="document.getElementById('upgrade-btn').click(); return false;">Premium${PREMIUM_LAUNCHED ? '' : ' (muy pronto)'}</a>.</span>
+      </div>`;
   }
 
   const series = DATES.map(d => (HISTORY[d][id] ? HISTORY[d][id].week_avg : null));
   if (modalChart) modalChart.destroy();
-  const tickColor = isPremium ? '#9ca3af' : 'transparent';
+  const lineColor = isPremium ? '#a33b2b' : '#c4c0b6';
+  const tickColor = isPremium ? '#8a8578' : 'transparent';
   modalChart = new Chart(document.getElementById('modal-chart'), {
     type: 'line',
-    data: { labels: DATES, datasets: [{ data: series, borderColor: '#16a34a', backgroundColor: '#16a34a15', fill: true, borderWidth: 2, pointRadius: 0, tension: 0.3 }] },
-    options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#9ca3af' } }, y: { ticks: { color: tickColor } } } }
+    data: { labels: DATES, datasets: [{ data: series, borderColor: lineColor, backgroundColor: lineColor + '18', fill: true, borderWidth: 2, pointRadius: 0, tension: 0.3 }] },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#8a8578', font: { family: 'IBM Plex Mono', size: 10 } }, grid: { color: '#e5ddd0' } }, y: { ticks: { color: tickColor, font: { family: 'IBM Plex Mono', size: 10 } }, grid: { color: '#e5ddd0' } } } }
   });
 
   renderSeoKit(item, id);
