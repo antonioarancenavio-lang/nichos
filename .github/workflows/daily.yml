@@ -2,8 +2,14 @@ name: Radar de nichos diario
 
 on:
   schedule:
-    - cron: "0 7 * * *"   # 07:00 UTC ~ 08:00/09:00 hora de Espana segun horario de verano
-  workflow_dispatch: {}    # permite lanzarlo a mano desde la pestana Actions
+    - cron: "0 7 * * *"   # 07:00 UTC ~ 08:00/09:00 hora de Espana segun horario de verano -- radar diario
+    - cron: "30 7 * * 1"  # lunes, media hora despues -- dispara ademas el resumen semanal por email
+  workflow_dispatch:
+    inputs:
+      send_weekly_digest:
+        description: "Enviar tambien el resumen semanal (para probarlo a mano)"
+        type: boolean
+        default: false
   push:
     branches: [main]
     paths-ignore:          # evita relanzarse a si mismo con sus propios commits de datos
@@ -73,11 +79,24 @@ jobs:
           SITE_URL: ${{ secrets.SITE_URL }}
         run: python alert_premium.py
 
+      - name: Enviar resumen semanal gratuito por email
+        # Solo corre con el cron de los lunes, o a mano si marcas la casilla
+        # al lanzar el workflow manualmente -- entre semana no hace nada.
+        if: (github.event_name == 'schedule' && github.event.schedule == '30 7 * * 1') || (github.event_name == 'workflow_dispatch' && github.event.inputs.send_weekly_digest == 'true')
+        continue-on-error: true   # extra, no nucleo: un fallo aqui no debe impedir publicar el sitio
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          SITE_URL: ${{ secrets.SITE_URL }}
+        run: python weekly_digest.py
+
       - name: Guardar datos actualizados
         run: |
           git config user.name "radar-bot"
           git config user.email "radar-bot@users.noreply.github.com"
-          git add data/history.json data/history.json.bak data/discarded.json data/pending.json data/last_run.json data/articles.json data/last_alert_sent.json keywords.json tendencias.html categorias.html nichos-*.html nicho-*.html sitemap.xml
+          git add data/history.json data/history.json.bak data/discarded.json data/pending.json data/last_run.json data/articles.json data/last_alert_sent.json data/last_digest_sent.json keywords.json tendencias.html categorias.html nichos-*.html nicho-*.html sitemap.xml
           git diff --staged --quiet || git commit -m "Actualiza datos $(date +%Y-%m-%d)"
           # Reintento con rebase: si entre el checkout y ahora otra ejecucion
           # (o un push manual) ha subido un commit nuevo, un "git push" a
