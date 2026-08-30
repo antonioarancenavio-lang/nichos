@@ -18,6 +18,8 @@
 <link rel="stylesheet" href="/styles.css">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <meta name="theme-color" content="#a33b2b">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 <header class="masthead">
@@ -75,6 +77,33 @@
     ideas de negocio con demanda creciente. El plan gratuito muestra los 10 nichos con interés más
     reciente; nada de porcentajes inflados por falta de datos.</p>
   </div>
+  
+  <div class="digest-banner" style="margin:22px 0;">
+    <span class="digest-banner-text">📬 <strong>Resumen semanal gratis</strong> — los nichos que más han crecido esa semana, directo a tu correo.</span>
+    <form id="digest-form-static" class="waitlist-form">
+      <input type="email" id="digest-email-static" placeholder="tu@email.com" required>
+      <button type="submit" class="btn-secondary-digest">Apuntarme</button>
+    </form>
+  </div>
+  <script>
+    document.getElementById('digest-form-static').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const email = document.getElementById('digest-email-static').value.trim();
+      if (!email) return;
+      const btn = form.querySelector('button');
+      btn.textContent = 'Enviando...';
+      btn.disabled = true;
+      try {
+        await fetch('/api/subscribe-digest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+      } catch (e) { /* seguimos igual */ }
+      form.innerHTML = '<span class="waitlist-done">✓ Apuntado — recibirás el próximo resumen semanal.</span>';
+    });
+  </script>
   
   <h2>Lo más destacado de hoy</h2>
   <div class="content-highlights">

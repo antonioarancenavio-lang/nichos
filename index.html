@@ -52,6 +52,8 @@
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 
@@ -111,6 +113,13 @@
     <form id="waitlist-form" class="waitlist-form">
       <input type="email" id="waitlist-email" placeholder="tu@email.com" required>
       <button type="submit" class="btn-primary">Avísame</button>
+    </form>
+  </div>
+  <div class="digest-banner" id="digest-banner">
+    <span class="digest-banner-text">📬 <strong>Resumen semanal gratis</strong> — los nichos que más han crecido esa semana, directo a tu correo. Sin coste, date de baja cuando quieras.</span>
+    <form id="digest-form" class="waitlist-form">
+      <input type="email" id="digest-email" placeholder="tu@email.com" required>
+      <button type="submit" class="btn-secondary-digest">Apuntarme</button>
     </form>
   </div>
 </div>
@@ -789,6 +798,25 @@ document.getElementById('waitlist-form').addEventListener('submit', async (e) =>
     });
   } catch (e) { /* seguimos igual, no bloqueamos el mensaje de confirmacion */ }
   form.innerHTML = '<span class="waitlist-done">✓ Apuntado — te avisamos en cuanto esté listo.</span>';
+});
+
+document.getElementById('digest-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const input = document.getElementById('digest-email');
+  const form = e.target;
+  const email = input.value.trim();
+  if (!email) return;
+  const btn = form.querySelector('button');
+  btn.textContent = 'Enviando...';
+  btn.disabled = true;
+  try {
+    await fetch('/api/subscribe-digest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+  } catch (e) { /* seguimos igual, no bloqueamos el mensaje de confirmacion */ }
+  form.innerHTML = '<span class="waitlist-done">✓ Apuntado — recibirás el próximo resumen semanal.</span>';
 });
 
 document.getElementById('telegram-link-btn').addEventListener('click', async () => {

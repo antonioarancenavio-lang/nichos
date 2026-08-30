@@ -444,6 +444,20 @@ a.category-tile .tile-label { font-family: var(--font-mono); font-size: 0.68rem;
   .waitlist-form input[type=email] { width: 140px; }
 }
 
+/* Aviso del resumen semanal gratis -- distinto en color del "muy pronto"
+   de Premium (verde en vez de dorado) porque esto SI funciona ya. */
+.digest-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  background: var(--signal-green-soft); border: 1px solid var(--signal-green);
+  border-radius: 4px; padding: 12px 18px; margin: 10px 0 0;
+}
+.digest-banner-text { font-size: 0.85rem; color: #2f4531; }
+.btn-secondary-digest {
+  background: var(--signal-green); color: #fff; border: none; padding: 8px 16px; border-radius: 3px;
+  font-size: 0.82rem; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: var(--font-mono);
+}
+.btn-secondary-digest:hover { opacity: 0.9; }
+
 @media (max-width: 700px) {
   .content-table { font-size: 0.78rem; }
   .content-table th, .content-table td { padding: 8px 8px; }

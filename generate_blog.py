@@ -263,7 +263,9 @@ FONT_LINKS = """<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
-<meta name="theme-color" content="#a33b2b">"""
+<meta name="theme-color" content="#a33b2b">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>"""
 
 
 def build_highlight_cards(items, slug_map, rank_offset=1):
@@ -465,6 +467,40 @@ def build_category_page(category, growth, nuevos, excluded_count, fecha, total_t
 """
 
 
+def digest_signup_block():
+    """Formulario de suscripcion al resumen semanal gratis, para las
+    paginas estaticas (aqui no hay ya un <script> con manejadores de
+    formulario como en index.html, asi que este bloque trae el suyo
+    propio, autocontenido)."""
+    return """
+  <div class="digest-banner" style="margin:22px 0;">
+    <span class="digest-banner-text">📬 <strong>Resumen semanal gratis</strong> — los nichos que más han crecido esa semana, directo a tu correo.</span>
+    <form id="digest-form-static" class="waitlist-form">
+      <input type="email" id="digest-email-static" placeholder="tu@email.com" required>
+      <button type="submit" class="btn-secondary-digest">Apuntarme</button>
+    </form>
+  </div>
+  <script>
+    document.getElementById('digest-form-static').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const email = document.getElementById('digest-email-static').value.trim();
+      if (!email) return;
+      const btn = form.querySelector('button');
+      btn.textContent = 'Enviando...';
+      btn.disabled = true;
+      try {
+        await fetch('/api/subscribe-digest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+      } catch (e) { /* seguimos igual */ }
+      form.innerHTML = '<span class="waitlist-done">✓ Apuntado — recibirás el próximo resumen semanal.</span>';
+    });
+  </script>"""
+
+
 def build_tendencias_page(growth, nuevos, excluded_count, fecha, total_tracked, slug_map):
     top, rest, nuevos_shown, hidden_count = select_free_slice(growth, nuevos)
 
@@ -507,6 +543,7 @@ def build_tendencias_page(growth, nuevos, excluded_count, fecha, total_tracked, 
     ideas de negocio con demanda creciente. El plan gratuito muestra los 10 nichos con interés más
     reciente; nada de porcentajes inflados por falta de datos.</p>
   </div>
+  {digest_signup_block()}
   {highlights_html}
   {rest_html}
 
